@@ -1,4 +1,4 @@
-const { AppDataSource } = require('../../config/typeOrmConfig');
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const User = require('../entity/User');
 
 const userRepository = AppDataSource.getRepository(User);

@@ -2,7 +2,7 @@ const { DataSource } = require('typeorm');
 const path = require('path');
 const dotenv = require('dotenv');
 
-const User = require('../user/entity/User');
+const User = require('../../domain/user/entity/User');
 
 dotenv.config();
 
