@@ -10863,3 +10863,14 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
     margin-left: -15rem;
   }
 }
+.main_image{
+position: relative;
+}
+.main_image_text{
+  position: absolute;
+  top:50%;
+  left: 5%;
+  transform: none;
+  color: white;
+  text-align: left;
+}
