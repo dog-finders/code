@@ -1,33 +1,34 @@
+const express = require('express');
+const router = express.Router();
+const { createUser, findByLoginId } = require('../service/userService');
 const bcrypt = require('bcrypt');
-const userService = require('../service/userService');
 
-// 모든 사용자 조회
-exports.getAllUsers = (req, res) => {
-    const users = userService.getAllUsers();
-    res.json(users);
-};
-
-// 특정 사용자 조회
-exports.getUserById = (req, res) => {
-    const user = userService.getUserById(req.params.id);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-};
-
-// 회원가입 처리
-exports.registerUser = async (req, res) => {
-    const { username, email, password } = req.body;
+router.post('/signup', async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = userService.createUser({
-            username,
-            email,
-            password: hashedPassword
-        });
-        res.status(201).json(newUser);
+        const user = await createUser(req.body);
+        res.status(201).json(user);
     } catch (err) {
-        res.status(500).json({ message: '회원가입 실패', error: err.message });
+        res.status(400).json({ message: '회원가입 실패', error: err.message });
     }
-};
+});
+
+router.post('/login', async (req, res) => {
+    const { loginId, password } = req.body;
+    const user = await findByLoginId(loginId);
+    if (!user) return res.status(404).json({ message: '유저 없음' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: '비밀번호 불일치' });
+
+    req.session.userId = user.id;
+    res.json({ message: '로그인 성공', userId: user.id });
+});
+
+router.post('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.clearCookie('connect.sid');
+        res.json({ message: '로그아웃 완료' });
+    });
+});
+
+module.exports = router;

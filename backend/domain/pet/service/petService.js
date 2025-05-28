@@ -1,15 +1,30 @@
-// petService.js
-// 임시로 간단히 데이터 반환하는 예시
+// backend/domain/pet/service/petService.js
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 
-const pets = [
-  { id: 1, name: '멍멍이', type: '개' },
-  { id: 2, name: '야옹이', type: '고양이' },
-];
+const createPet = async (petData, userId) => {
+    const petRepository = AppDataSource.getRepository('Pet');
+    const userRepository = AppDataSource.getRepository('User');
 
-exports.getAllPets = () => {
-  return pets;
+    const user = await userRepository.findOne({ where: { id: userId } });
+    if (user === undefined) {
+        throw new Error('User not found');
+    }
+    const pet = petRepository.create({ ...petData, user });
+    return await petRepository.save(pet);
 };
 
-exports.getPetById = (id) => {
-  return pets.find(pet => pet.id === Number(id));
+const updatePet = async (petId, updatedData) => {
+    const petRepository = AppDataSource.getRepository('Pet');
+    const pet = await petRepository.update({ id: petId }, updatedData);
+    if (pet === undefined) {
+        throw new Error('Pet not found');
+    }
+    return pet;
 };
+
+const getPetsByUser = async (userId) => {
+    const petRepository = AppDataSource.getRepository('Pet');
+    return await petRepository.find({ where: { user: { id: userId } } });
+};
+
+module.exports = { createPet, updatePet, getPetsByUser };

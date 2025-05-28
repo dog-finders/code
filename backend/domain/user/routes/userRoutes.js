@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const userController = require('../controller/userController');
 
 // 모든 사용자 조회
@@ -12,3 +10,5 @@ router.get('/:id', userController.getUserById);
 router.post('/register', userController.registerUser);
 
 module.exports = router;
+
+

@@ -1,16 +1,18 @@
-const userRepository = require('../repository/userRepository');
-
-// 전체 사용자 조회
-exports.getAllUsers = () => {
-    return userRepository.findAll();
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
+const bcrypt = require('bcrypt');
+const createUser = async (userData) => {
+    const userRepository = AppDataSource.getRepository('User'); // 여기서 바로 가져와야 안전
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const user = userRepository.create({
+        ...userData,
+        password: hashedPassword,
+    });
+    return await userRepository.save(user);
 };
 
-// 특정 사용자 조회
-exports.getUserById = (id) => {
-    return userRepository.findById(id);
+const findByLoginId = async (loginId) => {
+    const userRepository = AppDataSource.getRepository('User');
+    return await userRepository.findOne({ where: { loginId } });
 };
 
-// 사용자 생성 (회원가입)
-exports.createUser = (userData) => {
-    return userRepository.create(userData);
-};
+module.exports = { createUser, findByLoginId };

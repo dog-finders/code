@@ -25,6 +25,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+    session({
+        secret: 'my-secret',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: false,
+            maxAge: 1000 * 60 * 60, // 1시간
+        },
+    }),
+);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
