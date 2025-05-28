@@ -2,42 +2,19 @@ const EntitySchema = require('typeorm').EntitySchema;
 
 module.exports = new EntitySchema({
     name: 'User',
-    tableName: 'users',
+    tableName: 'user',
     columns: {
-        id: {
-            primary: true,
-            type: 'int',
-            generated: true,
-        },
-        name: {
-            type: 'varchar',
-            length: 50,
-        },
-        email: {
-            type: 'varchar',
-            length: 100,
-            unique: true,
-        },
-        password: {
-            type: 'varchar',
-            length: 255,
-        },
-        role: {
+        id: { type: Number, primary: true, generated: true },
+        createdAt: { type: 'timestamp', createDate: true },
+        updatedAt: { type: 'timestamp', updateDate: true },
+        name: { type: String, length: 50 },
+        loginId: { type: String, length: 100, unique: true },
+        password: { type: String, length: 200 },
+        address: { type: String },
+        rating: { type: Number, nullable: true },
+        personality: {
             type: 'enum',
-            enum: ['USER', 'ADMIN'],
-            default: 'USER',
-        },
-        isActive: {
-            type: 'boolean',
-            default: true,
-        },
-        createdAt: {
-            type: 'timestamp',
-            createDate: true,
-        },
-        updatedAt: {
-            type: 'timestamp',
-            updateDate: true,
-        },
+            enum: ['ACTIVE', 'CALM', 'SOCIAL', 'SHY'],
+        }, // 예시 enum
     },
 });

@@ -1,9 +1,19 @@
-const userRepository = require('../repository/userRepository');
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
+const bcrypt = require('bcrypt');
 
-exports.getAllUsers = () => {
-    return userRepository.findAll();
+const createUser = async (userData) => {
+    const userRepository = AppDataSource.getRepository('User'); // 여기서 바로 가져와야 안전
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const user = userRepository.create({
+        ...userData,
+        password: hashedPassword,
+    });
+    return await userRepository.save(user);
 };
 
-exports.getUserById = (id) => {
-    return userRepository.findById(id);
+const findByLoginId = async (loginId) => {
+    const userRepository = AppDataSource.getRepository('User');
+    return await userRepository.findOne({ where: { loginId } });
 };
+
+module.exports = { createUser, findByLoginId };
