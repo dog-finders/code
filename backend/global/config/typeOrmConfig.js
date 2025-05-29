@@ -15,7 +15,6 @@ const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     dropSchema: true,
-    logging: true,
     entities: [User],
 });
 module.exports = { AppDataSource };
