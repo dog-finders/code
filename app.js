@@ -1,32 +1,25 @@
+// code/app.js
 const express = require('express');
-const path = require('path');
+const path    = require('path');
 const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-
-const indexRouter = require('./routes/index');
-const usersRouter = require('./backend/domain/user/routes/userRoutes');
-const petRouters = require('./backend/domain/pet/routes/petRoutes');
-const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
+const logger  = require('morgan');
 
 const app = express();
 
-AppDataSource.initialize()
-    .then(async () => {
-        console.log('Loaded entities:', AppDataSource.options.entities);
-        await AppDataSource.synchronize();
-        console.log('Data Source initialized');
-    })
-    .catch((err) => {
-        console.error('Data Source initialization error', err);
-    });
-
+// ── 미들웨어 ──
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// ── 정적 파일 서빙 ──
+// public/js, public/css, public/html, public/assets 등을 모두 서빙
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// ── SPA 방식 catch-all ──
+// 정적 파일에 매칭되지 않는 모든 요청을 index.html 로 반환
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+});
 
 module.exports = app;
