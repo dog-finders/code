@@ -1,33 +1,122 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="post-list">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>게시글 목록</title>
-  <link rel="stylesheet" href="../css/styles.css">
-  <script src="../js/scripts.js" defer></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>모집글 목록 - 도그 파인더스</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
+    body { display:flex; height:100vh; background:#f5f5f5; }
+    .sidebar {
+      width:220px; background:#2c3e50; color:#fff; padding:20px;
+    }
+    .sidebar h2 { text-align:center; font-size:24px; margin-bottom:20px; }
+    .sidebar ul { list-style:none; }
+    .sidebar li { margin:15px 0; }
+    .sidebar a {
+      color:#fff; text-decoration:none; display:block;
+      padding:10px; border-radius:5px;
+    }
+    .sidebar a:hover,
+    .sidebar a.active { background:#34495e; }
+    .main {
+      flex:1; padding:40px; overflow-y:auto;
+    }
+    .header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:20px;
+    }
+    .header h1 { font-size:28px; }
+    .btn {
+      display:inline-block; padding:10px 16px;
+      background:#3498db; color:#fff;
+      text-decoration:none; border-radius:5px;
+      font-size:14px;
+    }
+    .btn:hover { background:#2980b9; }
+    .search { display:flex; margin-bottom:20px; }
+    .search input {
+      flex:1; padding:10px;
+      border:1px solid #ccc;
+      border-radius:5px 0 0 5px;
+    }
+    .search button {
+      padding:10px 16px;
+      border:1px solid #ccc;
+      border-left:0;
+      border-radius:0 5px 5px 0;
+      background:#fff; cursor:pointer;
+    }
+    .post-card {
+      background:#fff; border-radius:10px;
+      padding:20px;
+      box-shadow:0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom:20px;
+    }
+    .post-card h2 { font-size:20px; margin-bottom:8px; }
+    .post-card .meta {
+      font-size:12px; color:#888; margin-bottom:10px;
+    }
+    .post-card p { color:#555; }
+    .pagination {
+      display:flex; justify-content:center; margin-top:20px;
+    }
+    .pagination a {
+      margin:0 5px; padding:8px 12px;
+      text-decoration:none; color:#3498db;
+      border:1px solid #ccc; border-radius:5px;
+    }
+    .pagination a.active {
+      background:#3498db; color:#fff; border-color:#3498db;
+    }
+    .pagination a.disabled {
+      color:#aaa; border-color:#eee; cursor:default;
+    }
+  </style>
 </head>
 <body>
   <aside class="sidebar">
-    <h2>도그파인더스</h2>
+    <h2>도그 파인더스</h2>
     <ul>
       <li><a href="index.html">홈</a></li>
       <li><a href="map.html">지도</a></li>
-      <li><a href="post-list.html">게시글</a></li>
+      <li><a href="post-list.html" class="active">모집글</a></li>
       <li><a href="mailbox.html">메일함</a></li>
+      <li><a href="settings.html">프로필 설정</a></li>
       <li><a href="login.html">로그인</a></li>
-      <li><a href="settings.html">설정</a></li>
-      <li><a href="contact.html">문의하기</a></li>
+      <li><a href="contact.html">1:1 문의</a></li>
     </ul>
   </aside>
   <main class="main">
-    <h1>게시글 목록</h1>
-    <div class="card">
-      <h2>첫 번째 게시글</h2>
-      <p>게시글 간단 요약 내용...</p>
+    <div class="header">
+      <h1>모집글 목록</h1>
+      <a href="post-create.html" class="btn">글 작성</a>
     </div>
-    <div class="card">
-      <h2>두 번째 게시글</h2>
-      <p>또 다른 요약 내용...</p>
+    <div class="search">
+      <input type="text" placeholder="제목 또는 지역으로 검색">
+      <button>검색</button>
+    </div>
+    <div class="post-card">
+      <h2>강아지 산책 친구 구해요</h2>
+      <div class="meta">작성자: 홍길동 | 서울특별시 강남구 삼성동 | 2025-05-19</div>
+      <p>매일 저녁 7시에 코엑스 근처 산책하실 분~</p>
+    </div>
+    <div class="post-card">
+      <h2>소형견 친구 찾아요</h2>
+      <div class="meta">작성자: 이지은 | 경기도 성남시 분당구 정자동 | 2025-05-18</div>
+      <p>정자동 공원에서 놀 친구 구해요!</p>
+    </div>
+    <div class="post-card">
+      <h2>주말 산책 메이트 모집</h2>
+      <div class="meta">작성자: 김철수 | 부산광역시 해운대구 우동 | 2025-05-17</div>
+      <p>해운대 해변 산책 함께 하실 분!</p>
+    </div>
+    <div class="pagination">
+      <a href="#" class="disabled">이전</a>
+      <a href="#" class="active">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">다음</a>
     </div>
   </main>
 </body>

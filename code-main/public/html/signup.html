@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>회원가입 - 도그 파인더스</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
+    body { display:flex; height:100vh; background:#f5f5f5; }
+    .sidebar {
+      width:220px; background:#2c3e50; color:#fff; padding:20px;
+    }
+    .sidebar h2 { text-align:center; font-size:24px; margin-bottom:20px; }
+    .sidebar ul { list-style:none; }
+    .sidebar li { margin:15px 0; }
+    .sidebar a {
+      color:#fff; text-decoration:none; display:block;
+      padding:10px; border-radius:5px;
+    }
+    .sidebar a:hover,
+    .sidebar a.active { background:#34495e; }
+    .main {
+      flex:1; padding:40px; overflow-y:auto;
+    }
+    .main h1 {
+      font-size:28px; margin-bottom:20px; color:#333;
+    }
+    .form-card {
+      background:#fff; border-radius:10px;
+      padding:30px; box-shadow:0 2px 5px rgba(0,0,0,0.1);
+      max-width:600px; margin:0 auto;
+    }
+    .form-group { margin-bottom:20px; }
+    label { display:block; margin-bottom:6px; font-weight:600; color:#444; }
+    input[type=text],
+    input[type=password],
+    input[type=email],
+    input[type=tel],
+    input[type=date] {
+      width:100%; padding:10px;
+      border:1px solid #ccc; border-radius:5px;
+    }
+    .checkbox-group {
+      display:flex; align-items:center; margin-bottom:20px;
+    }
+    .checkbox-group input { margin-right:8px; }
+    button {
+      display:inline-block; padding:10px 20px;
+      background:#3498db; color:#fff;
+      border:none; border-radius:5px;
+      cursor:pointer; font-size:16px;
+    }
+    button:hover { background:#2980b9; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>도그 파인더스</h2>
+    <ul>
+      <li><a href="index.html">홈</a></li>
+      <li><a href="map.html">지도</a></li>
+      <li><a href="post-list.html">모집글</a></li>
+      <li><a href="mailbox.html">메일함</a></li>
+      <li><a href="settings.html">프로필 설정</a></li>
+      <li><a href="login.html">로그인</a></li>
+      <li><a href="contact.html">1:1 문의</a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <h1>회원가입</h1>
+    <div class="form-card">
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="username">아이디</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">비밀번호 확인</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required />
+        </div>
+        <div class="form-group">
+          <label for="name">이름</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="address">주소</label>
+          <input type="text" id="address" name="address" required />
+        </div>
+        <div class="form-group">
+          <label for="phone">전화번호</label>
+          <input type="tel" id="phone" name="phone" required />
+        </div>
+        <div class="form-group">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="birthdate">생년월일</label>
+          <input type="date" id="birthdate" name="birthdate" required />
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="agreement" name="agreement" required />
+          <label for="agreement">개인정보 수집 및 이용에 동의합니다.</label>
+        </div>
+        <button type="submit">가입 완료</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
