@@ -2,7 +2,7 @@
 <html lang="ko" data-page="settings">
 <head>
   <meta charset="UTF-8">
-  <title>설정</title>
+  <title>설정 – 도그파인더스</title>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
 </head>
@@ -15,18 +15,36 @@
       <li><a href="post-list.html">게시글</a></li>
       <li><a href="mailbox.html">메일함</a></li>
       <li><a href="login.html">로그인</a></li>
-      <li><a href="settings.html">설정</a></li>
+      <li><a href="settings.html" class="active">설정</a></li>
       <li><a href="contact.html">문의하기</a></li>
     </ul>
   </aside>
+
   <main class="main">
-    <h1>설정</h1>
-    <form>
-      <input type="text" placeholder="사용자 이름">
-      <input type="password" placeholder="새 비밀번호">
-      <label><input type="checkbox"> 이메일 알림 받기</label>
-      <button type="submit">저장</button>
-    </form>
+    <div class="form-card">
+      <h1>프로필 설정</h1>
+      <form>
+        <input type="text" placeholder="사용자 이름" required>
+        <input type="password" placeholder="새 비밀번호" required>
+
+        <!-- 체크박스 그룹: flex로 왼쪽 정렬 -->
+        <div class="checkbox-group" style="
+             display: flex;
+             align-items: center;
+             justify-content: flex-start;
+             margin: 8px 0;
+           ">
+          <input 
+            type="checkbox" 
+            id="email-notify" 
+            style="width: auto; margin-right: 8px;"
+          >
+          <label for="email-notify">이메일 알림 받기</label>
+        </div>
+
+        <button type="submit">저장</button>
+      </form>
+    </div>
   </main>
 </body>
 </html>

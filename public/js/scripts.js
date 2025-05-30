@@ -16,6 +16,11 @@ function initMap(){
   console.log('Map initialized');
 }
 
+new kakao.maps.Marker({
+  map: map,
+  position: userLocation
+});
+
 function loadMailbox(){
   // 더미 메일 로드
   console.log('Mailbox loaded');
@@ -25,3 +30,4 @@ function loadPosts(){
   // 더미 게시글 로드
   console.log('Posts loaded');
 }
+

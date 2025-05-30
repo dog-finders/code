@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" data-page="post-create">
+<head>
+  <meta charset="UTF-8" />
+  <title>모집글 작성 – 도그파인더스</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/scripts.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a href="index.html">홈</a></li>
+      <li><a href="map.html">지도</a></li>
+      <li><a href="post-list.html" class="active">게시글</a></li>
+      <li><a href="mailbox.html">메일함</a></li>
+      <li><a href="login.html">로그인</a></li>
+      <li><a href="settings.html">설정</a></li>
+      <li><a href="contact.html">문의하기</a></li>
+    </ul>
+  </aside>
+
+  <!--메인 화면-->
+  <main class="main">
+    <div class="form-card">
+      <h1>모집글 작성</h1>
+      <form>
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" id="title" placeholder="제목을 입력하세요" required>
+        </div>
+
+        <div class="post-row">
+          <div class="form-group">
+            <label for="sido">시·도</label>
+            <input type="text" id="sido" placeholder="예: 서울특별시" required>
+            <small class="form-note">예시: 서울특별시</small>
+          </div>
+          <div class="form-group">
+            <label for="sigungu">시·군·구</label>
+            <input type="text" id="sigungu" placeholder="예: 강남구" required>
+            <small class="form-note">예시: 강남구</small>
+          </div>
+          <div class="form-group">
+            <label for="dong">동·읍·면</label>
+            <input type="text" id="dong" placeholder="예: 삼성동" required>
+            <small class="form-note">예시: 삼성동</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="content">내용</label>
+          <textarea id="content" rows="5" placeholder="내용을 입력하세요" required></textarea>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn btn-primary">작성 완료</button>
+          <a href="post-list.html" class="btn btn-secondary">취소</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
