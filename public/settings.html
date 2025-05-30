@@ -24,13 +24,14 @@
                 <a class="list-group-item list-group-item-action list-group-item-light p-3" href="contact.html">1:1 문의</a>
             </div>
         </div>
+
         <!-- Page content wrapper -->
         <div id="page-content-wrapper">
             <!-- Top navigation -->
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
                 <div class="container-fluid">
                     <button class="btn btn-primary" id="sidebarToggle">메뉴</button>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
@@ -39,7 +40,8 @@
                             <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="#!">Link</a></li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">Dropdown</a>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="#!">Action</a>
                                     <a class="dropdown-item" href="#!">Another action</a>
@@ -51,40 +53,66 @@
                     </div>
                 </div>
             </nav>
+
             <!-- Page content -->
             <div class="container-fluid">
                 <h1 class="mt-4 mb-4">프로필 설정</h1>
-                <form>
+                <form action="/upload" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="userName" class="form-label">이름</label>
-                        <input type="text" class="form-control" id="userName" placeholder="이름을 입력하세요" required>
+                        <input type="text" class="form-control" id="userName" name="userName" placeholder="이름을 입력하세요" required>
                     </div>
                     <div class="mb-3">
                         <label for="userEmail" class="form-label">이메일</label>
-                        <input type="email" class="form-control" id="userEmail" placeholder="이메일을 입력하세요" required>
+                        <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="이메일을 입력하세요" required>
                     </div>
                     <div class="mb-3">
                         <label for="userPassword" class="form-label">비밀번호 변경</label>
-                        <input type="password" class="form-control" id="userPassword" placeholder="새 비밀번호를 입력하세요">
+                        <input type="password" class="form-control" id="userPassword" name="userPassword" placeholder="새 비밀번호를 입력하세요">
                     </div>
                     <div class="mb-3">
                         <label for="userBio" class="form-label">자기소개</label>
-                        <textarea class="form-control" id="userBio" rows="3" placeholder="간단한 자기소개를 입력하세요"></textarea>
+                        <textarea class="form-control" id="userBio" name="userBio" rows="3" placeholder="간단한 자기소개를 입력하세요"></textarea>
                     </div>
+
+                    <hr class="my-4" />
+                    <h4 class="mb-3">반려동물 정보</h4>
+
                     <div class="mb-3">
                         <label for="petType" class="form-label">반려동물 종류</label>
-                        <select class="form-select" id="petType">
+                        <select class="form-select" id="petType" name="petType">
                             <option selected disabled>선택하세요</option>
                             <option>강아지</option>
                             <option>고양이</option>
                             <option>기타</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="petImage" class="form-label">반려동물 사진</label>
+                        <input class="form-control" type="file" id="petImage" name="petImage" accept="image/*">
+                        <div class="mt-3">
+                            <img id="preview" src="#" alt="미리보기" style="display:none; max-width: 200px;" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="petAge" class="form-label">반려동물 나이</label>
+                        <input type="number" class="form-control" id="petAge" name="petAge" placeholder="예: 3 (살)" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="petTemperament" class="form-label">반려동물 성격</label>
+                        <input type="text" class="form-control" id="petTemperament" name="petTemperament" placeholder="예: 활발함, 온순함, 낯가림 등">
+                    </div>
+                    <div class="mb-3">
+                        <label for="petVaccines" class="form-label">접종한 백신</label>
+                        <textarea class="form-control" id="petVaccines" name="petVaccines" rows="2" placeholder="예: 종합백신, 광견병, 코로나 등"></textarea>
+                    </div>
+
                     <button type="submit" class="btn btn-success w-100">저장하기</button>
                 </form>
             </div>
         </div>
     </div>
+
     <!-- Bootstrap core JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Core theme JS -->
@@ -95,6 +123,23 @@
 
         sidebarToggle.addEventListener('click', function () {
             wrapper.classList.toggle('toggled');
+        });
+
+        // 이미지 미리보기
+        document.getElementById('petImage').addEventListener('change', function (e) {
+            const preview = document.getElementById('preview');
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
         });
     </script>
 </body>

@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const db = require('./db');  // 루트에 db.js가 있다면 이렇게 수정
@@ -34,4 +34,4 @@ router.post('/', async (req, res) => {  // /register 경로는 app.js에서 이�
   }
 });
 
-module.exports = router;
+module.exports = router;*/
