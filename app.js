@@ -27,7 +27,7 @@ AppDataSource.initialize()
     console.error('Data Source initialization error', err);
   });
 
-// 미들웨어
+// 미들웨어ㅁ
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

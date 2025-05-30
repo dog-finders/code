@@ -7,3 +7,4 @@ router.post('/', recruitController.createRecruit.bind(recruitController));
 router.put('/:id', recruitController.updateRecruit.bind(recruitController));
 
 module.exports = router;
+//

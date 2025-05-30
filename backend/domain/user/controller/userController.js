@@ -21,7 +21,7 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-// 로그인
+// 로그인a
 exports.login = async (req, res) => {
     const { loginId, password } = req.body;
     const user = await findByLoginId(loginId);

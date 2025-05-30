@@ -22,5 +22,5 @@ class RecruitService {
     return await recruitRepository.save(recruit);
   }
 }
-
+//
 module.exports = new RecruitService();

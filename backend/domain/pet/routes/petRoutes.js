@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 // 특정 펫 조회
 router.get('/:id', (req, res) => {
   res.send(`펫 ID: ${req.params.id} 조회`);
-  // 나중에 petController.getPetById 와 연결
+  // 나중에 petController.getPetById 와 연결a
 });
 
 module.exports = router;

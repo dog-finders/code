@@ -47,4 +47,4 @@ class RecruitController {
   }
 }
 
-module.exports = new RecruitController();
+module.exports = new RecruitController();//

@@ -24,7 +24,7 @@ const AppDataSource = new DataSource({
     entities: [User, Pet, Group],  // group 엔티티 추가
 });
 
-// multer 설정 (파일 업로드용)
+// multer 설정 (파일 업로드용)a
 const uploadPath = path.join(__dirname, '../../../uploads/pets');
 if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
 

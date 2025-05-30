@@ -34,7 +34,7 @@ module.exports = {
       return res.status(500).json({ message: '서버 에러' });
     }
   },
-
+a
   getGroupById: async (req, res) => {
     try {
       const { id } = req.params;

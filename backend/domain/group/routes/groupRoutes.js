@@ -4,7 +4,7 @@ import { Group } from '../entity/goup.js';
 
 const router = express.Router();
 
-// 모집글 작성
+// 모집글 작성a
 router.post('/', async (req, res) => {
     const { location, title, content, close_at } = req.body;
 

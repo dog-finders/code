@@ -1,4 +1,4 @@
-// backend/domain/group/entity/Group.js
+// backend/domain/group/entity/Group.jsa
 const { EntitySchema } = require('typeorm');
 
 module.exports = new EntitySchema({

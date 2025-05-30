@@ -1,4 +1,4 @@
-// backend/domain/group/repository/groupRepository.js
+// backend/domain/group/repository/groupRepository.jsa
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const Group = require('../entity/group');
 

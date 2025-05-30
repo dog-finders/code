@@ -16,3 +16,4 @@ const findByLoginId = async (loginId) => {
 };
 
 module.exports = { createUser, findByLoginId };
+//
