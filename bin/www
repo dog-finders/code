@@ -8,7 +8,8 @@ var app = require('../app');        // 반드시 '../app' (code/app.js)
 var debug = require('debug')('code:server');
 var http  = require('http');
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = process.env.PORT || 3000;
+
 app.set('port', port);
 
 var server = http.createServer(app);

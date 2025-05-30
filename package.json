@@ -1,21 +1,30 @@
 {
   "name": "code",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
+  "main": "app.js",
   "scripts": {
     "start": "node ./bin/www"
   },
-  "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "dotenv": "^16.5.0",
-    "express": "5.0.0",
-    "inherits": "^2.0.4",
-    "morgan": "~1.9.1",
-    "mysql2": "^3.14.1",
-    "typeorm": "^0.3.24"
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dog-finders/code.git"
   },
-  "devDependencies": {
-    "prettier": "^3.5.3"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dog-finders/code/issues"
+  },
+  "homepage": "https://github.com/dog-finders/code#readme",
+  "description": "",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "debug": "^4.4.1",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.14.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.24"
   }
 }
