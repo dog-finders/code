@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(to top right, #92b5db 0%, #1d466c 100%);
+    }
+
+    .input-form {
+      max-width: 680px;
+      margin-top: 80px;
+      padding: 32px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .feedback-message {
+      font-size: 0.9em;
+    }
+
+    #passwordMismatch {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="input-form col-md-12">
+        <h4 class="mb-3">회원가입</h4>
+        <form class="needs-validation" novalidate id="registerForm">
+          <!-- 아이디 -->
+          <div class="form-group">
+            <label for="username">아이디</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="username" required />
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="checkUsername()">중복 확인</button>
+              </div>
+            </div>
+            <div id="username-feedback" class="feedback-message mt-1 text-danger"></div>
+          </div>
+
+          <!-- 비밀번호 -->
+          <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" class="form-control" id="password" required />
+            <div class="invalid-feedback">비밀번호를 입력해주세요.</div>
+          </div>
+
+          <!-- 비밀번호 확인 -->
+          <div class="form-group">
+            <label for="confirmPassword">비밀번호 확인</label>
+            <input type="password" class="form-control" id="confirmPassword" required />
+            <div class="invalid-feedback" id="passwordMismatch">비밀번호가 일치하지 않습니다.</div>
+          </div>
+
+          <!-- 이름 -->
+          <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" class="form-control" id="name" required />
+            <div class="invalid-feedback">이름을 입력해주세요.</div>
+          </div>
+
+          <!-- 주소 -->
+          <div class="form-group">
+            <label for="address">주소</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="address" required />
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="searchAddress()">주소 검색</button>
+              </div>
+            </div>
+            <div class="invalid-feedback">주소를 입력해주세요.</div>
+          </div>
+
+          <!-- 전화번호 -->
+          <div class="form-group">
+            <label for="phone">전화번호</label>
+            <input type="tel" class="form-control" id="phone" required />
+            <div class="invalid-feedback">전화번호를 입력해주세요.</div>
+          </div>
+
+          <!-- 이메일 -->
+          <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" class="form-control" id="email" required />
+            <div class="invalid-feedback">이메일을 입력해주세요.</div>
+          </div>
+
+          <!-- 생년월일 -->
+          <div class="form-group">
+            <label for="birthdate">생년월일</label>
+            <input type="date" class="form-control" id="birthdate" required />
+            <div class="invalid-feedback">생년월일을 선택해주세요.</div>
+          </div>
+
+          <!-- 동의 -->
+          <div class="custom-control custom-checkbox mb-3">
+            <input type="checkbox" class="custom-control-input" id="agreement" required />
+            <label class="custom-control-label" for="agreement">개인정보 수집 및 이용에 동의합니다.</label>
+            <div class="invalid-feedback">동의가 필요합니다.</div>
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block" type="submit">가입 완료</button>
+        </form>
+      </div>
+    </div>
+
+    <footer class="my-3 text-center text-small">
+      <p class="mb-1">&copy; 2025 YD</p>
+    </footer>
+  </div>
+
+  <script>
+    const takenUsernames = ["admin", "test", "user123"];
+
+    function checkUsername() {
+      const username = document.getElementById("username").value.trim();
+      const feedback = document.getElementById("username-feedback");
+
+      if (!username) {
+        feedback.textContent = "아이디를 입력해주세요.";
+        feedback.classList.remove("text-success");
+        feedback.classList.add("text-danger");
+        return;
+      }
+
+      if (takenUsernames.includes(username.toLowerCase())) {
+        feedback.textContent = "이미 사용 중인 아이디입니다.";
+        feedback.classList.remove("text-success");
+        feedback.classList.add("text-danger");
+      } else {
+        feedback.textContent = "사용 가능한 아이디입니다.";
+        feedback.classList.remove("text-danger");
+        feedback.classList.add("text-success");
+      }
+    }
+
+    function searchAddress() {
+      alert("주소 검색 기능은 연동 필요 (예: 다음 주소 API)");
+    }
+
+    window.addEventListener("load", () => {
+      const form = document.getElementById("registerForm");
+      const passwordInput = document.getElementById("password");
+      const confirmInput = document.getElementById("confirmPassword");
+      const passwordMismatchMsg = document.getElementById("passwordMismatch");
+
+      // 비밀번호 확인란 입력 중 실시간 검사
+      confirmInput.addEventListener("input", () => {
+        if (confirmInput.value !== passwordInput.value) {
+          confirmInput.setCustomValidity("Passwords do not match");
+          confirmInput.classList.add("is-invalid");
+          passwordMismatchMsg.style.display = "block";
+        } else {
+          confirmInput.setCustomValidity("");
+          confirmInput.classList.remove("is-invalid");
+          passwordMismatchMsg.style.display = "none";
+        }
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (confirmInput.value !== passwordInput.value) {
+          confirmInput.setCustomValidity("Passwords do not match");
+          confirmInput.classList.add("is-invalid");
+          passwordMismatchMsg.style.display = "block";
+        } else {
+          confirmInput.setCustomValidity("");
+          confirmInput.classList.remove("is-invalid");
+          passwordMismatchMsg.style.display = "none";
+        }
+
+        if (!form.checkValidity()) {
+          event.stopPropagation();
+          form.classList.add("was-validated");
+          return;
+        }
+
+        const userData = {
+          username: document.getElementById("username").value,
+          password: passwordInput.value,
+          name: document.getElementById("name").value,
+          address: document.getElementById("address").value,
+          phone: document.getElementById("phone").value,
+          email: document.getElementById("email").value,
+          birthdate: document.getElementById("birthdate").value,
+        };
+
+        fetch("http://localhost:3000/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        })
+          .then((res) => {
+            if (res.ok) {
+              alert("회원가입 성공!");
+              form.reset();
+              form.classList.remove("was-validated");
+            } else {
+              alert("회원가입 실패. 다시 시도해주세요.");
+            }
+          })
+          .catch((err) => {
+            console.error("요청 오류:", err);
+            alert("서버 연결에 실패했습니다.");
+          });
+      });
+    });
+  </script>
+</body>
+
+</html>

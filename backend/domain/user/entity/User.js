@@ -15,6 +15,6 @@ module.exports = new EntitySchema({
         personality: {
             type: 'enum',
             enum: ['ACTIVE', 'CALM', 'SOCIAL', 'SHY'],
-        }, // 예시 enum
+        }, // 예시 enuma
     },
 });

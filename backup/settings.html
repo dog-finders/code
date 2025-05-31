@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>도그 파인더스 - 프로필 설정</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-light">도그 파인더스</div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="index.html">홈</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="map.html">지도</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="post-list.html">모집글</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="mailbox.html">메일함</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3 active" href="settings.html">프로필 설정</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="login.html">로그인</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="contact.html">1:1 문의</a>
+            </div>
+        </div>
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary" id="sidebarToggle">메뉴</button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Page content -->
+            <div class="container-fluid">
+                <h1 class="mt-4 mb-4">프로필 설정</h1>
+                <form id="profileForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">이름</label>
+                        <input type="text" class="form-control" id="userName" name="name" placeholder="이름을 입력하세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">이메일</label>
+                        <input type="email" class="form-control" id="userEmail" name="email" placeholder="이메일을 입력하세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPassword" class="form-label">비밀번호 변경</label>
+                        <input type="password" class="form-control" id="userPassword" name="password" placeholder="새 비밀번호를 입력하세요">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userBio" class="form-label">자기소개</label>
+                        <textarea class="form-control" id="userBio" name="bio" rows="3" placeholder="간단한 자기소개를 입력하세요"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="petType" class="form-label">반려동물 종류</label>
+                        <select class="form-select" id="petType" name="petType">
+                            <option selected disabled>선택하세요</option>
+                            <option>강아지</option>
+                            <option>고양이</option>
+                            <option>기타</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="petPhoto" class="form-label">반려동물 사진</label>
+                        <input type="file" class="form-control" id="petPhoto" name="photo" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">저장하기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS -->
+    <script src="js/scripts.js"></script>
+    <script>
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const wrapper = document.getElementById('wrapper');
+
+        sidebarToggle.addEventListener('click', function () {
+            wrapper.classList.toggle('toggled');
+        });
+
+        // Form submit handler
+        document.getElementById('profileForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/v1/pets', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('업로드 실패');
+
+                const result = await response.json();
+                alert('저장 완료!');
+                console.log(result);
+            } catch (error) {
+                alert('오류 발생: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
