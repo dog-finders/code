@@ -10,6 +10,9 @@ module.exports = new EntitySchema({
         name: { type: String, length: 50 },
         loginId: { type: String, length: 100, unique: true },
         password: { type: String, length: 200 },
+        phone: { type: String, length: 30 },
+        birthdate: { type: String, length: 10 },
+        email: { type: String, length: 50, unique: true },
         address: { type: String },
         rating: { type: Number, nullable: true },
         personality: {

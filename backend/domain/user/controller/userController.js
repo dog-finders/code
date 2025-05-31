@@ -14,6 +14,7 @@ exports.getUserById = (req, res) => {
 // 회원가입 처리
 exports.registerUser = async (req, res) => {
     try {
+        console.log('registerUser start');
         const user = await createUser(req.body);
         res.status(201).json(user);
     } catch (err) {

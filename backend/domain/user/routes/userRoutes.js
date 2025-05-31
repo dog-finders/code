@@ -9,6 +9,6 @@ router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
 
 // 회원가입 처리a
-router.post('/register', userController.registerUser);
+router.post('/signup', userController.registerUser);
 
 module.exports = router;

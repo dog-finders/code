@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "bcrypt": "^6.0.0",
-    "prettier": "^3.5.3"
+    "http-errors": "^2.0.0",
+    "prettier": "^3.5.3",
+    "pug": "^3.0.3"
   }
 }

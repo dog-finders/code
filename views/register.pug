@@ -1,38 +1,95 @@
-form#registerForm(method="POST" action="/register")
-  div
-    label(for="username") 아이디
-    input(type="text" id="username" name="username" required)
+doctype html
+html(lang="ko")
+  head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title 회원가입
 
-  div
-    label(for="password") 비밀번호
-    input(type="password" id="password" name="password" required)
+    // Bootstrap CSS
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
 
-  div
-    label(for="confirmPassword") 비밀번호 확인
-    input(type="password" id="confirmPassword" name="confirmPassword" required)
+    style.
+      body {
+        min-height: 100vh;
+        background: linear-gradient(to top right, #92b5db 0%, #1d466c 100%);
+      }
+      .input-form {
+        max-width: 680px;
+        margin-top: 80px;
+        padding: 32px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+      .feedback-message {
+        font-size: 0.9em;
+      }
+      #passwordMismatch {
+        display: none;
+      }
 
-  div
-    label(for="name") 이름
-    input(type="text" id="name" name="name" required)
+  body
+    .container
+      .row.justify-content-center
+        .input-form.col-md-12
+          h4.mb-3 회원가입
+          form.needs-validation(id="registerForm" novalidate)
+            // loginId
+            .form-group
+              label(for="loginId") 아이디
+              .input-group
+                input#loginId.form-control(type="text" required)
+                .input-group-append
+                  button.btn.btn-outline-secondary(type="button" id="checkUsernameBtn") 중복 확인
+              #loginId-feedback.feedback-message.mt-1.text-danger
 
-  div
-    label(for="address") 주소
-    input(type="text" id="address" name="address" required)
+            .form-group
+              label(for="password") 비밀번호
+              input#password.form-control(type="password" required)
+              .invalid-feedback 비밀번호를 입력해주세요.
 
-  div
-    label(for="phone") 전화번호
-    input(type="tel" id="phone" name="phone" required)
+            .form-group
+              label(for="confirmPassword") 비밀번호 확인
+              input#confirmPassword.form-control(type="password" required)
+              .invalid-feedback#passwordMismatch 비밀번호가 일치하지 않습니다.
 
-  div
-    label(for="email") 이메일
-    input(type="email" id="email" name="email" required)
+            .form-group
+              label(for="name") 이름
+              input#name.form-control(type="text" required)
+              .invalid-feedback 이름을 입력해주세요.
 
-  div
-    label(for="birthdate") 생년월일 (연도-월-일)
-    input(type="date" id="birthdate" name="birthdate" required)
+            .form-group
+              label(for="address") 주소
+              .input-group
+                input#address.form-control(type="text" required)
+                .input-group-append
+                  button.btn.btn-outline-secondary(type="button" id="searchAddressBtn") 주소 검색
+              .invalid-feedback 주소를 입력해주세요.
 
-  div
-    input(type="checkbox" id="agreement" name="agreement" required)
-    label(for="agreement") 개인정보 수집 및 이용에 동의합니다.
+            .form-group
+              label(for="phone") 전화번호
+              input#phone.form-control(type="tel" required)
+              .invalid-feedback 전화번호를 입력해주세요.
 
-  button(type="submit") 가입하기
+            .form-group
+              label(for="email") 이메일
+              input#email.form-control(type="email" required)
+              .invalid-feedback 이메일을 입력해주세요.
+
+            .form-group
+              label(for="birthdate") 생년월일
+              input#birthdate.form-control(type="date" required)
+              .invalid-feedback 생년월일을 선택해주세요.
+
+            .custom-control.custom-checkbox.mb-3
+              input#agreement.custom-control-input(type="checkbox" required)
+              label.custom-control-label(for="agreement") 개인정보 수집 및 이용에 동의합니다.
+              .invalid-feedback 동의가 필요합니다.
+
+            button.btn.btn-primary.btn-lg.btn-block(type="submit") 가입 완료
+
+    footer.my-3.text-center.text-small
+      p.mb-1 &copy; 2025 YD
+
+    script(src="/js/register.js")
