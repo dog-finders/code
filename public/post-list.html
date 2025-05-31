@@ -64,7 +64,7 @@
     <script>
         async function loadPosts(query = '') {
             try {
-                let url = '/api/groups';
+                let url = '/api/group';
                 if (query.trim()) {
                     url += `?search=${encodeURIComponent(query.trim())}`;
                 }
@@ -112,4 +112,3 @@
     </script>
 </body>
 </html>
-//

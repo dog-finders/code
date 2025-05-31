@@ -67,7 +67,7 @@ app.get('/post-detail', (req, res) => {
 });
 
 // ✅ 모집글 등록 API (POST)
-app.post('/api/groups', async (req, res) => {
+app.post('/api/group', async (req, res) => {
   try {
     const { title, content, location, close_at } = req.body;
 
@@ -95,7 +95,7 @@ app.post('/api/groups', async (req, res) => {
 });
 
 // ✅ 모집글 목록 조회 API (GET)
-app.get('/api/groups', async (req, res) => {
+app.get('/api/group', async (req, res) => {
   try {
     const groupRepository = AppDataSource.getRepository(Group);
     const search = req.query.search || '';
@@ -118,7 +118,7 @@ app.get('/api/groups', async (req, res) => {
 });
 
 // ✅ 모집글 상세 조회 API (GET)
-app.get('/api/groups/:id', async (req, res) => {
+app.get('/api/group/:id', async (req, res) => {
   try {
     const groupRepository = AppDataSource.getRepository(Group);
     const id = req.params.id;

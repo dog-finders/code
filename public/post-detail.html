@@ -35,7 +35,7 @@
             }
 
             try {
-                const res = await fetch(`/api/groups/${postId}`);
+                const res = await fetch(`/api/group/${postId}`);
                 if (!res.ok) throw new Error('게시글을 찾을 수 없습니다.');
                 const post = await res.json();
 
@@ -60,7 +60,7 @@
         async function attendPost() {
             const postId = getQueryParam('id');
             try {
-                const res = await fetch(`/api/groups/${postId}/attend`, {
+                const res = await fetch(`/api/group/${postId}/attend`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -80,7 +80,7 @@
 
             const postId = getQueryParam('id');
             try {
-                const res = await fetch(`/api/groups/${postId}`, {
+                const res = await fetch(`/api/group/${postId}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -100,4 +100,3 @@
     </script>
 </body>
 </html>
-//
