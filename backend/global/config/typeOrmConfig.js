@@ -3,6 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 
 const User = require('../../domain/user/entity/User');
+const Pet = require('../../domain/pet/entity/Pet');
 
 dotenv.config();
 
@@ -16,6 +17,6 @@ const AppDataSource = new DataSource({
     synchronize: true,
     dropSchema: true,
     logging: true,
-    entities: [User],
+    entities: [User, Pet],
 });
 module.exports = { AppDataSource };
