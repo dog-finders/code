@@ -43,15 +43,14 @@ app.use(
   })
 );
 
-// ── 정적 파일 경로 ──
+// ── 정적 파일 경로 (CSS, JS, assets, uploads 등) ──
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/', express.static(path.join(__dirname, 'public', 'html')));
+app.use(express.static(path.join(__dirname, 'public'))); // public 내 기타 정적 파일
 
-// ── 페이지 라우팅 ──
+// ── 페이지 라우팅 (html 확장자 없이 경로로 접속) ──
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
 });
