@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>모집글 작성 – 도그파인더스</title>
   <link rel="stylesheet" href="../css/styles.css" />
-  <!-- 기존에 있던 scripts.js는 제거하거나 남겨도 무방 -->
 </head>
 <body>
   <aside class="sidebar">
@@ -20,11 +19,10 @@
     </ul>
   </aside>
 
-  <!--메인 화면-->
   <main class="main">
     <div class="form-card">
       <h1>모집글 작성</h1>
-      <form>
+      <form id="postForm">
         <div class="form-group">
           <label for="title">제목</label>
           <input type="text" id="title" placeholder="제목을 입력하세요" required>
@@ -53,6 +51,11 @@
           <textarea id="content" rows="5" placeholder="내용을 입력하세요" required></textarea>
         </div>
 
+        <div class="form-group">
+          <label for="close_at">모집 마감 시간</label>
+          <input type="datetime-local" id="close_at" required>
+        </div>
+
         <div class="btn-group">
           <button type="submit" class="btn btn-primary">작성 완료</button>
           <a href="post-list.html" class="btn btn-secondary">취소</a>
@@ -62,21 +65,28 @@
   </main>
 
   <script>
-    document.querySelector('form').addEventListener('submit', async function(e) {
+    document.getElementById('postForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const title = document.getElementById('title').value;
-      const sido = document.getElementById('sido').value;
-      const sigungu = document.getElementById('sigungu').value;
-      const dong = document.getElementById('dong').value;
-      const content = document.getElementById('content').value;
+      const title = document.getElementById('title').value.trim();
+      const sido = document.getElementById('sido').value.trim();
+      const sigungu = document.getElementById('sigungu').value.trim();
+      const dong = document.getElementById('dong').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const close_at = document.getElementById('close_at').value;
+
+      if (!title || !sido || !sigungu || !dong || !content || !close_at) {
+        alert('모든 필수 항목을 입력해 주세요.');
+        return;
+      }
 
       const location = `${sido} ${sigungu} ${dong}`;
 
       const body = {
         title,
         location,
-        content
+        content,
+        close_at
       };
 
       try {
@@ -87,7 +97,7 @@
         });
 
         if (response.ok) {
-          alert('모집글이 성공적으로 작성되었습니다.');
+          // 작성 성공 시 목록 페이지로 이동
           window.location.href = 'post-list.html';
         } else {
           const err = await response.json();

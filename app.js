@@ -57,23 +57,27 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'register.html'));
 });
 
 app.get('/setting', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'settings.html'));
+});
+
+app.get('/map', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'map.html'));
 });
 
 app.get('/post-create', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'post-create.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'post-create.html'));
 });
 
 app.get('/post-list', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'post-list.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'post-list.html'));
 });
 
 app.get('/post-detail', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'post-detail.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'post-detail.html'));
 });
 
 // ── API 라우팅 ──
