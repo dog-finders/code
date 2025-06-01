@@ -10,3 +10,4 @@ exports.findAll = async () => {
 exports.findById = async (id) => {
     return await userRepository.findOneBy({ id: parseInt(id) });
 };
+//

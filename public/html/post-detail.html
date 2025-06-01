@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>모집글 상세 - 도그 파인더스</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+    body { display: flex; min-height: 100vh; background: #f5f5f5; }
+    .sidebar {
+      width: 220px; background: #2c3e50; color: #fff; padding: 20px;
+      flex-shrink: 0;
+    }
+    .sidebar h2 {
+      text-align: center; font-size: 24px; margin-bottom: 20px;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar li {
+      margin: 15px 0;
+    }
+    .sidebar a {
+      color: #fff; text-decoration: none; display: block;
+      padding: 10px; border-radius: 5px;
+    }
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #34495e;
+    }
+    main {
+      flex: 1; padding: 40px; overflow-y: auto; background: #fff;
+      border-radius: 10px; margin: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h3 {
+      font-size: 28px; margin-bottom: 15px;
+    }
+    p {
+      font-size: 16px; margin-bottom: 10px; color: #555;
+    }
+    strong {
+      color: #333;
+    }
+    hr {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid #eee;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      margin-top: 10px;
+      margin-right: 10px;
+      background: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      user-select: none;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+    }
+    .btn-danger {
+      background: #e74c3c;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a href="index.html">홈</a></li>
+      <li><a href="map.html">지도</a></li>
+      <li><a href="post-list.html" class="active">게시글</a></li>
+      <li><a href="mailbox.html">메일함</a></li>
+      <li><a href="login.html">로그인</a></li>
+      <li><a href="settings.html">설정</a></li>
+      <li><a href="contact.html">문의하기</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <h3 id="postTitle">로딩 중...</h3>
+    <p><strong>작성자:</strong> <span id="postWriter"></span></p>
+    <p><strong>위치:</strong> <span id="postLocation"></span></p>
+    <p><strong>작성일:</strong> <span id="postDate"></span></p>
+    <hr />
+    <p id="postContent"></p>
+
+    <a href="post-list.html" class="btn btn-secondary">목록으로 돌아가기</a>
+    <button id="attendBtn" class="btn">참석하기</button>
+    <button id="deleteBtn" class="btn btn-danger" style="display:none;">삭제하기</button>
+  </main>
+
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    async function loadPostDetail() {
+      const postId = getQueryParam('id');
+      if (!postId) {
+        alert('잘못된 접근입니다.');
+        window.location.href = 'post-list.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/group/${postId}`);
+        if (!res.ok) throw new Error('게시글을 찾을 수 없습니다.');
+        const post = await res.json();
+
+        document.getElementById('postTitle').textContent = post.title;
+        document.getElementById('postWriter').textContent = post.writer || '알 수 없음';
+        document.getElementById('postLocation').textContent = post.location || '-';
+        document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString();
+        document.getElementById('postContent').textContent = post.content;
+
+        const currentUser = localStorage.getItem('username');
+        if (currentUser && currentUser === post.writer) {
+          document.getElementById('deleteBtn').style.display = 'inline-block';
+        }
+
+      } catch (err) {
+        alert(err.message);
+        window.location.href = 'post-list.html';
+      }
+    }
+
+    async function attendPost() {
+      const postId = getQueryParam('id');
+      try {
+        const res = await fetch(`/api/group/${postId}/attend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || '참석 신청에 실패했습니다.');
+        }
+        alert('참석 신청이 완료되었습니다!');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function deletePost() {
+      const confirmed = confirm('정말 이 글을 삭제하시겠습니까?');
+      if (!confirmed) return;
+
+      const postId = getQueryParam('id');
+      try {
+        const res = await fetch(`/api/group/${postId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error('삭제에 실패했습니다.');
+
+        alert('게시글이 삭제되었습니다.');
+        window.location.href = 'post-list.html';
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.getElementById('attendBtn').addEventListener('click', attendPost);
+    document.getElementById('deleteBtn').addEventListener('click', deletePost);
+
+    loadPostDetail();
+  </script>
+</body>
+</html>
