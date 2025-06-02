@@ -1,6 +1,18 @@
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const bcrypt = require('bcrypt');
 
+// 아이디 중복 체크 함수
+const checkDuplicateLoginId = async (loginId) => {
+    try {
+        const existingUser = await findByLoginId(loginId);
+        return !!existingUser;
+    } catch (error) {
+        console.error('[checkDuplicateLoginId] Error:', error.message);
+        throw error;
+    }
+};
+
+// createUser 함수 수정
 const createUser = async (userData) => {
     try {
         console.log('[createUser] Received userData:', userData);
@@ -9,6 +21,12 @@ const createUser = async (userData) => {
         if (!userRepository) {
             console.error('[createUser] Failed to get User repository');
             throw new Error('User repository not found');
+        }
+
+        // 아이디 중복 체크
+        const isDuplicate = await checkDuplicateLoginId(userData.loginId);
+        if (isDuplicate) {
+            throw new Error('이미 사용 중인 아이디입니다.');
         }
 
         const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -26,7 +44,7 @@ const createUser = async (userData) => {
         return savedUser;
     } catch (error) {
         console.error('[createUser] Error occurred:', error.message);
-        throw error; // 이 에러가 404로 매핑되는지 컨트롤러/라우터도 확인 필요
+        throw error;
     }
 };
 const findByLoginId = async (loginId) => {
@@ -34,4 +52,41 @@ const findByLoginId = async (loginId) => {
     return await userRepository.findOne({ where: { loginId } });
 };
 
-module.exports = { createUser, findByLoginId };
+const login = async (loginId, password) => {
+    try {
+        const user = await findByLoginId(loginId);
+        if (!user) {
+            throw new Error('존재하지 않는 사용자입니다.');
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error('비밀번호가 일치하지 않습니다.');
+        }
+
+        // 비밀번호를 제외한 사용자 정보 반환
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    } catch (error) {
+        console.error('[login] Error:', error.message);
+        throw error;
+    }
+};
+
+const logout = async (sessionId) => {
+    try {
+        // 세션 관련 추가 로직이 필요한 경우 여기에 구현
+        return true;
+    } catch (error) {
+        console.error('[logout] Error:', error.message);
+        throw error;
+    }
+};
+
+module.exports = {
+    createUser,
+    findByLoginId,
+    login,
+    logout,
+    checkDuplicateLoginId,
+};

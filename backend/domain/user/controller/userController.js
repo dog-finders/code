@@ -1,5 +1,4 @@
-const { createUser, findByLoginId } = require('../service/userService');
-const bcrypt = require('bcrypt');
+const userService = require('../service/userService');
 
 // 모든 사용자 조회
 exports.getAllUsers = (req, res) => {
@@ -15,7 +14,7 @@ exports.getUserById = (req, res) => {
 exports.registerUser = async (req, res) => {
     try {
         console.log('registerUser start');
-        const user = await createUser(req.body);
+        const user = await userService.createUser(req.body);
         res.status(201).json(user);
     } catch (err) {
         res.status(400).json({ message: '회원가입 실패', error: err.message });
@@ -24,21 +23,42 @@ exports.registerUser = async (req, res) => {
 
 // 로그인a
 exports.login = async (req, res) => {
-    const { loginId, password } = req.body;
-    const user = await findByLoginId(loginId);
-    if (!user) return res.status(404).json({ message: '유저 없음' });
+    try {
+        const { loginId, password } = req.body;
+        const user = await userService.login(loginId, password);
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: '비밀번호 불일치' });
+        // 세션에 사용자 정보 저장
+        req.session.userId = user.id;
 
-    req.session.userId = user.id;
-    res.json({ message: '로그인 성공', userId: user.id });
+        res.json({
+            message: '로그인 성공',
+            user: user,
+        });
+    } catch (error) {
+        console.error('[login] Controller Error:', error.message);
+        if (error.message.includes('존재하지 않는 사용자')) {
+            return res.status(404).json({ message: error.message });
+        }
+        if (error.message.includes('비밀번호가 일치하지 않습니다')) {
+            return res.status(401).json({ message: error.message });
+        }
+        res.status(500).json({
+            message: '로그인 처리 중 오류가 발생했습니다.',
+        });
+    }
 };
 
-// 로그아웃
-exports.logout = (req, res) => {
-    req.session.destroy(() => {
-        res.clearCookie('connect.sid');
-        res.json({ message: '로그아웃 완료' });
-    });
+exports.logout = async (req, res) => {
+    try {
+        await userService.logout(req.session.id);
+        req.session.destroy(() => {
+            res.clearCookie('connect.sid');
+            res.json({ message: '로그아웃 성공' });
+        });
+    } catch (error) {
+        console.error('[logout] Controller Error:', error.message);
+        res.status(500).json({
+            message: '로그아웃 처리 중 오류가 발생했습니다.',
+        });
+    }
 };

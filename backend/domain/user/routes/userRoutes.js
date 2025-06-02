@@ -11,4 +11,9 @@ router.get('/:id', userController.getUserById);
 // 회원가입 처리a
 router.post('/signup', userController.registerUser);
 
+// 로그인 라우트
+router.post('/login', userController.login);
+
+// 로그아웃 라우트
+router.post('/logout', userController.logout);
 module.exports = router;
