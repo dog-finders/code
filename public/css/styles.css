@@ -160,6 +160,29 @@ html[data-page="login"] .signup-link a:hover {
   text-decoration: underline;
 }
 
+.auth-item {
+  position: relative;
+}
+
+.login-btn,
+.logout-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logout-btn {
+  color: #f44336;
+}
+
+.logged-in .login-btn {
+  display: none;
+}
+
+.logged-in .logout-btn {
+  display: block;
+}
 
 
 .main .image-container {

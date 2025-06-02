@@ -1,24 +1,24 @@
-// backend/domain/pet/controller/petController.js
-const petRepository = require('../repository/petRepository');
+const petService = require('../service/petService');
 
-exports.updatePetsBulk = async (pets, userId) => {
-    return await petRepository.updatePetsBulk(pets, userId);
-};
-
-exports.getPetsByUserId = async (userId) => {
+exports.getPets = async (req, res) => {
     try {
-        const pets = await petRepository.findByUserId(userId);
-        if (!pets || pets.length === 0) {
-            return {};
-        }
-        console.log(pets);
-        return pets;
+        const userId = req.session.userId;
+        const pets = await petService.getPetsByUserId(userId);
+        res.json(pets);
     } catch (error) {
         console.error('getPets error:', error);
-        res.status(500).json({
-            message: '반려동물 정보 조회 중 오류가 발생했습니다',
-            error: error.message,
-        });
+        res.status(500).json({ message: '펫 조회 실패', error: error.message });
+    }
+};
+
+exports.updatePetsBulk = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const updatedPets = await petService.updatePetsBulk(req.body, userId);
+        res.json(updatedPets);
+    } catch (error) {
+        console.error('updatePetsBulk error:', error);
+        res.status(400).json({ message: '펫 수정 실패', error: error.message });
     }
 };
 
@@ -26,7 +26,7 @@ exports.createPet = async (req, res) => {
     try {
         const userId = req.session.userId;
         const petData = req.body;
-        const newPet = await petRepository.createPet(petData, userId);
+        const newPet = await petService.createPet(petData, userId);
         res.status(201).json(newPet);
     } catch (error) {
         console.error('createPet error:', error);
@@ -43,11 +43,7 @@ exports.updatePet = async (req, res) => {
         const petId = parseInt(req.params.id);
         const petData = req.body;
 
-        const updatedPet = await petRepository.updatePet(
-            petId,
-            petData,
-            userId,
-        );
+        const updatedPet = await petService.updatePet(petId, petData, userId);
         res.json(updatedPet);
     } catch (error) {
         console.error('updatePet error:', error);
@@ -71,7 +67,7 @@ exports.deletePet = async (req, res) => {
         const userId = req.session.userId;
         const petId = parseInt(req.params.id);
 
-        await petRepository.deletePet(petId, userId);
+        await petService.deletePet(petId, userId);
         res.json({ message: '반려동물 정보가 삭제되었습니다' });
     } catch (error) {
         console.error('deletePet error:', error);

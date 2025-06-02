@@ -19,12 +19,12 @@ const AppDataSource = new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     synchronize: true,
-    dropSchema: false, // 운영 환경에서는 반드시 false
+    dropSchema: false,
     logging: true,
     entities: [User, Pet, Group],
 });
 
-// multer 설정 (파일 업로드용)
+// multer 설정 (파일 업로드용)a
 const uploadPath = path.join(__dirname, '../../../uploads/pets');
 if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
@@ -32,7 +32,7 @@ if (!fs.existsSync(uploadPath)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadPath),
-    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 
 const upload = multer({ storage });

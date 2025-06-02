@@ -1,75 +1,42 @@
 const express = require('express');
 const router = express.Router();
-const {
-  createUser,
-  findByLoginId,
-  getAllUsers,
-  getUserById,
-} = require('../service/userService');
-const bcrypt = require('bcrypt');
+const userController = require('../controller/userController');
+const isAuth = require('../../auth/middleware/inAuth');
 
-// 모든 사용자 조회
-router.get('/', async (req, res) => {
-  try {
-    const users = await getAllUsers();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: '사용자 목록 조회 실패', error: error.message });
-  }
+// 인증이 필요한 라우트에 isAuth 미들웨어 추가
+router.get('/check-auth', (req, res) => {
+    console.log('Checking auth status:', req.session); // 세션 상태 로깅
+
+    if (req.session && req.session.userId) {
+        res.json({
+            isLoggedIn: true,
+            userId: req.session.userId,
+        });
+    } else {
+        res.status(401).json({
+            isLoggedIn: false,
+            message: '인증되지 않은 사용자입니다.',
+        });
+    }
 });
+
+// 회원가입 처리a
+router.post('/signup', userController.registerUser);
+
+// 로그인 라우트
+router.post('/login', userController.login);
+
+// 로그아웃 라우트
+router.post('/logout', userController.logout);
+
+// 현재 로그인한 사용자 정보 조회
+router.get('/me', isAuth, userController.getCurrentUser);
+
+// 현재 로그인한 사용자 정보 업데이트
+router.put('/me', isAuth, userController.updateUser);
+// 모든 사용자 조회
+router.get('/', userController.getAllUsers);
 
 // 특정 사용자 조회
-router.get('/:id', async (req, res) => {
-  try {
-    const user = await getUserById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: '사용자 조회 실패', error: error.message });
-  }
-});
-
-// 회원가입 처리
-router.post('/register', async (req, res) => {
-  try {
-    const { username } = req.body;
-    // 아이디 중복 체크
-    const existingUser = await findByLoginId(username);
-    if (existingUser) {
-      return res.status(400).json({ message: '이미 존재하는 아이디입니다.' });
-    }
-    const user = await createUser(req.body);
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ message: '회원가입 실패', error: err.message });
-  }
-});
-
-// 로그인 처리
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const user = await findByLoginId(username);
-    if (!user) return res.status(404).json({ message: '유저 없음' });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: '비밀번호 불일치' });
-
-    req.session.userId = user.id;
-    res.json({ message: '로그인 성공', userId: user.id });
-  } catch (error) {
-    res.status(500).json({ message: '로그인 실패', error: error.message });
-  }
-});
-
-// 로그아웃 처리
-router.post('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie('connect.sid');
-    res.json({ message: '로그아웃 완료' });
-  });
-});
-
+router.get('/:id', userController.getUserById);
 module.exports = router;
