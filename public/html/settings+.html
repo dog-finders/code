@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="settings-plus">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,22 +7,47 @@
   <link rel="stylesheet" href="../css/styles.css" />
   <style>
     .container {
-      max-width: 600px;
+      max-width: 700px;
       margin: 3rem auto;
       padding: 2rem;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      text-align: center;
     }
     h1 {
-      margin-bottom: 1rem;
-      font-size: 2rem;
       color: #28a745;
+      margin-bottom: 1rem;
+      text-align: center;
     }
-    p {
-      font-size: 1.2rem;
+    .section {
       margin-bottom: 2rem;
+    }
+    .section h2 {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      color: #333;
+    }
+    .info-item {
+      margin-bottom: 0.6rem;
+    }
+    .info-item strong {
+      display: inline-block;
+      width: 120px;
+      color: #555;
+    }
+    .pet-box {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fafafa;
+    }
+    img.pet-preview {
+      max-width: 150px;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
     }
     a.btn {
       display: inline-block;
@@ -32,7 +57,7 @@
       text-decoration: none;
       border-radius: 5px;
       font-weight: 600;
-      transition: background-color 0.3s ease;
+      margin-right: 1rem;
     }
     a.btn:hover {
       background-color: #0056b3;
@@ -56,9 +81,42 @@
   <main class="main">
     <div class="container">
       <h1>프로필 저장 완료!</h1>
-      <p>프로필 정보가 성공적으로 저장되었습니다.</p>
-      <a href="settings" class="btn">프로필 수정하기</a>
-      <a href="index" class="btn" style="margin-left: 1rem;">홈으로 이동</a>
+
+      <div class="section">
+        <h2>기본 정보</h2>
+        <div class="info-item"><strong>이름:</strong> 홍길동</div>
+        <div class="info-item"><strong>이메일:</strong> hong@example.com</div>
+        <div class="info-item"><strong>주소:</strong> 서울시 강남구 역삼동</div>
+        <div class="info-item"><strong>전화번호:</strong> 010-1234-5678</div>
+        <div class="info-item"><strong>생년월일:</strong> 1990-01-01</div>
+        <div class="info-item"><strong>자기소개:</strong> 반려동물을 사랑하는 사람입니다!</div>
+      </div>
+
+      <div class="section">
+        <h2>반려동물 정보</h2>
+
+        <div class="pet-box">
+          <img src="/uploads/dog1.jpg" alt="강아지" class="pet-preview" />
+          <div class="info-item"><strong>종류:</strong> 강아지</div>
+          <div class="info-item"><strong>나이:</strong> 3살</div>
+          <div class="info-item"><strong>성격:</strong> 활발함</div>
+          <div class="info-item"><strong>백신:</strong> 종합백신, 광견병</div>
+        </div>
+
+        <div class="pet-box">
+          <img src="/uploads/cat1.jpg" alt="고양이" class="pet-preview" />
+          <div class="info-item"><strong>종류:</strong> 고양이</div>
+          <div class="info-item"><strong>나이:</strong> 2살</div>
+          <div class="info-item"><strong>성격:</strong> 낯가림</div>
+          <div class="info-item"><strong>백신:</strong> 고양이 전염성 복막염</div>
+        </div>
+
+      </div>
+
+      <div class="section" style="text-align:center;">
+        <a href="settings" class="btn">프로필 수정</a>
+        <a href="index" class="btn">홈으로 이동</a>
+      </div>
     </div>
   </main>
 </body>

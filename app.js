@@ -12,8 +12,6 @@ const PORT = 8000;
 
 // ── TypeORM 설정 ──
 const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
-const Group = require('./backend/domain/recruit/entity/Group');
-
 // 사용자 API 라우터 import
 const userRoute = require('./backend/domain/user/routes/userRoutes');
 

@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="../js/scripts.js" defer></script>
   <style>
-    /* 추가 스타일 (필요시 조정 가능) */
     .form-card {
       max-width: 600px;
       margin: 2rem auto;
@@ -95,62 +94,55 @@
           <label for="userBio" class="form-label">자기소개</label>
           <textarea class="form-control" id="userBio" name="userBio" rows="3" placeholder="간단한 자기소개를 입력하세요"></textarea>
         </div>
+        <div class="mb-3">
+          <label for="userAddress" class="form-label">주소</label>
+          <input type="text" class="form-control" id="userAddress" name="userAddress" placeholder="주소를 입력하세요" required />
+        </div>
+        <div class="mb-3">
+          <label for="userPhone" class="form-label">전화번호</label>
+          <input type="tel" class="form-control" id="userPhone" name="userPhone" required />
+        </div>
+        <div class="mb-3">
+          <label for="birthdate" class="form-label">생년월일</label>
+          <input type="date" class="form-control" id="birthdate" name="birthdate" required />
+        </div>
 
         <hr class="my-4" />
         <h4 class="mb-3">반려동물 정보</h4>
 
-        <div class="mb-3">
-          <label for="petType" class="form-label">반려동물 종류</label>
-          <select class="form-select" id="petType" name="petType" required>
-            <option selected disabled>선택하세요</option>
-            <option>강아지</option>
-            <option>고양이</option>
-            <option>기타</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="petImage" class="form-label">반려동물 사진</label>
-          <input class="form-control" type="file" id="petImage" name="petImage" accept="image/*" />
-          <img id="preview" src="#" alt="미리보기" />
-        </div>
-        <div class="mb-3">
-          <label for="petAge" class="form-label">반려동물 나이</label>
-          <input type="number" class="form-control" id="petAge" name="petAge" placeholder="예: 3 (살)" min="0" />
-        </div>
-        <div class="mb-3">
-          <label for="petTemperament" class="form-label">반려동물 성격</label>
-          <input
-            type="text"
-            class="form-control"
-            id="petTemperament"
-            name="petTemperament"
-            placeholder="예: 활발함, 온순함, 낯가림 등"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="petVaccines" class="form-label">접종한 백신</label>
-          <textarea
-            class="form-control"
-            id="petVaccines"
-            name="petVaccines"
-            rows="2"
-            placeholder="예: 종합백신, 광견병, 코로나 등"
-          ></textarea>
+        <div id="pet-section-container">
+          <div class="pet-section">
+            <div class="mb-3">
+              <label class="form-label">반려동물 종류</label>
+              <select class="form-select" name="petType[]" required>
+                <option selected disabled>선택하세요</option>
+                <option>강아지</option>
+                <option>고양이</option>
+                <option>기타</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">반려동물 사진</label>
+              <input class="form-control petImage" type="file" name="petImage[]" accept="image/*" />
+              <img class="preview" src="#" alt="미리보기" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">반려동물 나이</label>
+              <input type="number" class="form-control" name="petAge[]" placeholder="예: 3 (살)" min="0" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">반려동물 성격</label>
+              <input type="text" class="form-control" name="petTemperament[]" placeholder="예: 활발함, 온순함, 낯가림 등" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">접종한 백신</label>
+              <textarea class="form-control" name="petVaccines[]" rows="2" placeholder="예: 종합백신, 광견병, 코로나 등"></textarea>
+            </div>
+            <hr class="my-4" />
+          </div>
         </div>
 
-        <!-- 이메일 알림 체크박스 -->
-        <div
-          class="checkbox-group"
-          style="display: flex; align-items: center; justify-content: flex-start; margin: 8px 0;"
-        >
-          <input
-            type="checkbox"
-            id="email-notify"
-            name="emailNotify"
-            style="width: auto; margin-right: 8px;"
-          />
-          <label for="email-notify">이메일 알림 받기</label>
-        </div>
+        <button type="button" class="btn btn-secondary mb-3" onclick="addPetSection()">+ 반려동물 추가</button>
 
         <button type="submit" class="btn btn-success w-100">저장하기</button>
       </form>
@@ -158,21 +150,41 @@
   </main>
 
   <script>
-    // 이미지 미리보기 기능
-    document.getElementById('petImage').addEventListener('change', function (e) {
-      const preview = document.getElementById('preview');
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          preview.src = event.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      } else {
-        preview.style.display = 'none';
+    // 이미지 미리보기
+    document.addEventListener('change', function (e) {
+      if (e.target.classList.contains('petImage')) {
+        const fileInput = e.target;
+        const preview = fileInput.nextElementSibling;
+        const file = fileInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            preview.src = event.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          preview.style.display = 'none';
+        }
       }
     });
+
+    // 반려동물 추가 기능
+    function addPetSection() {
+      const container = document.getElementById('pet-section-container');
+      const firstPet = container.querySelector('.pet-section');
+      const newPet = firstPet.cloneNode(true);
+
+      Array.from(newPet.querySelectorAll('input, select, textarea')).forEach(input => {
+        input.value = '';
+      });
+
+      const preview = newPet.querySelector('.preview');
+      preview.src = '#';
+      preview.style.display = 'none';
+
+      container.appendChild(newPet);
+    }
   </script>
 </body>
 </html>
