@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>회원가입 - 도그파인더스</title>
 
-  <!-- Bootstrap CSS -->
   <link
     rel="stylesheet"
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -80,132 +79,153 @@
 </head>
 
 <body>
-  <!-- 사이드바 -->
   <aside class="sidebar">
     <h2>도그 파인더스</h2>
     <ul>
-      <li><a href="index.html">홈</a></li>
-      <li><a href="map.html">지도</a></li>
-      <li><a href="post-list.html">모집글</a></li>
-      <li><a href="mailbox.html">메일함</a></li>
-      <li><a href="settings.html">프로필 설정</a></li>
-      <li><a href="login.html">로그인</a></li>
-      <li><a href="contact.html">1:1 문의</a></li>
+      <li><a href="index">홈</a></li>
+      <li><a href="map">지도</a></li>
+      <li><a href="post-list">모집글</a></li>
+      <li><a href="mailbox">메일함</a></li>
+      <li><a href="settings">프로필 설정</a></li>
+      <li><a href="login">로그인</a></li>
+      <li><a href="register" class="active">회원가입</a></li>
+      <li><a href="contact">1:1 문의</a></li>
     </ul>
   </aside>
 
-  <!-- 메인 -->
   <main class="main">
     <h1>회원가입</h1>
     <div class="input-form">
       <form class="needs-validation" novalidate id="registerForm">
-        <!-- 아이디 -->
         <div class="form-group">
           <label for="username">아이디</label>
           <div class="input-group">
             <input type="text" class="form-control" id="username" required />
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" onclick="checkUsername()">중복 확인</button>
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="checkUsernameBtn"
+              >
+                중복 확인
+              </button>
             </div>
           </div>
           <div id="username-feedback" class="feedback-message mt-1 text-danger"></div>
         </div>
 
-        <!-- 비밀번호 -->
         <div class="form-group">
           <label for="password">비밀번호</label>
           <input type="password" class="form-control" id="password" required />
         </div>
 
-        <!-- 비밀번호 확인 -->
         <div class="form-group">
           <label for="confirmPassword">비밀번호 확인</label>
-          <input type="password" class="form-control" id="confirmPassword" required />
-          <div class="invalid-feedback" id="passwordMismatch">비밀번호가 일치하지 않습니다.</div>
+          <input
+            type="password"
+            class="form-control"
+            id="confirmPassword"
+            required
+          />
+          <div class="invalid-feedback" id="passwordMismatch">
+            비밀번호가 일치하지 않습니다.
+          </div>
         </div>
 
-        <!-- 이름 -->
         <div class="form-group">
           <label for="name">이름</label>
           <input type="text" class="form-control" id="name" required />
         </div>
 
-        <!-- 주소 -->
         <div class="form-group">
           <label for="address">주소</label>
           <div class="input-group">
             <input type="text" class="form-control" id="address" required />
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" onclick="searchAddress()">주소 검색</button>
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="searchAddressBtn"
+              >
+                주소 검색
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- 전화번호 -->
         <div class="form-group">
           <label for="phone">전화번호</label>
           <input type="tel" class="form-control" id="phone" required />
         </div>
 
-        <!-- 이메일 -->
         <div class="form-group">
           <label for="email">이메일</label>
           <input type="email" class="form-control" id="email" required />
         </div>
 
-        <!-- 생년월일 -->
         <div class="form-group">
           <label for="birthdate">생년월일</label>
           <input type="date" class="form-control" id="birthdate" required />
         </div>
 
-        <!-- 동의 -->
         <div class="custom-control custom-checkbox mb-3">
-          <input type="checkbox" class="custom-control-input" id="agreement" required />
-          <label class="custom-control-label" for="agreement">개인정보 수집 및 이용에 동의합니다.</label>
+          <input
+            type="checkbox"
+            class="custom-control-input"
+            id="agreement"
+            required
+          />
+          <label class="custom-control-label" for="agreement">
+            개인정보 수집 및 이용에 동의합니다.
+          </label>
           <div class="invalid-feedback">동의가 필요합니다.</div>
         </div>
 
-        <button class="btn btn-primary btn-lg btn-block" type="submit">가입 완료</button>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">
+          가입 완료
+        </button>
       </form>
     </div>
   </main>
 
-  <!-- 스크립트 -->
   <script>
-    const takenUsernames = ["admin", "test", "user123"];
-
-    function checkUsername() {
-      const username = document.getElementById("username").value.trim();
-      const feedback = document.getElementById("username-feedback");
-
-      if (!username) {
-        feedback.textContent = "아이디를 입력해주세요.";
-        feedback.classList.remove("text-success");
-        feedback.classList.add("text-danger");
-        return;
-      }
-
-      if (takenUsernames.includes(username.toLowerCase())) {
-        feedback.textContent = "이미 사용 중인 아이디입니다.";
-        feedback.classList.remove("text-success");
-        feedback.classList.add("text-danger");
-      } else {
-        feedback.textContent = "사용 가능한 아이디입니다.";
-        feedback.classList.remove("text-danger");
-        feedback.classList.add("text-success");
-      }
-    }
-
-    function searchAddress() {
-      alert("주소 검색 기능은 별도 연동 필요 (예: 다음 주소 API)");
-    }
-
     window.addEventListener("load", () => {
       const form = document.getElementById("registerForm");
+      const usernameInput = document.getElementById("username");
+      const checkUsernameBtn = document.getElementById("checkUsernameBtn");
+      const usernameFeedback = document.getElementById("username-feedback");
       const passwordInput = document.getElementById("password");
       const confirmInput = document.getElementById("confirmPassword");
       const passwordMismatchMsg = document.getElementById("passwordMismatch");
+      const searchAddressBtn = document.getElementById("searchAddressBtn");
+
+      // 예시 중복 아이디 (실제로는 서버에서 검사)
+      const takenUsernames = ["admin", "test", "user123"];
+
+      checkUsernameBtn.addEventListener("click", () => {
+        const username = usernameInput.value.trim();
+        if (!username) {
+          usernameFeedback.textContent = "아이디를 입력해주세요.";
+          usernameFeedback.classList.remove("text-success");
+          usernameFeedback.classList.add("text-danger");
+          return;
+        }
+
+        // 중복 확인을 서버 API로 실제 구현할 경우 fetch 사용 예정
+        if (takenUsernames.includes(username.toLowerCase())) {
+          usernameFeedback.textContent = "이미 사용 중인 아이디입니다.";
+          usernameFeedback.classList.remove("text-success");
+          usernameFeedback.classList.add("text-danger");
+        } else {
+          usernameFeedback.textContent = "사용 가능한 아이디입니다.";
+          usernameFeedback.classList.remove("text-danger");
+          usernameFeedback.classList.add("text-success");
+        }
+      });
+
+      searchAddressBtn.addEventListener("click", () => {
+        alert("주소 검색 기능은 추후 연동 필요 (예: 다음 주소 API)");
+      });
 
       confirmInput.addEventListener("input", () => {
         if (confirmInput.value !== passwordInput.value) {
@@ -219,38 +239,63 @@
         }
       });
 
-      form.addEventListener("submit", function (event) {
+      form.addEventListener("submit", (event) => {
         event.preventDefault();
 
+        if (confirmInput.value !== passwordInput.value) {
+          confirmInput.setCustomValidity("Passwords do not match");
+          confirmInput.classList.add("is-invalid");
+          passwordMismatchMsg.style.display = "block";
+          form.classList.add("was-validated");
+          return;
+        } else {
+          confirmInput.setCustomValidity("");
+          confirmInput.classList.remove("is-invalid");
+          passwordMismatchMsg.style.display = "none";
+        }
+
         if (!form.checkValidity()) {
+          event.stopPropagation();
           form.classList.add("was-validated");
           return;
         }
 
+        if (
+          !usernameFeedback.classList.contains("text-success") ||
+          usernameFeedback.textContent !== "사용 가능한 아이디입니다."
+        ) {
+          alert("아이디 중복 확인을 해주세요.");
+          usernameInput.focus();
+          return;
+        }
+
         const userData = {
-          username: document.getElementById("username").value,
+          username: usernameInput.value.trim(),
           password: passwordInput.value,
-          name: document.getElementById("name").value,
-          address: document.getElementById("address").value,
-          phone: document.getElementById("phone").value,
-          email: document.getElementById("email").value,
+          name: document.getElementById("name").value.trim(),
+          address: document.getElementById("address").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          email: document.getElementById("email").value.trim(),
           birthdate: document.getElementById("birthdate").value,
         };
 
-        fetch("http://localhost:3000/register", {
+        fetch("/api/users/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(userData),
         })
-          .then((res) => {
+          .then(async (res) => {
             if (res.ok) {
               alert("회원가입 성공!");
               form.reset();
               form.classList.remove("was-validated");
+              usernameFeedback.textContent = "";
+              window.location.href = "login";
             } else {
-              alert("회원가입 실패. 다시 시도해주세요.");
+              const data = await res.json();
+              alert(data.message || "회원가입 실패. 다시 시도해주세요.");
             }
           })
           .catch((err) => {

@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const User = require('../../domain/user/entity/User');
 const Pet = require('../../domain/pet/entity/Pet');
-const Group = require('../../domain/recruit/entity/group'); // group 엔티티 추가
+const Group = require('../../domain/recruit/entity/Group'); // Group 엔티티 추가
 
 dotenv.config();
 

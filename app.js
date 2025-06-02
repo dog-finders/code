@@ -12,7 +12,10 @@ const PORT = 8000;
 
 // ── TypeORM 설정 ──
 const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
-const Group = require('./backend/domain/recruit/entity/group');
+const Group = require('./backend/domain/recruit/entity/Group');
+
+// 사용자 API 라우터 import
+const userRoute = require('./backend/domain/user/routes/userRoutes');
 
 AppDataSource.initialize()
   .then(async () => {
@@ -54,32 +57,41 @@ app.use(express.static(path.join(__dirname, 'public'))); // public 내 기타 �
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
 });
-
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'register.html'));
 });
-
-app.get('/setting', (req, res) => {
+app.get('/settings', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'settings.html'));
 });
-
 app.get('/map', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'map.html'));
 });
-
 app.get('/post-create', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'post-create.html'));
 });
-
 app.get('/post-list', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'post-list.html'));
 });
-
 app.get('/post-detail', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'post-detail.html'));
 });
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
+});
+app.get('/mailbox', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'mailbox.html'));
+});
+app.get('/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+});
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
+});
 
 // ── API 라우팅 ──
+
+// 사용자 API 라우팅 (/api/users/*)
+app.use('/api/users', userRoute);
 
 // 모집글 등록
 app.post('/api/group', async (req, res) => {

@@ -9,13 +9,13 @@
   <aside class="sidebar">
     <h2>도그파인더스</h2>
     <ul>
-      <li><a href="index.html">홈</a></li>
-      <li><a href="map.html">지도</a></li>
-      <li><a href="post-list.html" class="active">게시글</a></li>
-      <li><a href="mailbox.html">메일함</a></li>
-      <li><a href="login.html">로그인</a></li>
-      <li><a href="settings.html">설정</a></li>
-      <li><a href="contact.html">문의하기</a></li>
+      <li><a href="index">홈</a></li>
+      <li><a href="map">지도</a></li>
+      <li><a href="post-list" class="active">게시글</a></li>
+      <li><a href="mailbox">메일함</a></li>
+      <li><a href="login">로그인</a></li>
+      <li><a href="settings">설정</a></li>
+      <li><a href="contact">문의하기</a></li>
     </ul>
   </aside>
 
@@ -58,7 +58,7 @@
 
         <div class="btn-group">
           <button type="submit" class="btn btn-primary">작성 완료</button>
-          <a href="post-list.html" class="btn btn-secondary">취소</a>
+          <a href="post-list" class="btn btn-secondary">취소</a>
         </div>
       </form>
     </div>
@@ -98,7 +98,7 @@
 
         if (response.ok) {
           // 작성 성공 시 목록 페이지로 이동
-          window.location.href = 'post-list.html';
+          window.location.href = 'post-list';
         } else {
           const err = await response.json();
           alert('작성 실패: ' + (err.message || '알 수 없는 오류'));
