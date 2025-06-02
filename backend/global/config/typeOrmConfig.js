@@ -19,7 +19,7 @@ const AppDataSource = new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     synchronize: true,
-    dropSchema: true,
+    dropSchema: false,
     logging: true,
     entities: [User, Pet, Group],
 });
@@ -32,7 +32,7 @@ if (!fs.existsSync(uploadPath)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadPath),
-    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 
 const upload = multer({ storage });

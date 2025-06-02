@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>메일함</title>
+  <script src="../js/auth.js" defer></script>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
 </head>
@@ -10,13 +11,16 @@
   <aside class="sidebar">
     <h2>도그파인더스</h2>
     <ul>
-      <li><a href="index">홈</a></li>
-      <li><a href="map">지도</a></li>
-      <li><a href="post-list">게시글</a></li>
-      <li><a href="mailbox">메일함</a></li>
-      <li><a href="login">로그인</a></li>
-      <li><a href="settings">설정</a></li>
-      <li><a href="contact">문의하기</a></li>
+      <li><a href="./index">홈</a></li>
+      <li><a href="./map">지도</a></li>
+      <li><a href="./post-list">게시글</a></li>
+      <li><a href="./mailbox">메일함</a></li>
+      <li class="auth-item">
+        <a href="#" id="auth-link" class="login-btn">로그인</a>
+        <a href="#" id="logout-link" class="logout-btn" style="display: none;">로그아웃</a>
+      </li>
+      <li><a href="./settings">설정</a></li>
+      <li><a href="./contact">문의하기</a></li>
     </ul>
   </aside>
   <main class="main">

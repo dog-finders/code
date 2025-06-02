@@ -1,6 +1,6 @@
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const bcrypt = require('bcrypt');
-
+const userRepository = require('../repository/userRepository');
 // 아이디 중복 체크 함수
 const checkDuplicateLoginId = async (loginId) => {
     try {
@@ -16,12 +16,6 @@ const checkDuplicateLoginId = async (loginId) => {
 const createUser = async (userData) => {
     try {
         console.log('[createUser] Received userData:', userData);
-
-        const userRepository = AppDataSource.getRepository('User');
-        if (!userRepository) {
-            console.error('[createUser] Failed to get User repository');
-            throw new Error('User repository not found');
-        }
         // username을 loginId 필드에 매핑
         const { username, password, name, address, phone, email, birthdate } =
             userData;
@@ -32,7 +26,7 @@ const createUser = async (userData) => {
             throw new Error('이미 사용 중인 아이디입니다.');
         }
 
-        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         console.log('[createUser] Hashed password generated');
 
         const user = userRepository.create({
@@ -56,10 +50,36 @@ const createUser = async (userData) => {
     }
 };
 
+const updateUser = async (id, userData) => {
+    const user = await userRepository.findById(id);
+    console.log('[updateUser] 요청받은 ID:', id);
+
+    if (!user) {
+        throw new Error('사용자를 찾을 수 없습니다');
+    }
+
+    // 비밀번호 변경이 있는 경우 암호화 처리 필요
+    if (userData.password) {
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        userData.password = await bcrypt.hash(userData.password, saltRounds);
+    }
+
+    return await userRepository.update(id, userData);
+};
+
+const findById = async (id) => {
+    console.log('[findById] 요청받은 ID:', id);
+    const user = await userRepository.findById(id);
+    console.log('[findById] 조회 결과:', user);
+    return user;
+};
+
 // loginId로 사용자 찾기
 const findByLoginId = async (loginId) => {
-    const userRepository = AppDataSource.getRepository('User');
-    return await userRepository.findOne({ where: { loginId } });
+    const user = await userRepository.findByLoginId(loginId);
+    console.log('[findByLoginId] user:', user);
+    return user;
 };
 
 const login = async (loginId, password) => {
@@ -93,14 +113,6 @@ const logout = async (sessionId) => {
     }
 };
 
-module.exports = {
-    createUser,
-    findByLoginId,
-    login,
-    logout,
-    checkDuplicateLoginId,
-};
-
 // email로 사용자 찾기 (옵션)
 const findByEmail = async (email) => {
     const userRepository = AppDataSource.getRepository('User');
@@ -109,8 +121,10 @@ const findByEmail = async (email) => {
 
 module.exports = {
     createUser,
+    findById,
     findByLoginId,
     login,
     logout,
     checkDuplicateLoginId,
+    updateUser,
 };

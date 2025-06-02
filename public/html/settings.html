@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko" data-page="settings">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>설정 – 도그파인더스</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <meta charset="UTF-8">
+  <title>설정</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script src="../js/auth.js" defer></script>
+  <script src="../js/settings.js" defer></script>
   <script src="../js/scripts.js" defer></script>
   <style>
-    /* 추가 스타일 (필요시 조정 가능) */
     .form-card {
-      max-width: 600px;
-      margin: 2rem auto;
+      max-width: 800px;
+      margin: 0 auto;
       padding: 2rem;
       background: #fff;
       border-radius: 8px;
@@ -32,147 +32,138 @@
     .form-control, .form-select {
       width: 100%;
       padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       border-radius: 4px;
-      box-sizing: border-box;
     }
-    button.btn {
-      padding: 0.75rem;
-      font-size: 1.1rem;
+    .pet-form {
+      background-color: #f9f9f9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .pet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .pet-header h3 {
+      margin: 0;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-weight: 600;
     }
-    button.btn-success {
-      background-color: #28a745;
+    .btn-primary {
+      background-color: #4CAF50;
       color: white;
     }
-    #preview {
-      display: none;
-      max-width: 200px;
-      margin-top: 0.5rem;
-      border-radius: 6px;
+    .btn-danger {
+      background-color: #f44336;
+      color: white;
     }
-    hr.my-4 {
-      margin: 2rem 0;
+    .btn-secondary {
+      background-color: #2196F3;
+      color: white;
+    }
+    .pet-list {
+      margin-bottom: 1.5rem;
+    }
+    .remove-pet {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f44336;
+      color: white;
       border: none;
-      border-top: 1px solid #eee;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   </style>
 </head>
 <body>
-  <aside class="sidebar">
-    <h2>도그파인더스</h2>
-    <ul>
-      <li><a href="index">홈</a></li>
-      <li><a href="map">지도</a></li>
-      <li><a href="post-list">게시글</a></li>
-      <li><a href="mailbox">메일함</a></li>
-      <li><a href="login">로그인</a></li>
-      <li><a href="settings" class="active">설정</a></li>
-      <li><a href="contact">문의하기</a></li>
-    </ul>
-  </aside>
+<aside class="sidebar">
+  <h2>도그파인더스</h2>
+  <ul>
+    <li><a href="./index">홈</a></li>
+    <li><a href="./map">지도</a></li>
+    <li><a href="./post-list">게시글</a></li>
+    <li><a href="./mailbox">메일함</a></li>
+    <li class="auth-item">
+      <a href="#" id="auth-link" class="login-btn">로그인</a>
+      <a href="#" id="logout-link" class="logout-btn" style="display: none;">로그아웃</a>
+    </li>
+    <li><a href="./settings">설정</a></li>
+    <li><a href="./contact">문의하기</a></li>
+  </ul>
+</aside>
+<main class="main">
+  <div class="form-card">
+    <h1>사용자 설정</h1>
 
-  <main class="main">
-    <div class="form-card">
-      <h1>프로필 설정</h1>
-      <form action="/upload" method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="userName" class="form-label">이름</label>
-          <input type="text" class="form-control" id="userName" name="userName" placeholder="이름을 입력하세요" required />
-        </div>
-        <div class="mb-3">
-          <label for="userEmail" class="form-label">이메일</label>
-          <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="이메일을 입력하세요" required />
-        </div>
-        <div class="mb-3">
-          <label for="userPassword" class="form-label">비밀번호 변경</label>
-          <input type="password" class="form-control" id="userPassword" name="userPassword" placeholder="새 비밀번호를 입력하세요" />
-        </div>
-        <div class="mb-3">
-          <label for="userBio" class="form-label">자기소개</label>
-          <textarea class="form-control" id="userBio" name="userBio" rows="3" placeholder="간단한 자기소개를 입력하세요"></textarea>
-        </div>
+    <form id="user-form">
+      <h2>개인 정보</h2>
 
-        <hr class="my-4" />
-        <h4 class="mb-3">반려동물 정보</h4>
+      <div class="mb-3">
+        <label class="form-label" for="name">이름</label>
+        <input type="text" id="name" name="name" class="form-control" required>
+      </div>
 
-        <div class="mb-3">
-          <label for="petType" class="form-label">반려동물 종류</label>
-          <select class="form-select" id="petType" name="petType" required>
-            <option selected disabled>선택하세요</option>
-            <option>강아지</option>
-            <option>고양이</option>
-            <option>기타</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="petImage" class="form-label">반려동물 사진</label>
-          <input class="form-control" type="file" id="petImage" name="petImage" accept="image/*" />
-          <img id="preview" src="#" alt="미리보기" />
-        </div>
-        <div class="mb-3">
-          <label for="petAge" class="form-label">반려동물 나이</label>
-          <input type="number" class="form-control" id="petAge" name="petAge" placeholder="예: 3 (살)" min="0" />
-        </div>
-        <div class="mb-3">
-          <label for="petTemperament" class="form-label">반려동물 성격</label>
-          <input
-            type="text"
-            class="form-control"
-            id="petTemperament"
-            name="petTemperament"
-            placeholder="예: 활발함, 온순함, 낯가림 등"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="petVaccines" class="form-label">접종한 백신</label>
-          <textarea
-            class="form-control"
-            id="petVaccines"
-            name="petVaccines"
-            rows="2"
-            placeholder="예: 종합백신, 광견병, 코로나 등"
-          ></textarea>
-        </div>
+      <div class="mb-3">
+        <label class="form-label" for="email">이메일</label>
+        <input type="email" id="email" name="email" class="form-control" required>
+      </div>
 
-        <!-- 이메일 알림 체크박스 -->
-        <div
-          class="checkbox-group"
-          style="display: flex; align-items: center; justify-content: flex-start; margin: 8px 0;"
-        >
-          <input
-            type="checkbox"
-            id="email-notify"
-            name="emailNotify"
-            style="width: auto; margin-right: 8px;"
-          />
-          <label for="email-notify">이메일 알림 받기</label>
-        </div>
+      <div class="mb-3">
+        <label class="form-label" for="phone">전화번호</label>
+        <input type="tel" id="phone" name="phone" class="form-control" required>
+      </div>
 
-        <button type="submit" class="btn btn-success w-100">저장하기</button>
-      </form>
-    </div>
-  </main>
+      <div class="mb-3">
+        <label class="form-label" for="birthdate">생년월일</label>
+        <input type="date" id="birthdate" name="birthdate" class="form-control" required>
+      </div>
 
-  <script>
-    // 이미지 미리보기 기능
-    document.getElementById('petImage').addEventListener('change', function (e) {
-      const preview = document.getElementById('preview');
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          preview.src = event.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      } else {
-        preview.style.display = 'none';
-      }
-    });
-  </script>
+      <div class="mb-3">
+        <label class="form-label" for="address">주소</label>
+        <input type="text" id="address" name="address" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="personality">성격</label>
+        <select id="personality" name="personality" class="form-select" required>
+          <option value="">선택하세요</option>
+          <option value="ACTIVE">활발함</option>
+          <option value="CALM">차분함</option>
+          <option value="SOCIAL">사교적</option>
+          <option value="SHY">수줍음</option>
+        </select>
+      </div>
+
+      <h2>반려동물 정보</h2>
+      <p>등록된 반려동물이 없습니다.</p>
+
+      <div id="pet-list" class="pet-list">
+        <!-- 반려동물 정보가 여기에 동적으로 추가됩니다 -->
+      </div>
+
+      <button type="button" id="add-pet" class="btn btn-secondary mb-3">반려동물 추가</button>
+
+      <div class="mb-3">
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
+    </form>
+  </div>
+</main>
 </body>
 </html>

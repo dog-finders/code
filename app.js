@@ -11,14 +11,17 @@ const { Like } = require('typeorm');
 const app = express();
 const PORT = 8000;
 
+const pageRoutes = require('./routes/pageRoutes');
+
+const userRoute = require('./backend/domain/user/routes/userRoutes');
+const petRoute = require('./backend/domain/pet/routes/petRoutes');
+
 // TypeORM 설정
 const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
 const Group = require('./backend/domain/recruit/entity/Group');
 
 // 사용자 API 라우터 import
-const userRoute = require('./backend/domain/user/routes/userRoutes');
 // 사용자 API 라우팅 (/api/users/*)
-app.use('/api/users', userRoute);
 
 // DB 초기화
 AppDataSource.initialize()
@@ -40,15 +43,19 @@ app.use(cookieParser());
 app.use(
     session({
         secret: 'my-secret',
-        resave: false,
+        resave: true, // 세션 만료 시간 갱신을 위해 true로 설정
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
             secure: false,
             maxAge: 1000 * 60 * 60, // 1시간
+            path: '/',
         },
+        name: 'sessionId',
+        rolling: true, // 매 요청마다 쿠키 만료 시간 초기화
     }),
 );
+
 // ── 정적 파일 경로 (CSS, JS, assets, uploads 등) ──
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
@@ -57,44 +64,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public'))); // public 내 기타 정적 파일
 
 // ── 페이지 라우팅 (html 확장자 없이 경로로 접속) ──
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
-});
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'register.html'));
-});
-app.get('/settings', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'settings.html'));
-});
-app.get('/map', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'map.html'));
-});
-app.get('/post-create', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'post-create.html'));
-});
-app.get('/post-list', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'post-list.html'));
-});
-app.get('/post-detail', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'post-detail.html'));
-});
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
-});
-app.get('/mailbox', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'mailbox.html'));
-});
-app.get('/index', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
-});
-app.get('/contact', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
-});
+app.use('/', pageRoutes);
 
 // ── API 라우팅 ──
-
-// 사용자 API 라우팅 (/api/users/*)
-app.use('/api/users', userRoute);
+app.use('/api/users', userRoute); // API 라우팅 부분에 추가
+app.use('/api/pets', petRoute);
 
 // 모집글 등록
 app.post('/api/group', async (req, res) => {
