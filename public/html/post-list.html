@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>모집글 목록 - 도그 파인더스</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
+    body { display:flex; height:100vh; background:#f5f5f5; }
+    .sidebar {
+      width:220px; background:#2c3e50; color:#fff; padding:20px;
+    }
+    .sidebar h2 { text-align:center; font-size:24px; margin-bottom:20px; }
+    .sidebar ul { list-style:none; }
+    .sidebar li { margin:15px 0; }
+    .sidebar a {
+      color:#fff; text-decoration:none; display:block;
+      padding:10px; border-radius:5px;
+    }
+    .sidebar a:hover,
+    .sidebar a.active { background:#34495e; }
+    .main {
+      flex:1; padding:40px; overflow-y:auto;
+    }
+    .header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:20px;
+    }
+    .header h1 { font-size:28px; }
+    .btn {
+      display:inline-block; padding:10px 16px;
+      background:#3498db; color:#fff;
+      text-decoration:none; border-radius:5px;
+      font-size:14px;
+    }
+    .btn:hover { background:#2980b9; }
+    .search { display:flex; margin-bottom:20px; }
+    .search input {
+      flex:1; padding:10px;
+      border:1px solid #ccc;
+      border-radius:5px 0 0 5px;
+    }
+    .search button {
+      padding:10px 16px;
+      border:1px solid #ccc;
+      border-left:0;
+      border-radius:0 5px 5px 0;
+      background:#fff; cursor:pointer;
+    }
+    .post-card {
+      background:#fff; border-radius:10px;
+      padding:20px;
+      box-shadow:0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom:20px;
+      cursor:pointer;
+      transition: transform 0.1s ease;
+    }
+    .post-card:hover {
+      transform: translateY(-2px);
+    }
+    .post-card h2 { font-size:20px; margin-bottom:8px; }
+    .post-card .meta {
+      font-size:12px; color:#888; margin-bottom:10px;
+    }
+    .post-card p { color:#555; }
+    .pagination {
+      display:flex; justify-content:center; margin-top:20px;
+    }
+    .pagination a {
+      margin:0 5px; padding:8px 12px;
+      text-decoration:none; color:#3498db;
+      border:1px solid #ccc; border-radius:5px;
+    }
+    .pagination a.active {
+      background:#3498db; color:#fff; border-color:#3498db;
+    }
+    .pagination a.disabled {
+      color:#aaa; border-color:#eee; cursor:default;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a href="index">홈</a></li>
+      <li><a href="map">지도</a></li>
+      <li><a href="post-list" class="active">게시글</a></li>
+      <li><a href="mailbox">메일함</a></li>
+      <li><a href="login">로그인</a></li>
+      <li><a href="settings">설정</a></li>
+      <li><a href="contact">문의하기</a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <div class="header">
+      <h1>모집글 목록</h1>
+      <a href="post-create" class="btn">글 작성</a>
+    </div>
+    <div class="search">
+      <input type="text" placeholder="제목 또는 지역으로 검색" id="searchInput">
+      <button id="searchBtn">검색</button>
+    </div>
+
+    <!-- 동적 게시글 목록 컨테이너 -->
+    <div class="post-cards-container">
+      <!-- 게시글 카드가 JS로 이곳에 추가됩니다 -->
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" id="pagination">
+      <!-- 페이지 버튼도 동적으로 추가 가능 -->
+    </div>
+  </main>
+
+  <script>
+    const container = document.querySelector('.post-cards-container');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const paginationDiv = document.getElementById('pagination');
+
+    let currentPage = 1;
+    const pageSize = 10; // 한 페이지에 표시할 글 수
+    async function fetchPosts(page = 1, search = '') {
+    try {
+      const url = `/api/group?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`;
+      const response = await fetch(url);
+
+      if (!response.ok) throw new Error('목록 조회 실패');
+
+      const data = await response.json();
+      console.log('API 응답:', data);  // 데이터 구조 확인용
+
+      // data가 배열이라면 그대로, 아니라면 data.posts 사용
+      const posts = Array.isArray(data) ? data : data.posts;
+
+      const totalPages = data.totalPages || 1;
+      const current = data.currentPage || page;
+
+      renderPosts(posts);
+      renderPagination(totalPages, current);
+
+    } catch (error) {
+      console.error(error);
+      alert('글 목록을 불러오는 데 실패했습니다.');
+    }
+  }
+
+    function renderPosts(posts) {
+      container.innerHTML = '';
+
+      if (posts.length === 0) {
+        container.innerHTML = '<p>검색 결과가 없습니다.</p>';
+        return;
+      }
+
+      posts.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.onclick = () => {
+          window.location.href = `post-detail?id=${post.id}`;
+        };
+
+        const closeDate = new Date(post.close_at);
+        const formattedDate = closeDate.toLocaleDateString();
+
+        div.innerHTML = `
+          <h2>${post.title}</h2>
+          <div class="meta">작성자: ${post.author || '익명'} | ${post.location} | 마감일: ${formattedDate}</div>
+          <p>${post.content}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderPagination(totalPages, current) {
+      paginationDiv.innerHTML = '';
+
+      // 이전
+      const prev = document.createElement('a');
+      prev.href = '#';
+      prev.textContent = '이전';
+      prev.className = current === 1 ? 'disabled' : '';
+      prev.addEventListener('click', e => {
+        e.preventDefault();
+        if (current > 1) {
+          currentPage = current - 1;
+          fetchPosts(currentPage, searchInput.value.trim());
+        }
+      });
+      paginationDiv.appendChild(prev);
+
+      // 페이지 번호 (간단하게 1~totalPages 모두 표시)
+      for (let i = 1; i <= totalPages; i++) {
+        const pageLink = document.createElement('a');
+        pageLink.href = '#';
+        pageLink.textContent = i;
+        pageLink.className = i === current ? 'active' : '';
+        pageLink.addEventListener('click', e => {
+          e.preventDefault();
+          currentPage = i;
+          fetchPosts(currentPage, searchInput.value.trim());
+        });
+        paginationDiv.appendChild(pageLink);
+      }
+
+      // 다음
+      const next = document.createElement('a');
+      next.href = '#';
+      next.textContent = '다음';
+      next.className = current === totalPages ? 'disabled' : '';
+      next.addEventListener('click', e => {
+        e.preventDefault();
+        if (current < totalPages) {
+          currentPage = current + 1;
+          fetchPosts(currentPage, searchInput.value.trim());
+        }
+      });
+      paginationDiv.appendChild(next);
+    }
+
+    searchBtn.addEventListener('click', () => {
+      currentPage = 1;
+      fetchPosts(currentPage, searchInput.value.trim());
+    });
+
+    // 페이지 로드 시 목록 표시
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchPosts();
+    });
+  </script>
+</body>
+</html>

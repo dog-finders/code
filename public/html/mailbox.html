@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="dashboard">
+<html lang="ko" data-page="mailbox">
 <head>
   <meta charset="UTF-8">
-  <title>도그파인더스</title>
+  <title>메일함</title>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
 </head>
@@ -19,22 +19,17 @@
       <li><a href="contact">문의하기</a></li>
     </ul>
   </aside>
-<main class="main">
-  <h1>홈</h1>
-  <div class="card-grid">
-    <div class="card">
-      <h2>새 매칭</h2>
-      <p>2건</p>
-    </div>
-    <div class="card">
-      <h2>읽지 않은 메시지</h2>
-      <p>5건</p>
-    </div>
-    <div class="card">
-      <h2>활성 커뮤니티</h2>
-      <p>8개</p>
-    </div>
-  </div>
-</main>
+  <main class="main">
+    <h1>메일함</h1>
+    <table class="table">
+      <thead>
+        <tr><th>발신인</th><th>제목</th><th>날짜</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>관리자</td><td>환영합니다!</td><td>2025-05-27</td></tr>
+        <tr><td>지원팀</td><td>업데이트 공지</td><td>2025-05-26</td></tr>
+      </tbody>
+    </table>
+  </main>
 </body>
 </html>

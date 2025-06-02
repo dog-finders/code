@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="dashboard">
+<html lang="ko" data-page="contact">
 <head>
   <meta charset="UTF-8">
-  <title>도그파인더스</title>
+  <title>문의하기</title>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
 </head>
@@ -19,22 +19,14 @@
       <li><a href="contact">문의하기</a></li>
     </ul>
   </aside>
-<main class="main">
-  <h1>홈</h1>
-  <div class="card-grid">
-    <div class="card">
-      <h2>새 매칭</h2>
-      <p>2건</p>
-    </div>
-    <div class="card">
-      <h2>읽지 않은 메시지</h2>
-      <p>5건</p>
-    </div>
-    <div class="card">
-      <h2>활성 커뮤니티</h2>
-      <p>8개</p>
-    </div>
-  </div>
-</main>
+  <main class="main">
+    <h1>문의하기</h1>
+    <form>
+      <input type="text" placeholder="이름" required>
+      <input type="email" placeholder="이메일" required>
+      <textarea rows="5" placeholder="문의 내용" required></textarea>
+      <button type="submit">전송</button>
+    </form>
+  </main>
 </body>
 </html>

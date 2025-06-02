@@ -13,15 +13,18 @@ const PORT = 8000;
 
 // TypeORM 설정
 const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
+const Group = require('./backend/domain/recruit/entity/Group');
 
-// 모집글 엔티티
-const Group = require('./backend/domain/recruit/entity/group');
+// 사용자 API 라우터 import
+const userRoute = require('./backend/domain/user/routes/userRoutes');
+// 사용자 API 라우팅 (/api/users/*)
+app.use('/api/users', userRoute);
 
 // DB 초기화
 AppDataSource.initialize()
     .then(async () => {
         console.log('Loaded entities:', AppDataSource.options.entities);
-        await AppDataSource.synchronize();
+        await AppDataSource.synchronize(); // 개발 시에만 사용
         console.log('Data Source initialized');
     })
     .catch((err) => {
@@ -34,10 +37,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// 세션 설정
 app.use(
     session({
         secret: 'my-secret',
@@ -50,29 +49,54 @@ app.use(
         },
     }),
 );
-app.use(express.static(path.join(__dirname, 'public')));
+// ── 정적 파일 경로 (CSS, JS, assets, uploads 등) ──
+app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
+app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, 'public'))); // public 내 기타 정적 파일
 
-app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
-
-const userRouters = require('./backend/domain/user/routes/userRoutes');
-app.use('/api/users', userRouters);
-// 📌 모집글 작성 페이지
+// ── 페이지 라우팅 (html 확장자 없이 경로로 접속) ──
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+});
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'register.html'));
+});
+app.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'settings.html'));
+});
+app.get('/map', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'map.html'));
+});
 app.get('/post-create', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'post-create.html'));
+    res.sendFile(path.join(__dirname, 'public', 'html', 'post-create.html'));
 });
-
-// 📌 모집글 목록 페이지
 app.get('/post-list', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'post-list.html'));
+    res.sendFile(path.join(__dirname, 'public', 'html', 'post-list.html'));
 });
-
-// 📌 모집글 상세 페이지
 app.get('/post-detail', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'post-detail.html'));
+    res.sendFile(path.join(__dirname, 'public', 'html', 'post-detail.html'));
+});
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
+});
+app.get('/mailbox', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'mailbox.html'));
+});
+app.get('/index', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+});
+app.get('/contact', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
 });
 
-// ✅ 모집글 등록 API (POST)
+// ── API 라우팅 ──
+
+// 사용자 API 라우팅 (/api/users/*)
+app.use('/api/users', userRoute);
+
+// 모집글 등록
 app.post('/api/group', async (req, res) => {
     try {
         const { title, content, location, close_at } = req.body;
@@ -102,7 +126,7 @@ app.post('/api/group', async (req, res) => {
     }
 });
 
-// ✅ 모집글 목록 조회 API (GET)
+// 모집글 목록 조회
 app.get('/api/group', async (req, res) => {
     try {
         const groupRepository = AppDataSource.getRepository(Group);
@@ -115,7 +139,6 @@ app.get('/api/group', async (req, res) => {
                       { location: Like(`%${search}%`) },
                   ]
                 : {},
-            // order: { created_at: 'DESC' },
         });
 
         res.status(200).json(posts);
@@ -125,13 +148,13 @@ app.get('/api/group', async (req, res) => {
     }
 });
 
-// ✅ 모집글 상세 조회 API (GET)
+// 모집글 상세 조회
 app.get('/api/group/:id', async (req, res) => {
     try {
         const groupRepository = AppDataSource.getRepository(Group);
-        const id = req.params.id;
+        const id = parseInt(req.params.id);
 
-        const post = await groupRepository.findOneBy({ id: parseInt(id) });
+        const post = await groupRepository.findOneBy({ id });
 
         if (!post) {
             return res
@@ -146,31 +169,17 @@ app.get('/api/group/:id', async (req, res) => {
     }
 });
 
-// 📌 기본 HTML 라우팅
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/register', (req, res) => {
-    res.render('register');
-});
-
-app.get('/setting', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
-});
-
-// 📌 404 처리
+// ── 에러 핸들링 ──
 app.use((req, res, next) => {
     next(createError(404));
 });
 
-// 📌 에러 핸들링
 app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.send('에러 발생: ' + err.message);
 });
 
-// 📌 서버 실행
+// ── 서버 실행 ──
 app.listen(PORT, () => {
     console.log(`서버 실행 중: http://localhost:${PORT}`);
 });

@@ -8,8 +8,10 @@ window.addEventListener('load', () => {
     const searchAddressBtn = document.getElementById('searchAddressBtn');
     const loginIdFeedback = document.getElementById('loginId-feedback');
 
-    const takenUsernames = ['admin', 'test', 'user123']; // 예시
+    // 예시 아이디 목록 - 실제 구현 시 서버에서 중복 체크 필요
+    const takenUsernames = ['admin', 'test', 'user123'];
 
+    // 아이디 중복 확인 버튼 클릭 시
     checkUsernameBtn.addEventListener('click', () => {
         const loginId = loginIdInput.value.trim();
         if (!loginId) {
@@ -30,10 +32,12 @@ window.addEventListener('load', () => {
         }
     });
 
+    // 주소 검색 버튼 클릭 시
     searchAddressBtn.addEventListener('click', () => {
-        alert('주소 검색 기능은 연동 필요 (예: 다음 주소 API)');
+        alert('주소 검색 기능은 추후 연동 필요 (예: 다음 주소 API)');
     });
 
+    // 비밀번호 확인 입력 시 유효성 체크
     confirmInput.addEventListener('input', () => {
         if (confirmInput.value !== passwordInput.value) {
             confirmInput.setCustomValidity('Passwords do not match');
@@ -46,9 +50,11 @@ window.addEventListener('load', () => {
         }
     });
 
+    // 폼 제출 시
     form.addEventListener('submit', (event) => {
-        event.preventDefault();
+        event.preventDefault(); // 기본 제출 막기
 
+        // 비밀번호 확인 유효성 체크
         if (confirmInput.value !== passwordInput.value) {
             confirmInput.setCustomValidity('Passwords do not match');
             confirmInput.classList.add('is-invalid');
@@ -59,12 +65,14 @@ window.addEventListener('load', () => {
             passwordMismatchMsg.style.display = 'none';
         }
 
+        // HTML5 유효성 검사
         if (!form.checkValidity()) {
             event.stopPropagation();
             form.classList.add('was-validated');
             return;
         }
 
+        // 사용자 입력 데이터 수집
         const userData = {
             loginId: loginIdInput.value,
             password: passwordInput.value,
@@ -77,7 +85,8 @@ window.addEventListener('load', () => {
 
         console.log('registerForm submit', userData);
 
-        fetch('/api/users/signup', {
+        // 서버에 회원가입 요청
+        fetch('/api/users/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -89,8 +98,11 @@ window.addEventListener('load', () => {
                     alert('회원가입 성공!');
                     form.reset();
                     form.classList.remove('was-validated');
+                    loginIdFeedback.textContent = '';
                 } else {
-                    alert('회원가입 실패. 다시 시도해주세요.');
+                    return res.json().then(data => {
+                        alert(data.message || '회원가입 실패. 다시 시도해주세요.');
+                    });
                 }
             })
             .catch((err) => {

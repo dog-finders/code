@@ -22,9 +22,12 @@ const createUser = async (userData) => {
             console.error('[createUser] Failed to get User repository');
             throw new Error('User repository not found');
         }
+        // username을 loginId 필드에 매핑
+        const { username, password, name, address, phone, email, birthdate } =
+            userData;
 
         // 아이디 중복 체크
-        const isDuplicate = await checkDuplicateLoginId(userData.loginId);
+        const isDuplicate = await checkDuplicateLoginId(username);
         if (isDuplicate) {
             throw new Error('이미 사용 중인 아이디입니다.');
         }
@@ -33,8 +36,13 @@ const createUser = async (userData) => {
         console.log('[createUser] Hashed password generated');
 
         const user = userRepository.create({
-            ...userData,
+            loginId: username,
             password: hashedPassword,
+            name,
+            address,
+            phone,
+            email,
+            birthdate,
         });
         console.log('[createUser] User entity created:', user);
 
@@ -47,6 +55,8 @@ const createUser = async (userData) => {
         throw error;
     }
 };
+
+// loginId로 사용자 찾기
 const findByLoginId = async (loginId) => {
     const userRepository = AppDataSource.getRepository('User');
     return await userRepository.findOne({ where: { loginId } });
@@ -81,6 +91,20 @@ const logout = async (sessionId) => {
         console.error('[logout] Error:', error.message);
         throw error;
     }
+};
+
+module.exports = {
+    createUser,
+    findByLoginId,
+    login,
+    logout,
+    checkDuplicateLoginId,
+};
+
+// email로 사용자 찾기 (옵션)
+const findByEmail = async (email) => {
+    const userRepository = AppDataSource.getRepository('User');
+    return await userRepository.findOne({ where: { email } });
 };
 
 module.exports = {

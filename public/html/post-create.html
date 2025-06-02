@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko" data-page="post-create">
+<head>
+  <meta charset="UTF-8" />
+  <title>모집글 작성 – 도그파인더스</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a href="index">홈</a></li>
+      <li><a href="map">지도</a></li>
+      <li><a href="post-list" class="active">게시글</a></li>
+      <li><a href="mailbox">메일함</a></li>
+      <li><a href="login">로그인</a></li>
+      <li><a href="settings">설정</a></li>
+      <li><a href="contact">문의하기</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="form-card">
+      <h1>모집글 작성</h1>
+      <form id="postForm">
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" id="title" placeholder="제목을 입력하세요" required>
+        </div>
+
+        <div class="post-row">
+          <div class="form-group">
+            <label for="sido">시·도</label>
+            <input type="text" id="sido" placeholder="예: 서울특별시" required>
+            <small class="form-note">예시: 서울특별시</small>
+          </div>
+          <div class="form-group">
+            <label for="sigungu">시·군·구</label>
+            <input type="text" id="sigungu" placeholder="예: 강남구" required>
+            <small class="form-note">예시: 강남구</small>
+          </div>
+          <div class="form-group">
+            <label for="dong">동·읍·면</label>
+            <input type="text" id="dong" placeholder="예: 삼성동" required>
+            <small class="form-note">예시: 삼성동</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="content">내용</label>
+          <textarea id="content" rows="5" placeholder="내용을 입력하세요" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="close_at">모집 마감 시간</label>
+          <input type="datetime-local" id="close_at" required>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn btn-primary">작성 완료</button>
+          <a href="post-list" class="btn btn-secondary">취소</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('postForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      const sido = document.getElementById('sido').value.trim();
+      const sigungu = document.getElementById('sigungu').value.trim();
+      const dong = document.getElementById('dong').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const close_at = document.getElementById('close_at').value;
+
+      if (!title || !sido || !sigungu || !dong || !content || !close_at) {
+        alert('모든 필수 항목을 입력해 주세요.');
+        return;
+      }
+
+      const location = `${sido} ${sigungu} ${dong}`;
+
+      const body = {
+        title,
+        location,
+        content,
+        close_at
+      };
+
+      try {
+        const response = await fetch('/api/group', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+          // 작성 성공 시 목록 페이지로 이동
+          window.location.href = 'post-list';
+        } else {
+          const err = await response.json();
+          alert('작성 실패: ' + (err.message || '알 수 없는 오류'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('서버 연결 오류');
+      }
+    });
+  </script>
+</body>
+</html>

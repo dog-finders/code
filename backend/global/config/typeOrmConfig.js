@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const User = require('../../domain/user/entity/User');
 const Pet = require('../../domain/pet/entity/Pet');
-const Group = require('../../domain/recruit/entity/group'); // group 엔티티 추가
+const Group = require('../../domain/recruit/entity/Group'); // Group 엔티티 추가
 
 dotenv.config();
 
@@ -21,12 +21,14 @@ const AppDataSource = new DataSource({
     synchronize: true,
     dropSchema: true,
     logging: true,
-    entities: [User, Pet, Group],  // group 엔티티 추가
+    entities: [User, Pet, Group],
 });
 
 // multer 설정 (파일 업로드용)a
 const uploadPath = path.join(__dirname, '../../../uploads/pets');
-if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+}
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadPath),
