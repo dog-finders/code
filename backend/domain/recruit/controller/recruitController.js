@@ -1,8 +1,8 @@
-// backend/domain/group/controller/groupController.js
-const groupService = require('../service/groupService');
+const recruitService = require('../service/recruitService');
 
 module.exports = {
-    createGroup: async (req, res) => {
+    // 모집글 생성
+    createRecruit: async (req, res) => {
         try {
             const { title, content, location, close_at } = req.body;
 
@@ -12,7 +12,7 @@ module.exports = {
                     .json({ message: '모든 항목을 입력해 주세요.' });
             }
 
-            const newGroup = await groupService.createGroup({
+            const newRecruit = await recruitService.createRecruit({
                 title,
                 content,
                 location,
@@ -20,49 +20,54 @@ module.exports = {
                 is_closed: false,
             });
 
-            return res.status(201).json(newGroup);
+            return res.status(201).json(newRecruit);
         } catch (err) {
             console.error(err);
             return res.status(500).json({ message: '서버 에러' });
         }
     },
 
-    getAllGroups: async (req, res) => {
+    // 모집글 전체 조회
+    getAllRecruits: async (req, res) => {
         try {
-            const groups = await groupService.getAllGroups();
-            return res.status(200).json(groups);
+            const recruits = await recruitService.getAllRecruits();
+            return res.status(200).json(recruits);
         } catch (err) {
             console.error(err);
             return res.status(500).json({ message: '서버 에러' });
         }
     },
 
-    getGroupById: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const group = await groupService.getGroupById(Number(id));
-
-            if (!group)
-                return res
-                    .status(404)
-                    .json({ message: '그룹을 찾을 수 없습니다.' });
-
-            return res.status(200).json(group);
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({ message: '서버 에러' });
-        }
-    },
-
-    closeGroup: async (req, res) => {
+    // 특정 모집글 조회
+    getRecruitById: async (req, res) => {
         try {
             const { id } = req.params;
-            const closed = await groupService.closeGroup(Number(id));
+            const recruit = await recruitService.getRecruitById(Number(id));
 
-            if (!closed)
+            if (!recruit) {
                 return res
                     .status(404)
-                    .json({ message: '그룹을 찾을 수 없습니다.' });
+                    .json({ message: '모집글을 찾을 수 없습니다.' });
+            }
+
+            return res.status(200).json(recruit);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: '서버 에러' });
+        }
+    },
+
+    // 모집 마감 처리
+    closeRecruit: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const closed = await recruitService.closeRecruit(Number(id));
+
+            if (!closed) {
+                return res
+                    .status(404)
+                    .json({ message: '모집글을 찾을 수 없습니다.' });
+            }
 
             return res.status(200).json({ message: '모집 마감 처리됨' });
         } catch (err) {

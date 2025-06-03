@@ -14,7 +14,7 @@ exports.findAll = async () => {
 
 exports.findById = async (id) => {
     try {
-        const numericId = parseInt(id);
+        const numericId = parseInt(id, 10);
         if (isNaN(numericId)) {
             console.warn(`findById: invalid id ${id}`);
             return null;
@@ -25,11 +25,12 @@ exports.findById = async (id) => {
         throw error;
     }
 };
+
 exports.findByLoginId = async (loginId) => {
     try {
         return await userRepository.findOne({ where: { loginId } });
     } catch (error) {
-        console.error('findById error:', error);
+        console.error('findByLoginId error:', error);
         throw error;
     }
 };
@@ -42,4 +43,14 @@ exports.update = async (id, userData) => {
     const savedUser = await userRepository.save(user);
     console.log('변경된 사용자:', savedUser);
     return savedUser;
+};
+
+exports.create = async (userEntity) => {
+    try {
+        const createdUser = userRepository.create(userEntity);
+        return await userRepository.save(createdUser);
+    } catch (error) {
+        console.error('create user error:', error);
+        throw error;
+    }
 };

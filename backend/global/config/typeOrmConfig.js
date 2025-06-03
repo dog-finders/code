@@ -1,30 +1,28 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const { DataSource } = require('typeorm');
 const path = require('path');
-const dotenv = require('dotenv');
 const multer = require('multer');
 const fs = require('fs');
 
 const User = require('../../domain/user/entity/User');
 const Pet = require('../../domain/pet/entity/Pet');
-const Group = require('../../domain/recruit/entity/Group'); // Group 엔티티 추가
+const Recruit = require('../../domain/recruit/entity/Recruit');
 
-dotenv.config();
-
-// TypeORM 설정
 const AppDataSource = new DataSource({
     type: 'mysql',
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT),
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT, 10) || 3306,
+    username: process.env.DB_USERNAME || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'test',
     synchronize: true,
     dropSchema: false,
     logging: true,
-    entities: [User, Pet, Group],
+    entities: [User, Pet, Recruit],
 });
 
-// multer 설정 (파일 업로드용)a
 const uploadPath = path.join(__dirname, '../../../uploads/pets');
 if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
