@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="mailbox">
+<html lang="ko" data-page="contact">
 <head>
   <meta charset="UTF-8">
-  <title>메일함</title>
-  <script src="../js/auth.js" defer></script>
+  <title>문의하기</title>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
 </head>
 <body>
-  <aside class="sidebar">
+  <script>
+  function requireLogin() {
+    if (!localStorage.getItem("user")) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "/login.html";
+    }
+  }
+  requireLogin();
+</script>
+<aside class="sidebar">
   <h2>도그파인더스</h2>
   <ul>
     <li><a id="nav-home" href="/index.html">홈</a></li>
@@ -20,18 +28,5 @@
     <li><a id="nav-login" href="/login.html">로그인</a></li>
   </ul>
 </aside>
-
-  <main class="main">
-    <h1>메일함</h1>
-    <table class="table">
-      <thead>
-        <tr><th>발신인</th><th>제목</th><th>날짜</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>관리자</td><td>환영합니다!</td><td>2025-05-27</td></tr>
-        <tr><td>지원팀</td><td>업데이트 공지</td><td>2025-05-26</td></tr>
-      </tbody>
-    </table>
-  </main>
 </body>
 </html>

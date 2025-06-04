@@ -1,39 +1,44 @@
 <!DOCTYPE html>
 <html lang="ko" data-page="login">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>로그인 - 도그파인더스</title>
-  <link rel="stylesheet" href="../css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>로그인 – 도그파인더스</title>
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
   <aside class="sidebar">
     <h2>도그파인더스</h2>
     <ul>
-      <li><a href="./index">홈</a></li>
-      <li><a href="./map">지도</a></li>
-      <li><a href="./post-list">게시글</a></li>
-      <li><a href="./mailbox">메일함</a></li>
-      <li><a href="./login" class="active">로그인</a></li>
-      <li><a href="./settings">설정</a></li>
-      <li><a href="./contact">문의하기</a></li>
+      <li><a id="nav-home" href="/index.html">홈</a></li>
+      <li><a id="nav-mypage" href="/mypage.html">마이페이지</a></li>
+      <li><a id="nav-write" href="/post-create.html">게시글 작성</a></li>
+      <li><a id="nav-list" href="/post-list.html">게시글 목록</a></li>
+      <li><a id="nav-gather" href="/gather.html">모임(모집글)</a></li>
+      <li><a id="nav-login" href="/login.html" class="active">로그인</a></li>
     </ul>
   </aside>
+
   <main class="main">
     <div class="form-card">
       <h1>로그인</h1>
       <form id="loginForm">
-        <input type="text" id="loginId" placeholder="아이디" required>
-        <input type="password" id="password" placeholder="비밀번호" required>
+        <input type="text" id="loginId" placeholder="아이디" required />
+        <input type="password" id="password" placeholder="비밀번호" required />
         <button type="submit">로그인</button>
         <p id="login-feedback" style="color: red; margin-top: 10px;"></p>
       </form>
       <div class="signup-link">
-        아직 회원이 아니신가요? <a href="./register">회원가입</a>
+        아직 회원이 아니신가요? <a href="/register.html">회원가입</a>
       </div>
     </div>
   </main>
-  <script src="/js/login.js"></script>
+
+  <!-- 사이드바 상태(로그인/로그아웃) 업데이트 스크립트 -->
+  <script src="/js/sidebar.js" defer></script>
+  <!-- 로그인 처리 로직 -->
+  <script src="/js/login.js" defer></script>
+  <!-- 공통 스크립트(필요하다면) -->
   <script src="/js/scripts.js" defer></script>
 </body>
 </html>
