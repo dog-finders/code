@@ -24,17 +24,16 @@
 </head>
 <body>
   <aside class="sidebar">
-  <h2>도그파인더스</h2>
-  <ul>
-    <li><a id="nav-home" href="/index.html">홈</a></li>
-    <li><a id="nav-mypage" href="/settings+.html">마이페이지</a></li>
-    <li><a id="nav-write" href="/post-create.html">게시글 작성</a></li>
-    <li><a id="nav-list" href="/post-list.html">게시글 목록</a></li>
-    <li><a id="nav-gather" href="/gather.html">모임(모집글)</a></li>
-    <li><a id="nav-login" href="/login.html">로그인</a></li>
-  </ul>
-</aside>
-
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a id="nav-home" href="/index">홈</a></li>
+      <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
+      <li><a id="nav-write" href="/post-create">게시글 작성</a></li>
+      <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
+      <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
+      <li><a id="nav-login" href="/login">로그인</a></li>
+    </ul>
+  </aside>
 
   <main class="main" style="position: relative;">
     <h1>지도</h1>
@@ -44,9 +43,9 @@
 
     <script>
       window.onload = function () {
-        // URL 파라미터에서 returnUrl 가져오기 (없으면 post-create.html)
+        // URL 파라미터에서 returnUrl 가져오기 (없으면 post-create)
         const params = new URL(location.href).searchParams;
-        const returnUrl = params.get('returnUrl') || 'post-create.html';
+        const returnUrl = params.get('returnUrl') || 'post-create';
 
         const container = document.getElementById('map');
         const defaultCenter = new kakao.maps.LatLng(37.514588, 126.724053);

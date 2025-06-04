@@ -13,24 +13,23 @@
   function requireLogin() {
     if (!localStorage.getItem("user")) {
       alert("로그인이 필요한 서비스입니다.");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
   }
   requireLogin();
-</script>
+  </script>
 
   <aside class="sidebar">
   <h2>도그파인더스</h2>
   <ul>
-    <li><a id="nav-home" href="/index.html">홈</a></li>
-    <li><a id="nav-mypage" href="/settings+.html">마이페이지</a></li>
-    <li><a id="nav-write" href="/post-create.html">게시글 작성</a></li>
-    <li><a id="nav-list" href="/post-list.html">게시글 목록</a></li>
-    <li><a id="nav-gather" href="/gather.html">모임(모집글)</a></li>
-    <li><a id="nav-login" href="/login.html">로그인</a></li>
+    <li><a id="nav-home" href="/index">홈</a></li>
+    <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
+    <li><a id="nav-write" href="/post-create">게시글 작성</a></li>
+    <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
+    <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
+    <li><a id="nav-login" href="/login">로그인</a></li>
   </ul>
-</aside>
-
+  </aside>
 
   <main class="main">
     <div class="form-card">
@@ -87,7 +86,7 @@
 
         if (response.ok) {
           // 작성 성공 시 목록 페이지로 이동
-          window.location.href = 'post-list';
+          window.location.href = '/post-list';
         } else {
           const err = await response.json();
           alert('작성 실패: ' + (err.message || '알 수 없는 오류'));

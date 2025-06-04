@@ -1,4 +1,5 @@
-// global/config/typeOrmConfig.js (이미 잘 작성됨 가정)
+// backend/global/config/typeOrmConfig.js
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -6,10 +7,6 @@ const { DataSource } = require('typeorm');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
-
-const User = require('../../domain/user/entity/User');
-const Pet = require('../../domain/pet/entity/Pet');
-const Recruit = require('../../domain/recruit/entity/Recruit');
 
 const AppDataSource = new DataSource({
   type: 'mysql',
@@ -21,8 +18,17 @@ const AppDataSource = new DataSource({
   synchronize: true,
   dropSchema: false,
   logging: true,
-  entities: [User, Pet, Recruit],
+  // glob 패턴을 사용하여 모든 entity 파일을 자동으로 로드합니다.
+  entities: [path.join(__dirname, '../../**/entity/*.{js,ts}')],
 });
+
+AppDataSource.initialize()
+  .then(() => {
+    console.log('✅ Data Source initialized (glob entities)');
+  })
+  .catch((err) => {
+    console.error('❌ Data Source initialization error', err);
+  });
 
 const uploadPath = path.join(__dirname, '../../../uploads/pets');
 if (!fs.existsSync(uploadPath)) {
@@ -31,7 +37,7 @@ if (!fs.existsSync(uploadPath)) {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadPath),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+  filename:    (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 
 const upload = multer({ storage });
