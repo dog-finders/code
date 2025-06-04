@@ -6,23 +6,22 @@
   <script src="../js/auth.js" defer></script>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
+  <script src="/js/sidebar.js" defer></script>
 </head>
 <body>
   <aside class="sidebar">
-    <h2>도그파인더스</h2>
-    <ul>
-      <li><a href="./index">홈</a></li>
-      <li><a href="./map">지도</a></li>
-      <li><a href="./post-list">게시글</a></li>
-      <li><a href="./mailbox">메일함</a></li>
-      <li class="auth-item">
-        <a href="#" id="auth-link" class="login-btn">로그인</a>
-        <a href="#" id="logout-link" class="logout-btn" style="display: none;">로그아웃</a>
-      </li>
-      <li><a href="./settings">설정</a></li>
-      <li><a href="./contact">문의하기</a></li>
-    </ul>
-  </aside>
+  <h2>도그파인더스</h2>
+  <ul>
+    <li><a id="nav-home" href="/index.html">홈</a></li>
+    <li><a id="nav-mypage" href="/settings+.html">마이페이지</a></li>
+    <li><a id="nav-write" href="/post-create.html">게시글 작성</a></li>
+    <li><a id="nav-list" href="/post-list.html">게시글 목록</a></li>
+    <li><a id="nav-gather" href="/gather.html">모임(모집글)</a></li>
+    <li><a id="nav-login" href="/login.html">로그인</a></li>
+    <li><a id="nav-contact" href="/contact.html">문의하기</a></li>
+  </ul>
+</aside>
+
   <main class="main">
     <h1>메일함</h1>
     <table class="table">

@@ -2,9 +2,10 @@
 <html lang="ko" data-page="map">
 <head>
   <meta charset="UTF-8" />
-  <title>지도 – 도그 파인더스</title>
+  <title>지도 – 도그파인더스</title>
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="../js/scripts.js" defer></script>
+  <script src="/js/sidebar.js" defer></script>
 
   <!-- Kakao Maps SDK -->
   <script
@@ -23,59 +24,90 @@
 </head>
 <body>
   <aside class="sidebar">
-    <h2>도그파인더스</h2>
-    <ul>
-      <li><a href="index">홈</a></li>
-      <li><a href="map" class="active">지도</a></li>
-      <li><a href="post-list">게시글</a></li>
-      <li><a href="mailbox">메일함</a></li>
-      <li><a href="login">로그인</a></li>
-      <li><a href="settings">설정</a></li>
-      <li><a href="contact">문의하기</a></li>
-    </ul>
-  </aside>
+  <h2>도그파인더스</h2>
+  <ul>
+    <li><a id="nav-home" href="/index.html">홈</a></li>
+    <li><a id="nav-mypage" href="/settings+.html">마이페이지</a></li>
+    <li><a id="nav-write" href="/post-create.html">게시글 작성</a></li>
+    <li><a id="nav-list" href="/post-list.html">게시글 목록</a></li>
+    <li><a id="nav-gather" href="/gather.html">모임(모집글)</a></li>
+    <li><a id="nav-login" href="/login.html">로그인</a></li>
+    <li><a id="nav-contact" href="/contact.html">문의하기</a></li>
+  </ul>
+</aside>
 
-  <main class="main">
+
+  <main class="main" style="position: relative;">
     <h1>지도</h1>
     <div id="map"></div>
+    <!-- 저장 버튼 -->
+    <button class="save-btn" id="saveLocation">위치 저장</button>
+
     <script>
       window.onload = function () {
+        // URL 파라미터에서 returnUrl 가져오기 (없으면 post-create.html)
+        const params = new URL(location.href).searchParams;
+        const returnUrl = params.get('returnUrl') || 'post-create.html';
+
         const container = document.getElementById('map');
-        const defaultCenter = new kakao.maps.LatLng(33.45071, 126.570667);
+        const defaultCenter = new kakao.maps.LatLng(37.514588, 126.724053);
+        const map = new kakao.maps.Map(container, { center: defaultCenter, level: 3 });
 
-        const mapOptions = {
-          center: defaultCenter,
-          level: 3
-        };
+        let clickMarker = null;
+        let clickCircle = null;
 
-        const map = new kakao.maps.Map(container, mapOptions);
+        // 클릭한 위치에 마커와 반경 1km 원 생성
+        kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+          const clickedPosition = mouseEvent.latLng;
 
+          if (clickMarker) clickMarker.setMap(null);
+          clickMarker = new kakao.maps.Marker({
+            position: clickedPosition,
+            map: map
+          });
+
+          if (clickCircle) clickCircle.setMap(null);
+          clickCircle = new kakao.maps.Circle({
+            center: clickedPosition,
+            radius: 1000, // 1km
+            strokeWeight: 2,
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.7,
+            fillColor: '#FF0000',
+            fillOpacity: 0.1,
+            map: map
+          });
+
+          console.log('선택된 위도:', clickedPosition.getLat(), '경도:', clickedPosition.getLng());
+        });
+
+        // Geolocation으로 현재 위치에만 마커 표시 (반경 원은 클릭 시만)
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              const lat = pos.coords.latitude;
-              const lng = pos.coords.longitude;
-              const userLocation = new kakao.maps.LatLng(lat, lng);
-
+              const userLocation = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
               map.setCenter(userLocation);
-
-              new kakao.maps.Marker({
-                map: map,
-                position: userLocation
-              });
+              new kakao.maps.Marker({ map: map, position: userLocation });
             },
             (err) => {
               console.warn('위치 정보를 가져올 수 없습니다:', err.message);
             },
-            {
-              enableHighAccuracy: true,
-              timeout: 5000,
-              maximumAge: 0
-            }
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
           );
         } else {
           console.warn('이 브라우저는 Geolocation을 지원하지 않습니다.');
         }
+
+        // 저장 버튼 클릭 시, 클릭된 마커 없으면 경고, 있으면 returnUrl로 lat,lng 보낸 뒤 리다이렉트
+        document.getElementById('saveLocation').addEventListener('click', function() {
+          if (!clickMarker) {
+            alert('먼저 지도를 클릭해 위치를 선택해 주세요.');
+            return;
+          }
+          const lat = clickMarker.getPosition().getLat();
+          const lng = clickMarker.getPosition().getLng();
+          window.location.href = returnUrl + '?lat=' + lat + '&lng=' + lng;
+        });
       };
     </script>
   </main>

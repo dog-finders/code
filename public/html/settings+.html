@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>프로필 저장 완료 – 도그파인더스</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <title>프로필 보기 – 도그파인더스</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/sidebar.js" defer></script>
+  <script src="/js/settingsView.js" defer></script>
   <style>
     .container {
       max-width: 700px;
@@ -65,59 +68,54 @@
   </style>
 </head>
 <body>
+  <script>
+  function requireLogin() {
+    if (!localStorage.getItem("user")) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "/login.html";
+    }
+  }
+  requireLogin();
+</script>
   <aside class="sidebar">
-    <h2>도그파인더스</h2>
-    <ul>
-      <li><a href="index">홈</a></li>
-      <li><a href="map">지도</a></li>
-      <li><a href="post-list">게시글</a></li>
-      <li><a href="mailbox">메일함</a></li>
-      <li><a href="login">로그인</a></li>
-      <li><a href="settings" class="active">설정</a></li>
-      <li><a href="contact">문의하기</a></li>
-    </ul>
-  </aside>
+  <h2>도그파인더스</h2>
+  <ul>
+    <li><a id="nav-home" href="/index.html">홈</a></li>
+    <li><a id="nav-mypage" href="/settings+.html">마이페이지</a></li>
+    <li><a id="nav-write" href="/post-create.html">게시글 작성</a></li>
+    <li><a id="nav-list" href="/post-list.html">게시글 목록</a></li>
+    <li><a id="nav-gather" href="/gather.html">모임(모집글)</a></li>
+    <li><a id="nav-login" href="/login.html">로그인</a></li>
+    <li><a id="nav-contact" href="/contact.html">문의하기</a></li>
+  </ul>
+</aside>
+
 
   <main class="main">
     <div class="container">
-      <h1>프로필 저장 완료!</h1>
+      <h1>프로필 정보</h1>
 
       <div class="section">
         <h2>기본 정보</h2>
-        <div class="info-item"><strong>이름:</strong> 홍길동</div>
-        <div class="info-item"><strong>이메일:</strong> hong@example.com</div>
-        <div class="info-item"><strong>주소:</strong> 서울시 강남구 역삼동</div>
-        <div class="info-item"><strong>전화번호:</strong> 010-1234-5678</div>
-        <div class="info-item"><strong>생년월일:</strong> 1990-01-01</div>
-        <div class="info-item"><strong>자기소개:</strong> 반려동물을 사랑하는 사람입니다!</div>
+        <div class="info-item"><strong>이름:</strong> <span id="viewName"></span></div>
+        <div class="info-item"><strong>이메일:</strong> <span id="viewEmail"></span></div>
+        <div class="info-item"><strong>전화번호:</strong> <span id="viewPhone"></span></div>
+        <div class="info-item"><strong>생년월일:</strong> <span id="viewBirthdate"></span></div>
+        <div class="info-item"><strong>주소:</strong> <span id="viewAddress"></span></div>
+        <div class="info-item"><strong>자기소개:</strong> <span id="viewBio"></span></div>
       </div>
 
       <div class="section">
         <h2>반려동물 정보</h2>
-
-        <div class="pet-box">
-          <img src="/uploads/dog1.jpg" alt="강아지" class="pet-preview" />
-          <div class="info-item"><strong>종류:</strong> 강아지</div>
-          <div class="info-item"><strong>나이:</strong> 3살</div>
-          <div class="info-item"><strong>성격:</strong> 활발함</div>
-          <div class="info-item"><strong>백신:</strong> 종합백신, 광견병</div>
-        </div>
-
-        <div class="pet-box">
-          <img src="/uploads/cat1.jpg" alt="고양이" class="pet-preview" />
-          <div class="info-item"><strong>종류:</strong> 고양이</div>
-          <div class="info-item"><strong>나이:</strong> 2살</div>
-          <div class="info-item"><strong>성격:</strong> 낯가림</div>
-          <div class="info-item"><strong>백신:</strong> 고양이 전염성 복막염</div>
-        </div>
-
+        <div id="pet-view-container"></div>
       </div>
 
-      <div class="section" style="text-align:center;">
-        <a href="settings" class="btn">프로필 수정</a>
-        <a href="index" class="btn">홈으로 이동</a>
+      <div class="section" style="text-align: center;">
+        <a href="/settings.html" class="btn">프로필 수정</a>
+        <a href="/index" class="btn">홈으로 이동</a>
       </div>
     </div>
   </main>
+  <script src="/js/scripts.js" defer></script>
 </body>
 </html>

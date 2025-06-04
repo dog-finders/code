@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="dashboard">
+<html lang="ko" data-page="contact">
 <head>
   <meta charset="UTF-8">
-  <title>도그파인더스</title>
+  <title>문의하기</title>
   <link rel="stylesheet" href="../css/styles.css">
-  <script src="../js/auth.js" defer></script>
   <script src="../js/scripts.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
 </head>
 <body>
+  <script>
+  function requireLogin() {
+    if (!localStorage.getItem("user")) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "/login.html";
+    }
+  }
+  requireLogin();
+</script>
 <aside class="sidebar">
   <h2>도그파인더스</h2>
   <ul>
@@ -21,7 +29,5 @@
     <li><a id="nav-contact" href="/contact.html">문의하기</a></li>
   </ul>
 </aside>
-
-<!-- 나머지 코드는 그대로 유지 -->
 </body>
 </html>

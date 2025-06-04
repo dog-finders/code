@@ -9,11 +9,15 @@ const session = require('express-session');
 const app = express();
 const PORT = 8000;
 
+// ✅ TypeORM 연결
 const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
 const userRoute = require('./backend/domain/user/routes/userRoutes');
 const recruitRoute = require('./backend/domain/recruit/routes/recruitRoutes');
 
-// 미들웨어 설정
+console.log('userRoute 타입:', typeof userRoute);       // 함수나 객체라고 찍혀야 함
+console.log('recruitRoute 타입:', typeof recruitRoute); // 함수나 객체라고 찍혀야 함
+
+// ✅ 미들웨어
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -31,14 +35,15 @@ app.use(
   })
 );
 
-// 정적 파일 경로 설정
+// ✅ 정적 파일 경로 (css, js, assets)
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// 페이지 라우팅
+app.use(express.static(path.join(__dirname, 'public', 'html')));
+
+// ✅ 각 HTML 라우트 - ⬅️ 여기서 code 빼고, public부터!
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
 });
@@ -73,29 +78,22 @@ app.get('/contact', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
 });
 
-// 데이터소스 초기화 후 라우팅과 서버 시작
+// ✅ API 라우터
+app.use('/api/users', userRoute);
+app.use('/api/recruit', recruitRoute);
+
+// ✅ 404 에러 처리
+app.use((req, res, next) => next(createError(404)));
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).send('에러 발생: ' + err.message);
+});
+
+// ✅ DB 연결 후 서버 실행
 AppDataSource.initialize()
   .then(() => {
     console.log('Data Source initialized');
-
-    // 라우터 등록
-    app.use('/api/users', userRoute);
-    app.use('/api/recruit', recruitRoute);
-
-    // 404 에러 핸들러는 라우터 등록 후에 추가
-    app.use((req, res, next) => {
-      next(createError(404));
-    });
-    app.use((err, req, res, next) => {
-      res.status(err.status || 500).send('에러 발생: ' + err.message);
-    });
-
-    app.listen(PORT, () => {
-      console.log(`서버 실행 중: http://localhost:${PORT}`);
-    });
+    app.listen(PORT, () => console.log(`서버 실행 중: http://localhost:${PORT}`));
   })
-  .catch((err) => {
-    console.error('Data Source initialization error', err);
-  });
+  .catch((err) => console.error('Data Source initialization error', err));
 
 module.exports = app;
