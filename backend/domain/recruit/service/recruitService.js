@@ -1,22 +1,11 @@
-const recruitRepository = require('../repository/recruitRepository');
-const { AppDataSource } = require('../../../global/config/typeOrmConfig');
-const User = require('../../user/entity/User');
+// service/recruitService.js
 
-const userRepository = AppDataSource.getRepository(User);
+const recruitRepository = require('../repository/recruitRepository');
 
 module.exports = {
   createRecruit: async (recruitData) => {
-    // recruitData 안에 loginId가 있다고 가정
-    const user = await userRepository.findOneBy({ loginId: recruitData.loginId });
-    if (!user) throw new Error('User not found');
-
-    // 관계 설정 위해 user 엔티티 추가
-    const newRecruitData = {
-      ...recruitData,
-      user,  // 연관관계 설정
-    };
-
-    return await recruitRepository.createRecruit(newRecruitData);
+    // recruitData 안에 user 객체가 있다고 가정 (user 엔티티 직접 받음)
+    return await recruitRepository.createRecruit(recruitData);
   },
 
   getAllRecruits: async () => {

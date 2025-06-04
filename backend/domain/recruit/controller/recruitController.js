@@ -1,3 +1,5 @@
+// controller/recruitController.js
+
 const recruitService = require('../service/recruitService');
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const User = require('../../user/entity/User');
@@ -15,20 +17,19 @@ module.exports = {
         return res.status(400).json({ message: '모든 항목을 입력해 주세요.' });
       }
 
-      // userId로 User 엔티티 조회
       const userRepo = AppDataSource.getRepository(User);
       const user = await userRepo.findOneBy({ id: userId });
       if (!user) {
         return res.status(401).json({ message: '유효하지 않은 사용자입니다.' });
       }
 
-      // loginId 포함해서 서비스에 전달
+      // user 객체를 직접 넘긴다
       const newRecruit = await recruitService.createRecruit({
         title,
         content,
         close_at: new Date(close_at),
         is_closed: false,
-        loginId: user.loginId,
+        user,
       });
 
       return res.status(201).json(newRecruit);
@@ -38,15 +39,22 @@ module.exports = {
     }
   },
 
-  getAllRecruits: async (req, res) => {
-    try {
-      const recruits = await recruitService.getAllRecruits();
-      return res.status(200).json(recruits);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: '서버 에러' });
-    }
-  },
+getAllRecruits: async (req, res) => {
+  try {
+    const { search = '', page = 1, pageSize = 10 } = req.query;
+
+    const result = await recruitService.getRecruitsWithSearch({
+      search,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+    });
+
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: '서버 에러' });
+  }
+},
 
   getRecruitById: async (req, res) => {
     try {

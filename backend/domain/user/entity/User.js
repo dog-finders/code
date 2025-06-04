@@ -21,4 +21,11 @@ module.exports = new EntitySchema({
       nullable: true,
     },
   },
+  relations: {
+    recruits: {
+      type: 'one-to-many',
+      target: 'Recruit',
+      inverseSide: 'user',
+    },
+  },
 });

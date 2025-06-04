@@ -73,6 +73,7 @@ app.get('/contact', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
 });
 
+
 // 데이터소스 초기화 후 라우팅과 서버 시작
 AppDataSource.initialize()
   .then(() => {
