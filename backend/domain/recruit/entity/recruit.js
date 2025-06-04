@@ -1,37 +1,17 @@
 const { EntitySchema } = require('typeorm');
+const User = require('../../user/entity/User');
 
 module.exports = new EntitySchema({
   name: 'Recruit',
   tableName: 'recruit',
   columns: {
-    id: {
-      primary: true,
-      type: 'int',
-      generated: true,
-    },
-    title: {
-      type: 'varchar',
-    },
-    content: {
-      type: 'text',
-    },
-    location: {
-      type: 'varchar',
-    },
-    close_at: {
-      type: 'datetime',
-    },
-    is_closed: {
-      type: 'boolean',
-      default: false,
-    },
-    created_at: {
-      type: 'datetime',
-      createDate: true,  // 자동 생성일 지정
-    },
-    updated_at: {
-      type: 'datetime',
-      updateDate: true,  // 자동 수정일 지정
-    },
+    id: { type: 'int', primary: true, generated: true },
+    title: { type: 'varchar' },
+    content: { type: 'text' },
+    loginId: { type: 'varchar' },  // FK와 연결할 컬럼
+    close_at: { type: 'datetime' },
+    is_closed: { type: 'boolean', default: false },
+    created_at: { type: 'datetime', createDate: true },
+    updated_at: { type: 'datetime', updateDate: true },
   },
 });
