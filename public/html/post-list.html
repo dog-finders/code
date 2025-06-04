@@ -124,9 +124,40 @@
       const paginationDiv = document.getElementById('pagination');
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
+      const authLink = document.getElementById('auth-link');
+      const logoutLink = document.getElementById('logout-link');
+      const authMenu = document.getElementById('auth-menu');
 
       let currentPage = 1;
       const pageSize = 10;
+
+      // 로그인 상태 확인 함수
+      async function checkLoginStatus() {
+        try {
+          const res = await fetch('/api/auth/status');
+          const data = await res.json();
+          if (data.isLoggedIn) {
+            authLink.style.display = 'none';
+            logoutLink.style.display = 'inline-block';
+          } else {
+            authLink.style.display = 'inline-block';
+            logoutLink.style.display = 'none';
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      // 로그아웃 함수
+      logoutLink.addEventListener('click', async () => {
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+          checkLoginStatus();
+          alert('로그아웃 되었습니다.');
+        } catch (error) {
+          alert('로그아웃 실패');
+        }
+      });
 
       // 게시글 목록을 불러오는 함수
       async function fetchPosts(page = 1, search = '') {
@@ -150,35 +181,36 @@
       }
 
       // 게시글 목록을 렌더링하는 함수
-      function renderPosts(posts) {
-        container.innerHTML = '';
+function renderPosts(posts) {
+  container.innerHTML = '';
 
-        if (posts.length === 0) {
-          container.innerHTML = '<p>검색 결과가 없습니다.</p>';
-          return;
-        }
+  if (posts.length === 0) {
+    container.innerHTML = '<p>검색 결과가 없습니다.</p>';
+    return;
+  }
 
-        posts.forEach(post => {
-          const div = document.createElement('div');
-          div.className = 'post-card';
-          div.onclick = () => {
-            window.location.href = `post-detail?id=${post.id}`;
-          };
+  posts.forEach(post => {
+    const div = document.createElement('div');
+    div.className = 'post-card';
+    div.onclick = () => {
+      window.location.href = `post-detail?id=${post.id}`;
+    };
 
-          const closeDate = new Date(post.close_at);
-          const formattedDate = closeDate.toLocaleDateString();
+    const closeDate = new Date(post.close_at);
+    const formattedDate = closeDate.toLocaleDateString();
 
-          // 작성자 정보가 없으면 '익명'으로 표시
-          const author = post.author || post.userId || '익명';
+    // 작성자 정보가 없으면 '익명'으로 표시
+    const author = post.authorId || '익명'; // 변경된 부분: authorId를 사용
 
-          div.innerHTML = `
-            <h2>${post.title}</h2>
-            <div class="meta">작성자: ${author} | ${post.location} | 마감일: ${formattedDate}</div>
-            <p>${post.content}</p>
-          `;
-          container.appendChild(div);
-        });
-      }
+    div.innerHTML = `
+      <h2>${post.title}</h2>
+      <div class="meta">작성자 ID: ${author} | ${post.location} | 마감일: ${formattedDate}</div>
+      <p>${post.content}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
 
       // 페이지네이션 렌더링
       function renderPagination(totalPages, current) {
@@ -231,6 +263,7 @@
       });
 
       // 페이지 로딩 시
+      checkLoginStatus();
       fetchPosts();
     });
   </script>

@@ -106,7 +106,7 @@ router.get('/', async (req, res) => {
         content: r.content,
         close_at: r.close_at,
         is_closed: r.is_closed,
-        author: r.user ? r.user.username : '익명', // 작성자 정보
+        authorId: r.user ? r.user.id : '익명', // 변경: 작성자 ID로 표시
         location: r.location || '-',
         created_at: r.created_at,
       })),
@@ -140,7 +140,7 @@ router.get('/:id', async (req, res) => {
       content: recruit.content,
       close_at: recruit.close_at,
       is_closed: recruit.is_closed,
-      author: recruit.user ? recruit.user.username : '익명', // 작성자 정보
+      authorId: recruit.user ? recruit.user.id : '익명', // 변경: 작성자 ID로 표시
       location: recruit.location,
       created_at: recruit.created_at,
     });
