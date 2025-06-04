@@ -1,4 +1,5 @@
 // backend/global/config/typeOrmConfig.js
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -9,15 +10,16 @@ const fs = require('fs');
 
 const AppDataSource = new DataSource({
   type: 'mysql',
-  host: process.env.DB_HOST      || 'localhost',
+  host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT, 10) || 3306,
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME   || 'test',
+  database: process.env.DB_NAME || 'test',
   synchronize: true,
   dropSchema: false,
   logging: true,
-  entities: [path.join(__dirname, '../../**/entity/*.{js,ts}')], // glob 패턴
+  // glob 패턴을 사용하여 모든 entity 파일을 자동으로 로드합니다.
+  entities: [path.join(__dirname, '../../**/entity/*.{js,ts}')],
 });
 
 AppDataSource.initialize()
@@ -37,6 +39,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadPath),
   filename:    (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
+
 const upload = multer({ storage });
 
 module.exports = {

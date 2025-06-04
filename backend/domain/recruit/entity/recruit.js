@@ -4,34 +4,24 @@ module.exports = new EntitySchema({
   name: 'Recruit',
   tableName: 'recruit',
   columns: {
-    id: {
-      primary: true,
-      type: 'int',
-      generated: true,
-    },
-    title: {
-      type: 'varchar',
-    },
-    content: {
-      type: 'text',
-    },
-    location: {
-      type: 'varchar',
-    },
-    close_at: {
-      type: 'datetime',
-    },
-    is_closed: {
-      type: 'boolean',
-      default: false,
-    },
-    created_at: {
-      type: 'datetime',
-      createDate: true,  // 자동 생성일 지정
-    },
-    updated_at: {
-      type: 'datetime',
-      updateDate: true,  // 자동 수정일 지정
+    id: { type: 'int', primary: true, generated: true },
+    title: { type: 'varchar' },
+    content: { type: 'text' },
+    close_at: { type: 'datetime' },
+    is_closed: { type: 'boolean', default: false },
+    created_at: { type: 'datetime', createDate: true },
+    updated_at: { type: 'datetime', updateDate: true },
+
+    // userId 컬럼을 nullable:true로 수정
+    userId: { type: 'int', nullable: true },
+  },
+  relations: {
+    user: {
+      type: 'many-to-one',
+      target: 'User',
+      joinColumn: { name: 'userId', referencedColumnName: 'id' },
+      eager: true,
+      nullable: true,  // nullable:true로 수정
     },
   },
 });
