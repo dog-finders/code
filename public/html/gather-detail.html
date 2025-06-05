@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" data-page="gather-detail">
+<head>
+<meta charset="UTF-8" />
+<title>모임 상세</title>
+<link rel="stylesheet" href="../css/styles.css" />
+<script src="../js/scripts.js" defer></script>
+<script>
+  // 로그인 확인
+  function requireLogin() {
+    if (!localStorage.getItem("user")) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "/login";
+    }
+  }
+
+  // URL에서 id 쿼리 파라미터 가져오기
+  function getMeetingId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+  }
+
+  // 모임 상세 불러오기
+  async function loadMeetingDetail() {
+    const meetingId = getMeetingId();
+    if (!meetingId) {
+      alert("잘못된 접근입니다.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/meetings/${meetingId}`);
+      if (!res.ok) {
+        alert("모임 정보를 불러오지 못했습니다.");
+        return;
+      }
+
+      const meeting = await res.json();
+
+      document.getElementById("meetingTitle").textContent = meeting.title;
+      document.getElementById("hostId").textContent = meeting.hostId;
+
+      const membersList = document.getElementById("membersList");
+      membersList.innerHTML = "";
+
+      meeting.members.forEach(memberId => {
+        const li = document.createElement("li");
+        li.textContent = memberId;
+        membersList.appendChild(li);
+      });
+    } catch (error) {
+      console.error(error);
+      alert("오류가 발생했습니다.");
+    }
+  }
+
+  window.onload = () => {
+    requireLogin();
+    loadMeetingDetail();
+  };
+</script>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a href="/index">홈</a></li>
+      <li><a href="/map">지도</a></li>
+      <li><a href="/settings+">마이페이지</a></li>
+      <li><a href="/post-list">게시글 목록</a></li>
+      <li><a href="/gather">모임(모집글)</a></li>
+      <li><a href="/login">로그인</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <h1 id="meetingTitle">모임 제목</h1>
+    <p><strong>호스트:</strong> <span id="hostId"></span></p>
+    <p><strong>참석자:</strong></p>
+    <ul id="membersList"></ul>
+  </main>
+</body>
+</html>

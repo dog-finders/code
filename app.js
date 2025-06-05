@@ -97,8 +97,8 @@ app.get('/mypage', (req, res) => {
 app.get('/gather', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'gather.html'));
 });
-app.get('/gather.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'html', 'gather.html'));
+app.get('/gather-detail', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'gather-detail.html'));
 });
 
 // ── DB 연결 및 API 라우터 연결 ──

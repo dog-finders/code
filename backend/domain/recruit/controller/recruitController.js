@@ -42,6 +42,27 @@ module.exports = {
     }
   },
 
+  deleteRecruit: async (req, res) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: '로그인이 필요합니다.' });
+    }
+
+    const { id } = req.params;
+    const deleted = await recruitService.deleteRecruit(Number(id), userId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: '삭제할 모집글을 찾을 수 없거나 권한이 없습니다.' });
+    }
+
+    return res.status(200).json({ message: '모집글 삭제 완료' });
+  } catch (err) {
+    console.error('모집글 삭제 에러:', err);
+    return res.status(500).json({ message: '서버 에러' });
+  }
+},
+
   getAllRecruits: async (req, res) => {
     try {
       const { search = '', page = 1, pageSize = 10 } = req.query;
@@ -68,6 +89,7 @@ module.exports = {
       return res.status(500).json({ message: '서버 에러' });
     }
   },
+  
 
   closeRecruit: async (req, res) => {
     try {

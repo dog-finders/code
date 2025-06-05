@@ -29,11 +29,16 @@
 
   <a href="post-list" class="btn btn-secondary">목록으로</a>
   <button class="btn btn-primary" id="attendPostBtn">참석하기</button>
-  <button class="btn btn-danger" id="deletePostBtn">삭제</button>
+  <button class="btn btn-warning" id="closePostBtn" style="display:none;">모집 마감</button>
+  <button class="btn btn-danger" id="deletePostBtn" style="display:none;">삭제</button>
 </main>
 
 <script>
   async function loadPostDetail() {
+    // localStorage에 저장된 'user'를 파싱해서 loginId 추출
+    const userStr = localStorage.getItem('user');
+    const loginId = userStr ? JSON.parse(userStr).loginId : null;
+
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
 
@@ -46,13 +51,60 @@
       const res = await fetch(`/api/recruit/${postId}`);
       if (!res.ok) throw new Error('게시글을 가져오는데 실패했습니다.');
       const post = await res.json();
+
       if (!post) throw new Error('게시글을 찾을 수 없습니다.');
 
+      // 화면에 게시글 정보 표시
       document.getElementById('postTitle').textContent = post.title || '제목 없음';
-      document.getElementById('postWriter').textContent = post.author;
+      document.getElementById('postWriter').textContent = post.authorId || '알 수 없음';
       document.getElementById('postLocation').textContent = post.location || '알 수 없음';
       document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString() || '알 수 없음';
       document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
+
+      console.log('loginId:', loginId);
+      console.log('post.authorId:', post.authorId);
+      console.log('같음?', loginId === post.authorId.toString());
+
+      // 로그인 사용자와 작성자가 같은 경우
+      if (loginId && post.authorId && loginId === post.authorId.toString()) {
+        const deleteBtn = document.getElementById('deletePostBtn');
+        const closeBtn = document.getElementById('closePostBtn');
+
+        deleteBtn.style.display = 'inline-block';
+        closeBtn.style.display = 'inline-block';
+
+        if (post.is_closed) {
+          closeBtn.disabled = true;
+          closeBtn.textContent = '모집 마감됨';
+        }
+
+        closeBtn.onclick = async () => {
+          if (confirm('모집을 마감하시겠습니까?')) {
+            try {
+              const closeRes = await fetch(`/api/recruit/close/${postId}`, { method: 'PATCH' });
+              if (!closeRes.ok) throw new Error('모집 마감에 실패했습니다.');
+              alert('모집이 마감되었습니다.');
+              closeBtn.disabled = true;
+              closeBtn.textContent = '모집 마감됨';
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+        };
+
+        deleteBtn.onclick = async () => {
+          if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
+            try {
+              const deleteRes = await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
+              if (!deleteRes.ok) throw new Error('삭제에 실패했습니다.');
+              alert('게시글이 삭제되었습니다.');
+              window.location.href = 'post-list';
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+        };
+      }
 
       document.getElementById('attendPostBtn').onclick = async () => {
         if (confirm('정말 이 게시글에 참석하시겠습니까?')) {
@@ -60,22 +112,12 @@
             const attendRes = await fetch(`/api/recruit/attend/${postId}`, { method: 'POST' });
             if (attendRes.ok) alert('참석이 완료되었습니다.');
             else throw new Error('참석에 실패했습니다.');
-          } catch (err) { alert(err.message); }
-        }
-      };
-
-      // *** 삭제 버튼 - 백엔드에서 연관 모임/멤버도 삭제됨
-      document.getElementById('deletePostBtn').onclick = async () => {
-        if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
-          const res = await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
-          if (res.ok) {
-            alert('게시글과 연관 모임이 삭제되었습니다.');
-            window.location.href = 'post-list';
-          } else {
-            alert('삭제에 실패했습니다.');
+          } catch (err) {
+            alert(err.message);
           }
         }
       };
+
     } catch (err) {
       alert(err.message);
     }

@@ -11,7 +11,7 @@
   function requireLogin() {
     if (!localStorage.getItem("user")) {
       alert("로그인이 필요한 서비스입니다.");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
   }
 
@@ -55,7 +55,7 @@
 
       // 클릭 시 모임방 상세 이동
       card.onclick = () => {
-        window.location.href = `/gather.html?id=${meeting.id}`;
+        window.location.href = `/gather-detail?id=${meeting.id}`;
       };
 
       card.appendChild(title);
