@@ -21,6 +21,7 @@ router.get('/', async (req, res) => {
         title: m.title,
         hostId: m.hostId,
         hostName: m.hostName, // ★ hostName 추가
+        recruitId: m.recruitId, // ★ recruitId 추가
         members: members.map(mem => mem.memberId)
       };
     })
@@ -44,6 +45,7 @@ router.get('/:id', async (req, res) => {
     title: meeting.title,
     hostId: meeting.hostId,
     hostName: meeting.hostName, // ★ hostName 추가
+    recruitId: meeting.recruitId, // ★ recruitId 추가
     members: members.map(m => m.memberId)
   });
 });
@@ -55,7 +57,8 @@ router.post('/', async (req, res) => {
   const userRepo = getRepository(User);
 
   const hostId = req.session?.userId || req.body.hostId;
-  const { title } = req.body;
+  // ★ body에서 recruitId도 같이 추출
+  const { title, recruitId } = req.body;
 
   if (!hostId || !title) {
     return res.status(400).json({ message: "필수 값이 없습니다." });
@@ -65,8 +68,13 @@ router.post('/', async (req, res) => {
   const user = await userRepo.findOne({ where: { id: hostId } });
   const hostName = user?.name || '알수없음';
 
-  // 모임 저장 (hostName도 같이)
-  const meeting = await meetingRepo.save({ title, hostId, hostName });
+  // ★ 모임 저장 (hostName, recruitId 포함)
+  const meeting = await meetingRepo.save({ 
+    title, 
+    hostId, 
+    hostName, 
+    recruitId: recruitId || null  // recruitId가 없으면 null 처리
+  });
   console.log("[POST /api/meetings] 생성된 meeting:", meeting);
 
   // 호스트도 참석자로 등록

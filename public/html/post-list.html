@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>모집글 목록 - 도그파인더스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/auth.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
+
+  <!-- ★ Kakao Maps SDK: services 라이브러리 포함시키기 (defer 제거) ★ -->
+  <script
+    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=47f0e9a41ccbe53d69beb528e5b94cd4&libraries=services"
+  ></script>
 </head>
-<body>
+<body data-page="post-list">
   <script>
-  function requireLogin() {
-    if (!localStorage.getItem("user")) {
-      alert("로그인이 필요한 서비스입니다.");
-      window.location.href = "/login";
+    function requireLogin() {
+      if (!localStorage.getItem("user")) {
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/login";
+      }
     }
-  }
-  requireLogin();
+    requireLogin();
   </script>
 
   <aside class="sidebar">
@@ -42,7 +47,6 @@
     </div>
 
     <div class="post-cards-container"></div>
-
     <div class="pagination" id="pagination"></div>
   </main>
 
@@ -56,14 +60,21 @@
       let currentPage = 1;
       const pageSize = 10;
 
+      // ★ Kakao Geocoder: kakao.maps.services 존재 여부 확인
+      const hasGeocoder = window.kakao && kakao.maps && kakao.maps.services;
+      let geocoder = null;
+      if (hasGeocoder) {
+        geocoder = new kakao.maps.services.Geocoder();
+      }
+
       async function fetchPosts(page = 1, search = '') {
         try {
           const url = `/api/recruit?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`;
           const response = await fetch(url);
-
           if (!response.ok) throw new Error('목록 조회 실패');
 
           const data = await response.json();
+          // 응답이 { posts:[...] } 구조인지, 아니면 단순 배열인지 체크
           const posts = Array.isArray(data) ? data : data.posts || [];
           const totalPages = data.totalPages || 1;
           const current = data.currentPage || page;
@@ -95,12 +106,41 @@
           const formattedDate = closeDate.toLocaleDateString();
           const author = post.authorId || '익명';
 
+          // “위치” 대신 빈 <span class="post-address">를 두고 나중에 채움
           div.innerHTML = `
             <h2>${post.title}</h2>
-            <div class="meta">작성자 ID: ${author} | ${post.location} | 마감일: ${formattedDate}</div>
+            <div class="meta">
+              작성자 ID: ${author} |
+              <span class="post-address">불러오는 중…</span> |
+              마감일: ${formattedDate}
+            </div>
             <p>${post.content}</p>
           `;
+
           container.appendChild(div);
+
+          // 존재하는 경우 latitude/longitude로 주소 역지오코딩
+          if (hasGeocoder && post.latitude != null && post.longitude != null) {
+            geocoder.coord2Address(post.longitude, post.latitude, (result, status) => {
+              const addrSpan = div.querySelector('.post-address');
+              if (status === kakao.maps.services.Status.OK) {
+                addrSpan.textContent = result[0].address.address_name;
+              } else {
+                // 역지오코딩 실패 시, DB에 저장된 location 문자열 표시
+                addrSpan.textContent = post.location || '주소 정보 없음';
+              }
+            });
+          } else {
+            // geocoder를 사용할 수 없거나, 위도/경도가 없을 때
+            const addrSpan = div.querySelector('.post-address');
+            // DB에 저장된 location 값(예: '부평구 갈산동')이 있으면 보여주고,
+            // 없으면 기존 메시지 출력
+            addrSpan.textContent = post.location
+              ? post.location
+              : (post.latitude != null && post.longitude != null
+                  ? '주소 정보 로딩 불가'
+                  : '위치 정보 없음');
+          }
         });
       }
 
