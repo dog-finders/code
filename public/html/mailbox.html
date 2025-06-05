@@ -7,6 +7,89 @@
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
+
+  <style>
+    .link-button {
+      background: none;
+      border: none;
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: inherit;
+      font-family: inherit;
+      padding: 0;
+    }
+    /* 모달 스타일 */
+    .modal {
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0; width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      width: 300px;
+      border-radius: 8px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      right: 10px; top: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+
+  <script>
+    function handleAccept(loginId, postTitle) {
+      alert(`'${postTitle}'에서 ${loginId}님의 참석 요청을 수락했습니다.`);
+      // TODO: 서버에 수락 API 요청 등 실제 처리 로직 추가
+    }
+
+    function handleReject(loginId, postTitle) {
+      alert(`'${postTitle}'에서 ${loginId}님의 참석 요청을 거절했습니다.`);
+      // TODO: 서버에 거절 API 요청 등 실제 처리 로직 추가
+    }
+
+    function showProfile(loginId) {
+      // 테스트용 임시 데이터
+      const profiles = {
+        doglover12: {
+          name: "김강아지",
+          age: 27,
+          email: "doglover12@example.com",
+          intro: "강아지를 사랑하는 사람입니다.",
+        },
+        // 다른 사용자 데이터 추가 가능
+      };
+
+      const profile = profiles[loginId];
+      const profileDiv = document.getElementById("profileData");
+
+      if (profile) {
+        profileDiv.innerHTML = `
+          <p><strong>아이디:</strong> ${loginId}</p>
+          <p><strong>이름:</strong> ${profile.name}</p>
+          <p><strong>나이:</strong> ${profile.age}세</p>
+          <p><strong>이메일:</strong> ${profile.email}</p>
+          <p><strong>소개:</strong> ${profile.intro}</p>
+        `;
+      } else {
+        profileDiv.innerHTML = "<p>프로필 정보를 찾을 수 없습니다.</p>";
+      }
+
+      document.getElementById("profileModal").style.display = "block";
+    }
+
+    function closeProfile() {
+      document.getElementById("profileModal").style.display = "none";
+    }
+  </script>
 </head>
 <body>
   <aside class="sidebar">
@@ -14,7 +97,8 @@
     <ul>
       <li><a id="nav-home" href="/index">홈</a></li>
       <li><a id="nav-map" href="/map">지도</a></li>
-      <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
+      <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
+      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
       <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
       <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
       <li><a id="nav-login" href="/login">로그인</a></li>
@@ -25,13 +109,33 @@
     <h1>메일함</h1>
     <table class="table">
       <thead>
-        <tr><th>발신인</th><th>제목</th><th>날짜</th></tr>
+        <tr><th>발신인</th><th>내용</th><th>날짜</th><th>조치</th></tr>
       </thead>
       <tbody>
-        <tr><td>관리자</td><td>환영합니다!</td><td>2025-05-27</td></tr>
-        <tr><td>지원팀</td><td>업데이트 공지</td><td>2025-05-26</td></tr>
+        <tr>
+          <td>
+            <button class="link-button" onclick="showProfile('doglover12')">doglover12</button>
+          </td>
+          <td>게시글 제목 '<strong>강아지 산책 모임</strong>'에서 참석자 <strong>doglover12</strong> 님이 참석 요청을 보냈습니다.</td>
+          <td>2025-06-05</td>
+          <td>
+            <button class="btn btn-success btn-sm" onclick="handleAccept('doglover12', '강아지 산책 모임')">수락</button>
+            <button class="btn btn-danger btn-sm" onclick="handleReject('doglover12', '강아지 산책 모임')">거절</button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </main>
+
+  <!-- 프로필 모달 -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeProfile()">&times;</span>
+      <h2>프로필 정보</h2>
+      <div id="profileData">
+        <!-- 프로필 정보가 여기 표시됨 -->
+      </div>
+    </div>
+  </div>
 </body>
 </html>
