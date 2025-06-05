@@ -45,7 +45,10 @@
       <li><a href="/mailbox">메일함</a></li>
       <li><a href="/post-list">게시글 목록</a></li>
       <li><a href="/gather">모임(모집글)</a></li>
-      <li><a href="/login">로그인</a></li>
+      <li>
+        <a href="/login" class="login-btn">로그인</a>
+        <a href="#" class="logout-btn" style="display: none;">로그아웃</a>
+      </li>
     </ul>
   </aside>
 
@@ -81,7 +84,7 @@
         if (!meeting) throw new Error("모임이 존재하지 않습니다.");
 
         document.getElementById("meetingTitle").textContent = meeting.title || "제목 없음";
-        document.getElementById("hostId").textContent = meeting.authorId || "알 수 없음";
+        document.getElementById("hostId").textContent = meeting.hostId || "알 수 없음";
 
         const membersList = document.getElementById("membersList");
         membersList.innerHTML = "";
@@ -92,7 +95,7 @@
         });
 
         // 호스트일 경우에만 산책 종료 버튼 표시
-        if (loginId && meeting.authorId && loginId === meeting.authorId) {
+        if (loginId && meeting.hostId && loginId === meeting.hostId) {
           const btn = document.createElement("button");
           btn.textContent = "산책 종료";
           btn.className = "btn btn-danger";

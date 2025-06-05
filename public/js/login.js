@@ -33,8 +33,8 @@ window.addEventListener('load', () => {
           localStorage.setItem('user', JSON.stringify(data.user));
           
 
-          // 로그인 후 마이페이지로 리디렉션
-          window.location.href = '/mypage';
+          // 로그인 후 홈으으로 리디렉션
+          window.location.href = '/index';
         } else {
           const data = await res.json();
           feedback.textContent =
