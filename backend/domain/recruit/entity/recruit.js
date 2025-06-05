@@ -9,6 +9,11 @@ module.exports = new EntitySchema({
     content: { type: 'text' },
     close_at: { type: 'datetime' },
     is_closed: { type: 'boolean', default: false },
+
+    // 추가된 컬럼
+    latitude: { type: 'double' },
+    longitude: { type: 'double' },
+
     created_at: { type: 'datetime', createDate: true },
     updated_at: { type: 'datetime', updateDate: true },
 
@@ -21,7 +26,7 @@ module.exports = new EntitySchema({
       target: 'User',
       joinColumn: { name: 'userId', referencedColumnName: 'id' },
       eager: true,
-      nullable: true,  // nullable:true로 수정
+      nullable: true,
     },
   },
 });

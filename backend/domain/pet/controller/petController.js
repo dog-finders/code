@@ -1,16 +1,6 @@
 const petService = require('../service/petService');
 
-exports.getPets = async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const pets = await petService.getPetsByUserId(userId);
-        res.json(pets);
-    } catch (error) {
-        console.error('getPets error:', error);
-        res.status(500).json({ message: '펫 조회 실패', error: error.message });
-    }
-};
-
+// 여러 마리 일괄 저장/수정 (bulk)
 exports.updatePetsBulk = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -22,6 +12,19 @@ exports.updatePetsBulk = async (req, res) => {
     }
 };
 
+// 현재 유저의 반려동물 전체 조회
+exports.getPets = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const pets = await petService.getPetsByUserId(userId);
+        res.json(pets);
+    } catch (error) {
+        console.error('getPets error:', error);
+        res.status(500).json({ message: '펫 조회 실패', error: error.message });
+    }
+};
+
+// 반려동물 등록
 exports.createPet = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -37,6 +40,7 @@ exports.createPet = async (req, res) => {
     }
 };
 
+// 반려동물 단일 수정
 exports.updatePet = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -47,14 +51,12 @@ exports.updatePet = async (req, res) => {
         res.json(updatedPet);
     } catch (error) {
         console.error('updatePet error:', error);
-
         if (
             error.message.includes('권한이 없습니다') ||
             error.message.includes('찾을 수 없습니다')
         ) {
             return res.status(403).json({ message: error.message });
         }
-
         res.status(400).json({
             message: '반려동물 정보 수정 실패',
             error: error.message,
@@ -62,6 +64,7 @@ exports.updatePet = async (req, res) => {
     }
 };
 
+// 반려동물 삭제
 exports.deletePet = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -71,14 +74,12 @@ exports.deletePet = async (req, res) => {
         res.json({ message: '반려동물 정보가 삭제되었습니다' });
     } catch (error) {
         console.error('deletePet error:', error);
-
         if (
             error.message.includes('권한이 없습니다') ||
             error.message.includes('찾을 수 없습니다')
         ) {
             return res.status(403).json({ message: error.message });
         }
-
         res.status(400).json({
             message: '반려동물 정보 삭제 실패',
             error: error.message,

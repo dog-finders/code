@@ -1,32 +1,93 @@
 <!DOCTYPE html>
 <html lang="ko" data-page="contact">
 <head>
-  <meta charset="UTF-8">
-  <title>문의하기</title>
-  <link rel="stylesheet" href="../css/styles.css">
-  <script src="../js/scripts.js" defer></script>
-  <script src="/js/sidebar.js" defer></script>
-</head>
-<body>
-  <script>
+<meta charset="UTF-8">
+<title>모임</title>
+<link rel="stylesheet" href="../css/styles.css">
+<script src="../js/scripts.js" defer></script>
+<script src="/js/sidebar.js" defer></script>
+<script>
+  // 로그인 확인
   function requireLogin() {
     if (!localStorage.getItem("user")) {
       alert("로그인이 필요한 서비스입니다.");
       window.location.href = "/login.html";
     }
   }
-  requireLogin();
+
+  // 서버에서 모임 목록 불러오기 (카드형 표시)
+  async function loadMeetings() {
+    const response = await fetch("/api/meetings");
+    const data = await response.json();
+
+    const meetingList = document.getElementById("meetingList");
+    meetingList.innerHTML = "";
+
+    data.forEach(meeting => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = meeting.title;
+
+      const host = document.createElement("p");
+      host.textContent = "호스트: " + meeting.hostId;
+
+      const count = document.createElement("p");
+      count.textContent = "참석 인원: " + meeting.members.length;
+
+      // 삭제 버튼
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "모임 삭제";
+      delBtn.onclick = async (e) => {
+        e.stopPropagation();
+        if (confirm("정말 이 모임을 삭제하시겠습니까?")) {
+          const res = await fetch(`/api/meetings/${meeting.id}`, { method: "DELETE" });
+          if (res.ok) {
+            alert("모임이 삭제되었습니다.");
+            loadMeetings();
+          } else {
+            alert("모임 삭제에 실패했습니다.");
+          }
+        }
+      };
+
+      // 클릭 시 모임방 상세 이동
+      card.onclick = () => {
+        window.location.href = `/gather.html?id=${meeting.id}`;
+      };
+
+      card.appendChild(title);
+      card.appendChild(host);
+      card.appendChild(count);
+      card.appendChild(delBtn);
+      meetingList.appendChild(card);
+    });
+  }
+
+  window.onload = function() {
+    requireLogin();
+    loadMeetings();
+  };
 </script>
+</head>
+<body>
 <aside class="sidebar">
   <h2>도그파인더스</h2>
   <ul>
-    <li><a id="nav-home"   href="/index">홈</a></li>
+    <li><a id="nav-home" href="/index">홈</a></li>
+    <li><a id="nav-map" href="/map">지도</a></li>
     <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
-    <li><a id="nav-write"  href="/post-create">게시글 작성</a></li>
-    <li><a id="nav-list"   href="/post-list">게시글 목록</a></li>
+    <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
     <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
-    <li><a id="nav-login"  href="/login">로그인</a></li>
+    <li><a id="nav-login" href="/login">로그인</a></li>
   </ul>
 </aside>
+
+<main>
+  <h1>모임 목록</h1>
+  <div id="meetingList"></div>
+</main>
 </body>
 </html>

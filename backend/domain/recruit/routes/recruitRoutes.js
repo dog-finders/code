@@ -1,76 +1,50 @@
-// backend/domain/recruit/routes/recruitRoutes.js
-
 const express = require('express');
-const { Like } = require('typeorm');
-
-// AppDataSource를 한 번만 올바른 상대 경로로 불러옵니다.
-// 이 파일이 `code/backend/domain/recruit/routes/recruitRoutes.js`에 있으므로,
-// 데이터 소스는 `../../../global/config/typeOrmConfig`를 가리킵니다.
-const { AppDataSource } = require('../../../global/config/typeOrmConfig');
-
-// Recruit 엔티티를 가져옵니다.
-const Recruit = require('../entity/recruit');
-
-// User 엔티티도 함께 불러옵니다. (작성자 검증 및 관계 매핑에 사용)
+const { getRepository, Like } = require('typeorm');
+const Recruit = require('../entity/Recruit');
 const User = require('../../user/entity/User');
 
+// ★ 추가 import
+const Meeting = require('../../meeting/entity/Meeting');
+const MeetingMember = require('../../meeting/entity/MeetingMember');
+
 const router = express.Router();
-
-// 데이터소스 초기화 함수: initialize()를 한 번만 호출하도록 검사합니다.
-async function initDataSource() {
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-    console.log('Data Source has been initialized!');
-  }
-}
-
 
 // ── 모집글 작성 ──
 router.post('/', async (req, res) => {
   try {
-    // 1) 데이터소스 초기화
-    await initDataSource();
-
-    // 2) 세션에서 사용자 id를 꺼냅니다.
     const userId = req.session?.userId;
     if (!userId) {
       return res.status(401).json({ message: '로그인이 필요합니다.' });
     }
-
-    // 3) 작성자(User) 검증
-    const userRepo = AppDataSource.getRepository(User);
-    const user = await userRepo.findOneBy({ id: userId });
+    const userRepo = getRepository(User);
+    const user = await userRepo.findOne({ where: { id: userId } });
     if (!user) {
       return res.status(401).json({ message: '유효하지 않은 사용자입니다.' });
     }
 
-    // 4) 요청 바디 필수 항목 검사
-    const { title, content, close_at, location } = req.body;
-    if (!title || !content || !close_at) {
-      return res.status(400).json({ message: '필수 항목이 누락되었습니다.' });
+    const { title, content, close_at, location, lat, lng } = req.body;
+    if (!title || !content || !close_at || !lat || !lng) {
+      return res.status(400).json({ message: '필수 항목(제목, 내용, 마감일, 위도, 경도)이 누락되었습니다.' });
     }
 
-    // 5) 날짜 형식 검증
     const closeAtDate = new Date(close_at);
     if (isNaN(closeAtDate.getTime())) {
       return res.status(400).json({ message: '유효하지 않은 날짜 형식입니다.' });
     }
 
-    // 6) 새 Recruit 엔티티 생성
-    const recruitRepo = AppDataSource.getRepository(Recruit);
+    const recruitRepo = getRepository(Recruit);
     const newRecruit = recruitRepo.create({
       title,
       content,
       close_at: closeAtDate,
       is_closed: false,
       location: location || null,
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lng),
       user, // 작성자(User) 관계 매핑
     });
 
-    // 7) 저장
     const savedRecruit = await recruitRepo.save(newRecruit);
-
-    // 8) 작성자 관계 포함하여 다시 조회
     const fullRecruit = await recruitRepo.findOne({
       where: { id: savedRecruit.id },
       relations: ['user'],
@@ -85,19 +59,14 @@ router.post('/', async (req, res) => {
   }
 });
 
-
 // ── 모집글 목록 조회 (검색 + 페이징 + 정렬 + 작성자 포함) ──
 router.get('/', async (req, res) => {
   try {
-    // 1) 데이터소스 초기화
-    await initDataSource();
-
-    const recruitRepo = AppDataSource.getRepository(Recruit);
+    const recruitRepo = getRepository(Recruit);
     const search = req.query.search || '';
     const page = parseInt(req.query.page, 10) || 1;
     const pageSize = parseInt(req.query.pageSize, 10) || 10;
 
-    // 2) 검색어 조건
     const whereCondition = search
       ? [
           { title: Like(`%${search}%`) },
@@ -105,13 +74,11 @@ router.get('/', async (req, res) => {
         ]
       : {};
 
-    // 3) 전체 개수 + 페이지 계산
     const totalCount = await recruitRepo.count({ where: whereCondition });
     const totalPages = Math.ceil(totalCount / pageSize);
     const currentPage =
       page > totalPages ? totalPages : page < 1 ? 1 : page;
 
-    // 4) 실제 데이터 조회 (latest 순 정렬, skip/take 적용, 작성자 관계 포함)
     const recruits = await recruitRepo.find({
       where: whereCondition,
       relations: ['user'],
@@ -120,7 +87,6 @@ router.get('/', async (req, res) => {
       take: pageSize,
     });
 
-    // 5) 응답 데이터 형태 가공
     const responseData = {
       totalPages,
       currentPage,
@@ -130,8 +96,10 @@ router.get('/', async (req, res) => {
         content: r.content,
         close_at: r.close_at,
         is_closed: r.is_closed,
-        authorId: r.user ? r.user.id : '익명', // 변경: 작성자 ID로 표시
+        authorId: r.user ? r.user.loginId : '익명',  // ★ 여기만 수정!
         location: r.location || '-',
+        latitude: r.latitude,
+        longitude: r.longitude,
         created_at: r.created_at,
       })),
     };
@@ -143,16 +111,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 // ── 모집글 상세 조회 ──
 router.get('/:id', async (req, res) => {
   try {
-    // 1) 데이터소스 초기화
-    await initDataSource();
-
-    const recruitRepo = AppDataSource.getRepository(Recruit);
-
-    // 2) ID 기반으로 한 건 조회 (작성자 관계 포함)
+    const recruitRepo = getRepository(Recruit);
     const recruit = await recruitRepo.findOne({
       where: { id: Number(req.params.id) },
       relations: ['user'],
@@ -162,15 +124,16 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
     }
 
-    // 3) 필요한 필드만 응답
     return res.status(200).json({
       id: recruit.id,
       title: recruit.title,
       content: recruit.content,
       close_at: recruit.close_at,
       is_closed: recruit.is_closed,
-      authorId: recruit.user ? recruit.user.id : '익명', // 변경: 작성자 ID로 표시
+      authorId: recruit.user ? recruit.user.loginId : '익명',  // ★ 상세도 동일하게
       location: recruit.location,
+      latitude: recruit.latitude,
+      longitude: recruit.longitude,
       created_at: recruit.created_at,
     });
   } catch (err) {
@@ -179,25 +142,47 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
-// ── 모집 마감 처리 ──
-router.patch('/:id/close', async (req, res) => {
+// ── 모집글 삭제(★연관 모임 및 멤버도 삭제) ──
+router.delete('/:id', async (req, res) => {
   try {
-    // 1) 데이터소스 초기화
-    await initDataSource();
+    const recruitRepo = getRepository(Recruit);
+    const meetingRepo = getRepository(Meeting);
+    const memberRepo = getRepository(MeetingMember);
 
-    const recruitRepo = AppDataSource.getRepository(Recruit);
-
-    // 2) ID 기반으로 한 건 조회 (관계 불필요)
-    const recruit = await recruitRepo.findOneBy({
-      id: Number(req.params.id),
-    });
+    const id = Number(req.params.id);
+    // 👇 여기! PK조회는 findOne(id)
+    const recruit = await recruitRepo.findOne(id);
 
     if (!recruit) {
       return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
     }
 
-    // 3) is_closed 필드만 업데이트
+    // 연관 모임 찾아서 삭제 (recruitId 컬럼 기준)
+    // 👇 조건 검색은 findOne({ where: { recruitId: id } })
+    const meeting = await meetingRepo.findOne({ where: { recruitId: id } });
+    if (meeting) {
+      await memberRepo.delete({ meetingId: meeting.id }); // 멤버 먼저
+      await meetingRepo.delete(meeting.id);               // 모임 삭제
+    }
+
+    await recruitRepo.delete(id); // PK로 삭제
+    return res.json({ message: '모집글과 연관 모임이 모두 삭제되었습니다.' });
+  } catch (err) {
+    console.error('모집글 삭제 에러:', err);
+    return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+});
+
+// ── 모집 마감 처리 ──
+router.patch('/:id/close', async (req, res) => {
+  try {
+    const recruitRepo = getRepository(Recruit);
+    const recruit = await recruitRepo.findOne({ where: { id: Number(req.params.id) } });
+
+    if (!recruit) {
+      return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
+    }
+
     recruit.is_closed = true;
     await recruitRepo.save(recruit);
 

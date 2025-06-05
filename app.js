@@ -5,15 +5,37 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const createError = require('http-errors');
 const session = require('express-session');
+const { createConnection } = require('typeorm');
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
-const { AppDataSource } = require('./backend/global/config/typeOrmConfig');
+// ── 라우트 파일 import ──
 const userRoute = require('./backend/domain/user/routes/userRoutes');
 const recruitRoute = require('./backend/domain/recruit/routes/recruitRoutes');
+const petRoutes = require('./backend/domain/pet/routes/petRoutes');
+const meetingRoute = require('./backend/domain/meeting/routes/meetingRoutes'); // ✅ DB 연동된 meetingRoute import
 
-// 미들웨어 설정
+// ── 데이터베이스 연결 옵션 ──
+const connectionOptions = {
+  type: 'mysql',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT, 10) || 3306,
+  username: process.env.DB_USERNAME || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'dogdb',
+  synchronize: true,
+  logging: true,
+  entities: [
+    require('./backend/domain/user/entity/User'),
+    require('./backend/domain/pet/entity/Pet'),
+    require('./backend/domain/recruit/entity/Recruit'),
+    require('./backend/domain/meeting/entity/Meeting'),        // ✅ 추가
+    require('./backend/domain/meeting/entity/MeetingMember')  // ✅ 추가
+  ],
+};
+
+// ── 미들웨어 ──
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -26,19 +48,19 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: false,
-      maxAge: 1000 * 60 * 60, // 1시간
+      maxAge: 1000 * 60 * 60,
     },
   })
 );
 
-// 정적 파일 경로 설정
+// ── 정적 파일 라우팅 ──
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 페이지 라우팅
+// ── HTML 페이지 라우팅 ──
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
 });
@@ -72,17 +94,23 @@ app.get('/index', (req, res) => {
 app.get('/mypage', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'mypage.html'));
 });
+app.get('/gather', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'gather.html'));
+});
+app.get('/gather.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'gather.html'));
+});
 
-// 데이터소스 초기화 후 라우팅과 서버 시작
-AppDataSource.initialize()
+// ── DB 연결 및 API 라우터 연결 ──
+createConnection(connectionOptions)
   .then(() => {
-    console.log('Data Source initialized');
+    console.log('DB 연결 성공');
 
-    // 라우터 등록
     app.use('/api/users', userRoute);
     app.use('/api/recruit', recruitRoute);
+    app.use('/api/pets', petRoutes);
+    app.use('/api/meetings', meetingRoute); // ✅ meetingRoute 여기만 남기면 돼!
 
-    // 404 에러 핸들러는 라우터 등록 후에 추가
     app.use((req, res, next) => {
       next(createError(404));
     });
@@ -95,7 +123,7 @@ AppDataSource.initialize()
     });
   })
   .catch((err) => {
-    console.error('Data Source initialization error', err);
+    console.error('DB 연결 에러', err);
   });
 
 module.exports = app;

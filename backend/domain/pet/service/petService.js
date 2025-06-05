@@ -1,91 +1,29 @@
-// backend/domain/pet/controller/petController.js
 const petRepository = require('../repository/petRepository');
+
+exports.getPetsByUserId = async (userId) => {
+    return await petRepository.findByUserId(userId);
+};
 
 exports.updatePetsBulk = async (pets, userId) => {
     return await petRepository.updatePetsBulk(pets, userId);
 };
 
-exports.getPetsByUserId = async (userId) => {
-    try {
-        const pets = await petRepository.findByUserId(userId);
-        if (!pets || pets.length === 0) {
-            return {};
-        }
-        console.log(pets);
-        return pets;
-    } catch (error) {
-        console.error('getPets error:', error);
-        res.status(500).json({
-            message: '반려동물 정보 조회 중 오류가 발생했습니다',
-            error: error.message,
-        });
-    }
+exports.createPet = async (petData, userId) => {
+    return await petRepository.save({ ...petData, user: { id: userId } });
 };
 
-exports.createPet = async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const petData = req.body;
-        const newPet = await petRepository.createPet(petData, userId);
-        res.status(201).json(newPet);
-    } catch (error) {
-        console.error('createPet error:', error);
-        res.status(400).json({
-            message: '반려동물 등록 실패',
-            error: error.message,
-        });
-    }
+exports.updatePet = async (petId, petData, userId) => {
+    // userId 확인 및 소유자 체크(옵션), 기본은 id로 수정
+    const found = await petRepository.findById(petId);
+    if (!found) throw new Error('찾을 수 없습니다');
+    if (found.user.id !== userId) throw new Error('권한이 없습니다');
+    await petRepository.update(petId, petData);
+    return await petRepository.findById(petId);
 };
 
-exports.updatePet = async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const petId = parseInt(req.params.id);
-        const petData = req.body;
-
-        const updatedPet = await petRepository.updatePet(
-            petId,
-            petData,
-            userId,
-        );
-        res.json(updatedPet);
-    } catch (error) {
-        console.error('updatePet error:', error);
-
-        if (
-            error.message.includes('권한이 없습니다') ||
-            error.message.includes('찾을 수 없습니다')
-        ) {
-            return res.status(403).json({ message: error.message });
-        }
-
-        res.status(400).json({
-            message: '반려동물 정보 수정 실패',
-            error: error.message,
-        });
-    }
-};
-
-exports.deletePet = async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const petId = parseInt(req.params.id);
-
-        await petRepository.deletePet(petId, userId);
-        res.json({ message: '반려동물 정보가 삭제되었습니다' });
-    } catch (error) {
-        console.error('deletePet error:', error);
-
-        if (
-            error.message.includes('권한이 없습니다') ||
-            error.message.includes('찾을 수 없습니다')
-        ) {
-            return res.status(403).json({ message: error.message });
-        }
-
-        res.status(400).json({
-            message: '반려동물 정보 삭제 실패',
-            error: error.message,
-        });
-    }
+exports.deletePet = async (petId, userId) => {
+    const found = await petRepository.findById(petId);
+    if (!found) throw new Error('찾을 수 없습니다');
+    if (found.user.id !== userId) throw new Error('권한이 없습니다');
+    return await petRepository.remove(petId);
 };

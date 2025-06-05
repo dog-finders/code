@@ -1,5 +1,3 @@
-// public/js/mypage.js
-
 window.addEventListener("DOMContentLoaded", () => {
   // 1. 로그인 여부 확인
   if (!localStorage.getItem("user")) {
@@ -11,7 +9,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const userForm = document.getElementById("user-form");
   const petList = document.getElementById("pet-list");
   const addPetBtn = document.getElementById("add-pet");
-  let petsState = []; // 서버에서 불러온 반려동물 목록
+  let petsState = [];
 
   // 2. 사용자 기본 정보 불러오기
   fetch("/api/users/me", { credentials: "include" })
@@ -48,22 +46,21 @@ window.addEventListener("DOMContentLoaded", () => {
     })
     .catch((err) => {
       console.error(err);
-      // 반려동물 정보 없거나 오류 시에도 기본 폼 하나 추가
-      addPetForm();
+      addPetForm(); // 반려동물 정보 없거나 오류 시에도 기본 폼 하나 추가
     });
 
   // 4. 사용자 정보 및 반려동물 정보 저장
   userForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // 사용자 데이터 객체 생성
+    // 사용자 데이터 객체 생성 (ENUM에 맞게 value 전달)
     const userData = {
       name: document.getElementById("name").value.trim(),
       email: document.getElementById("email").value.trim(),
       phone: document.getElementById("phone").value.trim(),
       birthdate: document.getElementById("birthdate").value,
       address: document.getElementById("address").value.trim(),
-      personality: document.getElementById("personality").value.trim(),
+      personality: document.getElementById("personality").value, // select의 value가 ENUM
     };
 
     try {
@@ -107,8 +104,6 @@ window.addEventListener("DOMContentLoaded", () => {
   addPetBtn.addEventListener("click", () => addPetForm());
 
   // --- Helper 함수들 ---
-
-  // 반려동물 폼 생성
   function addPetForm(pet = {}) {
     const petDiv = document.createElement("div");
     petDiv.className = "pet-form";
@@ -121,25 +116,14 @@ window.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="mb-3">
         <label class="form-label">이름</label>
-        <input
-          type="text"
-          class="form-control pet-name"
-          value="${pet.name || ""}"
-          required
-        />
+        <input type="text" class="form-control pet-name" value="${pet.name || ""}" required />
       </div>
       <div class="mb-3">
         <label class="form-label">종</label>
-        <input
-          type="text"
-          class="form-control pet-species"
-          value="${pet.species || ""}"
-          required
-        />
+        <input type="text" class="form-control pet-species" value="${pet.species || ""}" required />
       </div>
     `;
 
-    // 삭제 버튼 클릭 시 폼 자체 제거
     petDiv.querySelector(".remove-pet").addEventListener("click", () => {
       petDiv.remove();
     });

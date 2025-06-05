@@ -38,20 +38,16 @@
           <label for="title">제목</label>
           <input type="text" id="title" placeholder="제목을 입력하세요" required>
         </div>
-
         <div class="form-group">
           <label for="content">내용</label>
           <textarea id="content" rows="5" placeholder="내용을 입력하세요" required></textarea>
         </div>
-
         <div class="form-group">
           <label for="close_at">모집 마감 시간</label>
           <input type="datetime-local" id="close_at" required>
         </div>
-
         <input type="hidden" id="lat" name="lat">
         <input type="hidden" id="lng" name="lng">
-
         <div class="btn-group">
           <button type="submit" class="btn btn-primary">작성 완료</button>
           <a href="post-list" class="btn btn-secondary">취소</a>
@@ -102,16 +98,23 @@
           return;
         }
 
-        // 2️⃣ 모집글 저장 후 모임도 자동 생성
-        const user = JSON.parse(localStorage.getItem('user'));
-        const hostId = user?.loginId;
+        // recruitId 받아오기 (recruit: {id, ...} 구조 기준)
+        const recruitData = await recruitRes.json();
+        const recruitId = recruitData.recruit?.id;
+        if (!recruitId) {
+          alert('모집글 저장 결과에 recruitId가 없습니다.');
+          return;
+        }
 
+        // 2️⃣ 모집글 저장 후 모임도 자동 생성 (recruitId 포함)
+        const user = JSON.parse(localStorage.getItem('user'));
+        const hostId = user?.id; // 반드시 숫자 ID
         if (!hostId) {
           alert('로그인 정보가 없습니다.');
           return;
         }
 
-        const meetingBody = { title, hostId };
+        const meetingBody = { title, hostId, recruitId };
         const meetingRes = await fetch('/api/meetings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

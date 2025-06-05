@@ -44,14 +44,9 @@
 
     try {
       const res = await fetch(`/api/recruit/${postId}`);
-      if (!res.ok) {
-        throw new Error('게시글을 가져오는데 실패했습니다.');
-      }
-
+      if (!res.ok) throw new Error('게시글을 가져오는데 실패했습니다.');
       const post = await res.json();
-      if (!post) {
-        throw new Error('게시글을 찾을 수 없습니다.');
-      }
+      if (!post) throw new Error('게시글을 찾을 수 없습니다.');
 
       document.getElementById('postTitle').textContent = post.title || '제목 없음';
       document.getElementById('postWriter').textContent = post.author;
@@ -63,21 +58,22 @@
         if (confirm('정말 이 게시글에 참석하시겠습니까?')) {
           try {
             const attendRes = await fetch(`/api/recruit/attend/${postId}`, { method: 'POST' });
-            if (attendRes.ok) {
-              alert('참석이 완료되었습니다.');
-            } else {
-              throw new Error('참석에 실패했습니다.');
-            }
-          } catch (err) {
-            alert(err.message);
-          }
+            if (attendRes.ok) alert('참석이 완료되었습니다.');
+            else throw new Error('참석에 실패했습니다.');
+          } catch (err) { alert(err.message); }
         }
       };
 
+      // *** 삭제 버튼 - 백엔드에서 연관 모임/멤버도 삭제됨
       document.getElementById('deletePostBtn').onclick = async () => {
         if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
-          await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
-          window.location.href = 'post-list';
+          const res = await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
+          if (res.ok) {
+            alert('게시글과 연관 모임이 삭제되었습니다.');
+            window.location.href = 'post-list';
+          } else {
+            alert('삭제에 실패했습니다.');
+          }
         }
       };
     } catch (err) {
