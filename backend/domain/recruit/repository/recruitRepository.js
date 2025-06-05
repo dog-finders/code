@@ -1,17 +1,13 @@
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const Recruit = require('../entity/Recruit');
-const User = require('../../user/entity/User');
 
 const recruitRepository = AppDataSource.getRepository(Recruit);
 
 module.exports = {
   // 모집글 생성
   createRecruit: async (recruitData) => {
-    // recruitData에 authorId, latitude, longitude가 있다고 가정
     const { title, content, close_at, is_closed, authorId, latitude, longitude } = recruitData;
 
-    // User 엔티티를 직접 연결하고 싶다면 findOne으로 User 엔티티 로드 후 넘겨도 되지만,
-    // 여기서는 authorId로만 참조할 수 있는 형태로 가정합니다.
     const recruit = recruitRepository.create({
       title,
       content,
@@ -19,13 +15,13 @@ module.exports = {
       is_closed,
       latitude,
       longitude,
-      user: { id: authorId }, // ManyToOne 관계로 설정되어 있어야 함 (User 엔티티 참조)
+      user: { id: authorId },
     });
 
     return await recruitRepository.save(recruit);
   },
 
-  // 모집글 전체 조회 (user 관계 포함)
+  // 모집글 전체 조회 (검색, 페이징 포함)
   findAllRecruits: async ({ search, page, pageSize }) => {
     const whereCondition = search
       ? [
@@ -63,7 +59,7 @@ module.exports = {
     };
   },
 
-  // 특정 모집글 조회 (user 관계 포함)
+  // 특정 모집글 조회
   findRecruitById: async (id) => {
     const recruit = await recruitRepository.findOne({
       where: { id },
@@ -84,14 +80,35 @@ module.exports = {
     };
   },
 
-  // 모집글 마감 처리
-  closeRecruit: async (id) => {
+  // 모집글 마감 처리 (권한 체크 포함)
+  closeRecruit: async (id, userId) => {
     const recruit = await recruitRepository.findOne({
       where: { id },
+      relations: ['user'],
     });
     if (!recruit) return null;
 
+    if (recruit.user.id !== userId) {
+      return null; // 권한 없음
+    }
+
     recruit.is_closed = true;
     return await recruitRepository.save(recruit);
+  },
+
+  // 모집글 삭제 (권한 체크 포함)
+  deleteRecruit: async (id, userId) => {
+    const recruit = await recruitRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+    if (!recruit) return false;
+
+    if (recruit.user.id !== userId) {
+      return false; // 권한 없음
+    }
+
+    await recruitRepository.delete(id);
+    return true;
   },
 };

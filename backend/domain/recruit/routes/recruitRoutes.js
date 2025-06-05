@@ -2,25 +2,20 @@ const express = require('express');
 const { getRepository, Like } = require('typeorm');
 const Recruit = require('../entity/Recruit');
 const User = require('../../user/entity/User');
-
-// ★ 추가 import
 const Meeting = require('../../meeting/entity/Meeting');
 const MeetingMember = require('../../meeting/entity/MeetingMember');
 
 const router = express.Router();
 
-// ── 모집글 작성 ──
+// 모집글 작성
 router.post('/', async (req, res) => {
   try {
     const userId = req.session?.userId;
-    if (!userId) {
-      return res.status(401).json({ message: '로그인이 필요합니다.' });
-    }
+    if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
+
     const userRepo = getRepository(User);
     const user = await userRepo.findOne({ where: { id: userId } });
-    if (!user) {
-      return res.status(401).json({ message: '유효하지 않은 사용자입니다.' });
-    }
+    if (!user) return res.status(401).json({ message: '유효하지 않은 사용자입니다.' });
 
     const { title, content, close_at, location, lat, lng } = req.body;
     if (!title || !content || !close_at || !lat || !lng) {
@@ -41,7 +36,7 @@ router.post('/', async (req, res) => {
       location: location || null,
       latitude: parseFloat(lat),
       longitude: parseFloat(lng),
-      user, // 작성자(User) 관계 매핑
+      user,
     });
 
     const savedRecruit = await recruitRepo.save(newRecruit);
@@ -50,16 +45,14 @@ router.post('/', async (req, res) => {
       relations: ['user'],
     });
 
-    return res
-      .status(201)
-      .json({ message: '모집글 작성 완료', recruit: fullRecruit });
+    return res.status(201).json({ message: '모집글 작성 완료', recruit: fullRecruit });
   } catch (err) {
     console.error('모집글 저장 에러:', err);
     return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 });
 
-// ── 모집글 목록 조회 (검색 + 페이징 + 정렬 + 작성자 포함) ──
+// 모집글 목록 조회
 router.get('/', async (req, res) => {
   try {
     const recruitRepo = getRepository(Recruit);
@@ -76,8 +69,7 @@ router.get('/', async (req, res) => {
 
     const totalCount = await recruitRepo.count({ where: whereCondition });
     const totalPages = Math.ceil(totalCount / pageSize);
-    const currentPage =
-      page > totalPages ? totalPages : page < 1 ? 1 : page;
+    const currentPage = page > totalPages ? totalPages : page < 1 ? 1 : page;
 
     const recruits = await recruitRepo.find({
       where: whereCondition,
@@ -87,7 +79,7 @@ router.get('/', async (req, res) => {
       take: pageSize,
     });
 
-    const responseData = {
+    return res.status(200).json({
       totalPages,
       currentPage,
       posts: recruits.map((r) => ({
@@ -96,22 +88,20 @@ router.get('/', async (req, res) => {
         content: r.content,
         close_at: r.close_at,
         is_closed: r.is_closed,
-        authorId: r.user ? r.user.loginId : '익명',  // ★ 여기만 수정!
+        authorId: r.user ? r.user.loginId : '익명',
         location: r.location || '-',
         latitude: r.latitude,
         longitude: r.longitude,
         created_at: r.created_at,
       })),
-    };
-
-    return res.status(200).json(responseData);
+    });
   } catch (err) {
     console.error('모집글 목록 조회 에러:', err);
     return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 });
 
-// ── 모집글 상세 조회 ──
+// 모집글 상세 조회
 router.get('/:id', async (req, res) => {
   try {
     const recruitRepo = getRepository(Recruit);
@@ -120,9 +110,7 @@ router.get('/:id', async (req, res) => {
       relations: ['user'],
     });
 
-    if (!recruit) {
-      return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
-    }
+    if (!recruit) return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
 
     return res.status(200).json({
       id: recruit.id,
@@ -130,7 +118,7 @@ router.get('/:id', async (req, res) => {
       content: recruit.content,
       close_at: recruit.close_at,
       is_closed: recruit.is_closed,
-      authorId: recruit.user ? recruit.user.loginId : '익명',  // ★ 상세도 동일하게
+      authorId: recruit.user ? recruit.user.loginId : '익명',
       location: recruit.location,
       latitude: recruit.latitude,
       longitude: recruit.longitude,
@@ -142,30 +130,40 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ── 모집글 삭제(★연관 모임 및 멤버도 삭제) ──
+// 모집글 삭제 (작성자만 가능, 모임 및 멤버도 함께 삭제)
 router.delete('/:id', async (req, res) => {
   try {
+    const userId = req.session?.userId;
+    if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
+
+    const id = Number(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 모집글 ID입니다.' });
+
     const recruitRepo = getRepository(Recruit);
     const meetingRepo = getRepository(Meeting);
     const memberRepo = getRepository(MeetingMember);
 
-    const id = Number(req.params.id);
-    // 👇 여기! PK조회는 findOne(id)
-    const recruit = await recruitRepo.findOne(id);
+    const recruit = await recruitRepo.findOne({ where: { id }, relations: ['user'] });
+    if (!recruit) return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
 
-    if (!recruit) {
-      return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
+    if (recruit.user?.id !== userId) {
+      return res.status(403).json({ message: '삭제 권한이 없습니다. (작성자만 가능)' });
     }
 
-    // 연관 모임 찾아서 삭제 (recruitId 컬럼 기준)
-    // 👇 조건 검색은 findOne({ where: { recruitId: id } })
-    const meeting = await meetingRepo.findOne({ where: { recruitId: id } });
-    if (meeting) {
-      await memberRepo.delete({ meetingId: meeting.id }); // 멤버 먼저
-      await meetingRepo.delete(meeting.id);               // 모임 삭제
-    }
+    // 트랜잭션 사용
+    await recruitRepo.manager.transaction(async (transactionalEntityManager) => {
+      // 모집글에 연결된 모임 찾기
+      const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: id } });
+      if (meeting) {
+        // 모임 멤버 삭제
+        await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
+        // 모임 삭제
+        await transactionalEntityManager.delete(Meeting, meeting.id);
+      }
+      // 모집글 삭제
+      await transactionalEntityManager.delete(Recruit, id);
+    });
 
-    await recruitRepo.delete(id); // PK로 삭제
     return res.json({ message: '모집글과 연관 모임이 모두 삭제되었습니다.' });
   } catch (err) {
     console.error('모집글 삭제 에러:', err);
@@ -173,20 +171,28 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// ── 모집 마감 처리 ──
+// 모집 마감 처리 (작성자만 가능, 삭제하지 않고 상태만 변경)
 router.patch('/:id/close', async (req, res) => {
   try {
-    const recruitRepo = getRepository(Recruit);
-    const recruit = await recruitRepo.findOne({ where: { id: Number(req.params.id) } });
+    const userId = req.session?.userId;
+    if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
 
-    if (!recruit) {
-      return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
+    const recruitRepo = getRepository(Recruit);
+
+    const id = Number(req.params.id);
+    const recruit = await recruitRepo.findOne({ where: { id }, relations: ['user'] });
+
+    if (!recruit) return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
+
+    if (recruit.user?.id !== userId) {
+      return res.status(403).json({ message: '마감 권한이 없습니다. (작성자만 가능)' });
     }
 
+    // 모집 마감 상태 변경
     recruit.is_closed = true;
     await recruitRepo.save(recruit);
 
-    return res.status(200).json({ message: '모집 마감 처리됨' });
+    return res.status(200).json({ message: '모집글이 마감 처리되었습니다.' });
   } catch (err) {
     console.error('모집 마감 처리 에러:', err);
     return res.status(500).json({ message: '서버 에러가 발생했습니다.' });

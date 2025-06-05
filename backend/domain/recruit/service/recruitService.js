@@ -3,7 +3,6 @@ const recruitRepository = require('../repository/recruitRepository');
 module.exports = {
   // 모집글 생성
   createRecruit: async (recruitData) => {
-    // recruitData에 title, content, close_at, is_closed, authorId, latitude, longitude가 포함되어 있어야 합니다.
     return await recruitRepository.createRecruit({
       title: recruitData.title,
       content: recruitData.content,
@@ -12,7 +11,6 @@ module.exports = {
       authorId: recruitData.authorId,
       latitude: recruitData.latitude,
       longitude: recruitData.longitude,
-      // location을 쓰고 있다면 추가:
       location: recruitData.location || null,
     });
   },
@@ -27,8 +25,13 @@ module.exports = {
     return await recruitRepository.findRecruitById(id);
   },
 
-  // 모집글 마감 처리
-  closeRecruit: async (id) => {
-    return await recruitRepository.closeRecruit(id);
+  // 모집글 마감 처리 (userId 전달 필수)
+  closeRecruit: async (id, userId) => {
+    return await recruitRepository.closeRecruit(id, userId);
+  },
+
+  // 모집글 삭제 (userId 전달 필수)
+  deleteRecruit: async (id, userId) => {
+    return await recruitRepository.deleteRecruit(id, userId);
   },
 };

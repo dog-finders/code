@@ -15,7 +15,8 @@
   <ul>
     <li><a id="nav-home" href="/index">홈</a></li>
     <li><a id="nav-map" href="/map">지도</a></li>
-    <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
+    <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
+    <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
     <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
     <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
     <li><a id="nav-login" href="/login">로그인</a></li>
@@ -57,9 +58,40 @@
         </select>
       </div>
 
-      <h2 style="margin-top:2rem;">반려동물 정보</h2>
-      <div id="pet-list"></div>
-      <button type="button" class="btn btn-secondary mb-3" id="add-pet">+ 반려동물 추가</button>
+      <h2>반려동물 정보</h2>
+      <div id="pet-section-container">
+        <div class="pet-section">
+          <div class="mb-3">
+            <label class="form-label">반려동물 종류</label>
+            <select class="form-select" name="petType[]" required>
+              <option selected disabled>선택하세요</option>
+              <option>강아지</option>
+              <option>고양이</option>
+              <option>기타</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">반려동물 사진</label>
+            <input class="form-control petImage" type="file" name="petImage[]" accept="image/*" />
+            <img class="preview" src="#" alt="미리보기" style="display: none;" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">반려동물 나이</label>
+            <input type="number" class="form-control" name="petAge[]" placeholder="예: 3 (살)" min="0" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">반려동물 성격</label>
+            <input type="text" class="form-control" name="petTemperament[]" placeholder="예: 활발함, 온순함, 낯가림 등" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">접종한 백신</label>
+            <textarea class="form-control" name="petVaccines[]" rows="2" placeholder="예: 종합백신, 광견병, 코로나 등"></textarea>
+          </div>
+          <hr class="my-4" />
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-secondary mb-3" onclick="addPetSection()">+ 반려동물 추가</button>
 
       <div class="mb-3">
         <button type="submit" class="btn btn-primary">저장</button>
@@ -67,5 +99,43 @@
     </form>
   </div>
 </main>
+
+<script>
+  // 이미지 미리보기
+  document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('petImage')) {
+      const fileInput = e.target;
+      const preview = fileInput.nextElementSibling;
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          preview.src = event.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+  });
+
+  // 반려동물 추가 기능
+  function addPetSection() {
+    const container = document.getElementById('pet-section-container');
+    const firstPet = container.querySelector('.pet-section');
+    const newPet = firstPet.cloneNode(true);
+
+    Array.from(newPet.querySelectorAll('input, select, textarea')).forEach(input => {
+      input.value = '';
+    });
+
+    const preview = newPet.querySelector('.preview');
+    preview.src = '#';
+    preview.style.display = 'none';
+
+    container.appendChild(newPet);
+  }
+</script>
 </body>
 </html>

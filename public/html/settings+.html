@@ -14,7 +14,7 @@
   function requireLogin() {
     if (!localStorage.getItem("user")) {
       alert("로그인이 필요한 서비스입니다.");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
   }
   requireLogin();
@@ -25,6 +25,7 @@
       <li><a id="nav-home" href="/index">홈</a></li>
       <li><a id="nav-map" href="/map">지도</a></li>
       <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
+      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
       <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
       <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
       <li><a id="nav-login" href="/login">로그인</a></li>
