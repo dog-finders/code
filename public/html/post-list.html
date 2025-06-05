@@ -4,123 +4,46 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>모집글 목록 - 도그파인더스</title>
+  <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/auth.js" defer></script>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
-    body { display:flex; height:100vh; background:#f5f5f5; }
-    .sidebar {
-      width:220px; background:#2c3e50; color:#fff; padding:20px;
-    }
-    .sidebar h2 { text-align:center; font-size:24px; margin-bottom:20px; }
-    .sidebar ul { list-style:none; }
-    .sidebar li { margin:15px 0; }
-    .sidebar a {
-      color:#fff; text-decoration:none; display:block;
-      padding:10px; border-radius:5px;
-    }
-    .sidebar a:hover,
-    .sidebar a.active { background:#34495e; }
-    .main {
-      flex:1; padding:40px; overflow-y:auto;
-    }
-    .header {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:20px;
-    }
-    .header h1 { font-size:28px; }
-    .btn {
-      display:inline-block; padding:10px 16px;
-      background:#3498db; color:#fff;
-      text-decoration:none; border-radius:5px;
-      font-size:14px;
-    }
-    .btn:hover { background:#2980b9; }
-    .search { display:flex; margin-bottom:20px; }
-    .search input {
-      flex:1; padding:10px;
-      border:1px solid #ccc;
-      border-radius:5px 0 0 5px;
-    }
-    .search button {
-      padding:10px 16px;
-      border:1px solid #ccc;
-      border-left:0;
-      border-radius:0 5px 5px 0;
-      background:#fff; cursor:pointer;
-    }
-    .post-card {
-      background:#fff; border-radius:10px;
-      padding:20px;
-      box-shadow:0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom:20px;
-      cursor:pointer;
-      transition: transform 0.1s ease;
-    }
-    .post-card:hover {
-      transform: translateY(-2px);
-    }
-    .post-card h2 { font-size:20px; margin-bottom:8px; }
-    .post-card .meta {
-      font-size:12px; color:#888; margin-bottom:10px;
-    }
-    .post-card p { color:#555; }
-    .pagination {
-      display:flex; justify-content:center; margin-top:20px;
-    }
-    .pagination a {
-      margin:0 5px; padding:8px 12px;
-      text-decoration:none; color:#3498db;
-      border:1px solid #ccc; border-radius:5px;
-      cursor:pointer;
-    }
-    .pagination a.active {
-      background:#3498db; color:#fff; border-color:#3498db;
-    }
-    .pagination a.disabled {
-      color:#aaa; border-color:#eee; cursor:default;
-      pointer-events:none;
-    }
-  </style>
+  <script src="/js/sidebar.js" defer></script>
 </head>
 <body>
   <script>
   function requireLogin() {
     if (!localStorage.getItem("user")) {
       alert("로그인이 필요한 서비스입니다.");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
   }
   requireLogin();
-</script>
-<aside class="sidebar">
-  <h2>도그파인더스</h2>
-  <ul>
-    <li><a id="nav-home"   href="/index">홈</a></li>
-    <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
-    <li><a id="nav-write"  href="/post-create">게시글 작성</a></li>
-    <li><a id="nav-list"   href="/post-list">게시글 목록</a></li>
-    <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
-    <li><a id="nav-login"  href="/login">로그인</a></li>
-  </ul>
-</aside>
+  </script>
+
+  <aside class="sidebar">
+    <h2>도그파인더스</h2>
+    <ul>
+      <li><a id="nav-home" href="/index">홈</a></li>
+      <li><a id="nav-map" href="/map">지도</a></li>
+      <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
+      <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
+      <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
+      <li><a id="nav-login" href="/login">로그인</a></li>
+    </ul>
+  </aside>
 
   <main class="main">
     <div class="header">
       <h1>모집글 목록</h1>
-      <a href="post-create" class="btn">글 작성</a>
+      <a href="/map?returnUrl=post-create" class="btn">글 작성</a>
     </div>
     <div class="search">
       <input type="text" placeholder="제목 또는 지역으로 검색" id="searchInput" />
       <button id="searchBtn">검색</button>
     </div>
 
-    <div class="post-cards-container">
-      <!-- 게시글 카드가 JS로 이곳에 추가됩니다 -->
-    </div>
+    <div class="post-cards-container"></div>
 
-    <div class="pagination" id="pagination">
-      <!-- 페이지 버튼도 동적으로 추가 가능 -->
-    </div>
+    <div class="pagination" id="pagination"></div>
   </main>
 
   <script>
@@ -133,7 +56,6 @@
       let currentPage = 1;
       const pageSize = 10;
 
-      // 게시글 목록을 불러오는 함수
       async function fetchPosts(page = 1, search = '') {
         try {
           const url = `/api/recruit?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`;
@@ -154,7 +76,6 @@
         }
       }
 
-      // 게시글 목록을 렌더링하는 함수
       function renderPosts(posts) {
         container.innerHTML = '';
 
@@ -172,20 +93,17 @@
 
           const closeDate = new Date(post.close_at);
           const formattedDate = closeDate.toLocaleDateString();
-
-          // 작성자 정보가 없으면 '익명'으로 표시
-          const author = post.author || post.userId || '익명';
+          const author = post.authorId || '익명';
 
           div.innerHTML = `
             <h2>${post.title}</h2>
-            <div class="meta">작성자: ${author} | ${post.location} | 마감일: ${formattedDate}</div>
+            <div class="meta">작성자 ID: ${author} | ${post.location} | 마감일: ${formattedDate}</div>
             <p>${post.content}</p>
           `;
           container.appendChild(div);
         });
       }
 
-      // 페이지네이션 렌더링
       function renderPagination(totalPages, current) {
         paginationDiv.innerHTML = '';
 
@@ -229,16 +147,13 @@
         paginationDiv.appendChild(next);
       }
 
-      // 검색 버튼 클릭 시
       searchBtn.addEventListener('click', () => {
         currentPage = 1;
         fetchPosts(currentPage, searchInput.value.trim());
       });
 
-      // 페이지 로딩 시
       fetchPosts();
     });
   </script>
-  <script src="/js/sidebar.js" defer></script>
 </body>
 </html>

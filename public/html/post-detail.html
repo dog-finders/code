@@ -3,168 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <title>모집글 상세 - 도그 파인더스</title>
+  <link rel="stylesheet" href="../css/styles.css" />
   <script src="/js/sidebar.js" defer></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { display: flex; min-height: 100vh; background: #f5f5f5; }
-    .sidebar {
-      width: 220px; background: #2c3e50; color: #fff; padding: 20px;
-      flex-shrink: 0;
-    }
-    .sidebar h2 {
-      text-align: center; font-size: 24px; margin-bottom: 20px;
-    }
-    .sidebar ul {
-      list-style: none;
-    }
-    .sidebar li {
-      margin: 15px 0;
-    }
-    .sidebar a {
-      color: #fff; text-decoration: none; display: block;
-      padding: 10px; border-radius: 5px;
-      transition: background 0.3s;
-    }
-    .sidebar a:hover,
-    .sidebar a.active {
-      background: #34495e;
-    }
-    main {
-      flex: 1; padding: 40px; overflow-y: auto; background: #fff;
-      border-radius: 10px; margin: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    h3 {
-      font-size: 28px; margin-bottom: 15px;
-      color: #2c3e50;
-    }
-    p {
-      font-size: 16px; margin-bottom: 10px; color: #555;
-    }
-    strong {
-      color: #333;
-    }
-    hr {
-      margin: 20px 0;
-      border: none;
-      border-top: 1px solid #eee;
-    }
-    .btn {
-      display: inline-block;
-      padding: 10px 16px;
-      margin-top: 10px;
-      margin-right: 10px;
-      background: #3498db;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      text-decoration: none;
-      user-select: none;
-      transition: background 0.3s, opacity 0.3s;
-    }
-    .btn-secondary {
-      background: #95a5a6;
-    }
-    .btn-danger {
-      background: #e74c3c;
-    }
-    .btn-hover {
-      opacity: 0.9;
-    }
-    .btn-danger:hover {
-      background: #c0392b;
-    }
-  </style>
 </head>
 <body>
 <aside class="sidebar">
   <h2>도그파인더스</h2>
   <ul>
-    <li><a id="nav-home"   href="/index">홈</a></li>
+    <li><a id="nav-home" href="/index">홈</a></li>
+    <li><a id="nav-map" href="/map">지도</a></li>
     <li><a id="nav-mypage" href="/settings+">마이페이지</a></li>
-    <li><a id="nav-write"  href="/post-create">게시글 작성</a></li>
-    <li><a id="nav-list"   href="/post-list">게시글 목록</a></li>
+    <li><a id="nav-list" href="/post-list">게시글 목록</a></li>
     <li><a id="nav-gather" href="/gather">모임(모집글)</a></li>
-    <li><a id="nav-login"  href="/login">로그인</a></li>
+    <li><a id="nav-login" href="/login">로그인</a></li>
   </ul>
 </aside>
 
+<main class="main">
+  <h3 id="postTitle">로딩 중...</h3>
+  <p><strong>작성자:</strong> <span id="postWriter">알 수 없음</span></p>
+  <p><strong>위치:</strong> <span id="postLocation">알 수 없음</span></p>
+  <p><strong>작성일:</strong> <span id="postDate">알 수 없음</span></p>
+  <hr />
+  <p id="postContent">내용이 없습니다.</p>
 
-  <main>
-    <h3 id="postTitle">로딩 중...</h3>
-    <p><strong>작성자:</strong> <span id="postWriter">알 수 없음</span></p>
-    <p><strong>위치:</strong> <span id="postLocation">알 수 없음</span></p>
-    <p><strong>작성일:</strong> <span id="postDate">알 수 없음</span></p>
-    <hr />
-    <p id="postContent">내용이 없습니다.</p>
+  <a href="post-list" class="btn btn-secondary">목록으로</a>
+  <button class="btn btn-primary" id="attendPostBtn">참석하기</button>
+  <button class="btn btn-danger" id="deletePostBtn">삭제</button>
+</main>
 
-    <a href="post-list" class="btn btn-secondary">목록으로</a>
-    <button class="btn btn-primary" id="attendPostBtn">참석하기</button>
-    <button class="btn btn-danger" id="deletePostBtn">삭제</button>
-  </main>
+<script>
+  async function loadPostDetail() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
 
-  <script>
-    async function loadPostDetail() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const postId = urlParams.get('id');
-      
-      if (!postId) {
-        alert("게시글 ID가 없습니다.");
-        return;
-      }
-      
-      try {
-        const res = await fetch(`/api/recruit/${postId}`);
-        if (!res.ok) {
-          throw new Error('게시글을 가져오는데 실패했습니다.');
-        }
-        
-        const post = await res.json();
-        
-        if (!post) {
-          throw new Error('게시글을 찾을 수 없습니다.');
-        }
-
-        document.getElementById('postTitle').textContent = post.title || '제목 없음';
-        document.getElementById('postWriter').textContent = post.author || '익명';
-        document.getElementById('postLocation').textContent = post.location || '알 수 없음';
-        document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString() || '알 수 없음';
-        document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
-
-        // 참석하기 버튼 클릭 시 동작 정의
-        document.getElementById('attendPostBtn').onclick = async () => {
-          const userConfirmed = confirm('정말 이 게시글에 참석하시겠습니까?');
-          if (userConfirmed) {
-            // 참석 로직 (예: API 호출하여 서버에 참석 기록)
-            try {
-              const attendRes = await fetch(`/api/recruit/attend/${postId}`, { method: 'POST' });
-              if (attendRes.ok) {
-                alert('참석이 완료되었습니다.');
-              } else {
-                throw new Error('참석에 실패했습니다.');
-              }
-            } catch (err) {
-              alert(err.message);
-            }
-          }
-        };
-
-        // 삭제 버튼 클릭 시 동작 정의
-        document.getElementById('deletePostBtn').onclick = async () => {
-          if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
-            await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
-            window.location.href = 'post-list.html';
-          }
-        };
-
-      } catch (err) {
-        alert(err.message);
-      }
+    if (!postId) {
+      alert("게시글 ID가 없습니다.");
+      return;
     }
 
-    loadPostDetail(); // 게시글 상세 정보 로딩
-  </script>
+    try {
+      const res = await fetch(`/api/recruit/${postId}`);
+      if (!res.ok) {
+        throw new Error('게시글을 가져오는데 실패했습니다.');
+      }
+
+      const post = await res.json();
+      if (!post) {
+        throw new Error('게시글을 찾을 수 없습니다.');
+      }
+
+      document.getElementById('postTitle').textContent = post.title || '제목 없음';
+      document.getElementById('postWriter').textContent = post.author;
+      document.getElementById('postLocation').textContent = post.location || '알 수 없음';
+      document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString() || '알 수 없음';
+      document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
+
+      document.getElementById('attendPostBtn').onclick = async () => {
+        if (confirm('정말 이 게시글에 참석하시겠습니까?')) {
+          try {
+            const attendRes = await fetch(`/api/recruit/attend/${postId}`, { method: 'POST' });
+            if (attendRes.ok) {
+              alert('참석이 완료되었습니다.');
+            } else {
+              throw new Error('참석에 실패했습니다.');
+            }
+          } catch (err) {
+            alert(err.message);
+          }
+        }
+      };
+
+      document.getElementById('deletePostBtn').onclick = async () => {
+        if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
+          await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
+          window.location.href = 'post-list';
+        }
+      };
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  loadPostDetail();
+</script>
 </body>
 </html>

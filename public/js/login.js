@@ -12,6 +12,7 @@ window.addEventListener('load', () => {
     const loginId = loginIdInput.value.trim();
     const password = passwordInput.value.trim();
 
+    // 아이디와 비밀번호 확인
     if (!loginId || !password) {
       feedback.textContent = '아이디와 비밀번호를 모두 입력해주세요.';
       return;
@@ -26,8 +27,13 @@ window.addEventListener('load', () => {
     })
       .then(async (res) => {
         if (res.ok) {
-          // 로그인 성공 → settings.html로 이동
-          window.location.href = '/mypage.html';
+          const data = await res.json();
+          
+          // 로그인 성공: 사용자 정보 로컬 스토리지에 저장
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          // 로그인 후 마이페이지로 리디렉션
+          window.location.href = '/mypage';
         } else {
           const data = await res.json();
           feedback.textContent =
