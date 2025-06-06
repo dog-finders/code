@@ -1,63 +1,43 @@
+// backend/domain/pet/repository/petRepository.js
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const Pet = require('../entity/Pet');
 
-let petRepository;
-function getRepo() {
-    if (!petRepository) {
-        petRepository = AppDataSource.getRepository(Pet);
-    }
-    return petRepository;
-}
+const petRepo = AppDataSource.getRepository(Pet);
 
 exports.findByUserId = async (userId) => {
-    return await getRepo().find({
-        where: { user: { id: userId } },
-        relations: ['user'],
-    });
+    return await petRepo.find({ where: { user: { id: userId } } });
 };
 
 exports.findById = async (id) => {
-    return await getRepo().findOne({
+    return await petRepo.findOne({
         where: { id },
         relations: ['user'],
     });
 };
 
-exports.save = async (petData) => {
-    const pet = getRepo().create(petData);
-    return await getRepo().save(pet);
+exports.createAndSave = async (petEntity) => {
+    const newPet = petRepo.create(petEntity);
+    return await petRepo.save(newPet);
 };
 
 exports.update = async (id, petData) => {
-    await getRepo().update(id, petData);
-    return await getRepo().findOne({ where: { id } });
+    await petRepo.update(id, petData);
+    return await petRepo.findOneBy({ id });
 };
 
 exports.remove = async (id) => {
-    const pet = await getRepo().findOne({ where: { id } });
-    if (!pet) throw new Error('반려동물을 찾을 수 없습니다');
-    await getRepo().delete(id);
-    return true;
+    const result = await petRepo.delete(id);
+    return result.affected > 0;
 };
 
+// 레거시 벌크 업데이트 함수
 exports.updatePetsBulk = async (pets, userId) => {
-    const saved = [];
-    for (const pet of pets) {
+    const entitiesToSave = pets.map(pet => {
+        const entity = { ...pet, user: { id: userId } };
         if (pet.id) {
-            const found = await getRepo().findOne({ where: { id: pet.id, user: { id: userId } } });
-            if (!found) throw new Error(`ID ${pet.id}의 펫을 찾을 수 없습니다`);
-            found.name = pet.name;
-            found.species = pet.species;
-            await getRepo().save(found);
-            saved.push(found);
-        } else {
-            const newPet = getRepo().create({
-                ...pet,
-                user: { id: userId },
-            });
-            await getRepo().save(newPet);
-            saved.push(newPet);
+            entity.id = pet.id;
         }
-    }
-    return saved;
+        return entity;
+    });
+    return await petRepo.save(entitiesToSave);
 };

@@ -1,57 +1,36 @@
-const { getRepository } = require('typeorm');
+// backend/domain/user/repository/userRepository.js
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const User = require('../entity/User');
 
-// getRepository(User)는 createConnection() 성공 이후에만 사용 가능!
-const userRepository = () => getRepository(User);
+// TypeORM 0.3.x 방식: DataSource에서 직접 레포지토리를 가져옵니다.
+const userRepository = AppDataSource.getRepository(User);
 
 exports.findAll = async () => {
-    try {
-        return await userRepository().find();
-    } catch (error) {
-        console.error('findAll error:', error);
-        throw error;
-    }
+    return await userRepository.find();
 };
 
 exports.findById = async (id) => {
-    try {
-        const numericId = parseInt(id, 10);
-        if (isNaN(numericId)) {
-            console.warn(`findById: invalid id ${id}`);
-            return null;
-        }
-        return await userRepository().findOne({ id: numericId });
-    } catch (error) {
-        console.error('findById error:', error);
-        throw error;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+        console.warn(`findById: invalid id ${id}`);
+        return null;
     }
+    return await userRepository.findOneBy({ id: numericId });
 };
 
 exports.findByLoginId = async (loginId) => {
-    try {
-        return await userRepository().findOne({ where: { loginId } });
-    } catch (error) {
-        console.error('findByLoginId error:', error);
-        throw error;
-    }
+    return await userRepository.findOne({ where: { loginId } });
 };
 
 exports.update = async (id, userData) => {
-    const user = await userRepository().findOne({ id });
-    if (!user) throw new Error('사용자를 찾을 수 없습니다');
-
-    Object.assign(user, userData);
-    const savedUser = await userRepository().save(user);
-    console.log('변경된 사용자:', savedUser);
-    return savedUser;
+    await userRepository.update(id, userData);
+    return await userRepository.findOneBy({ id: id });
 };
 
-exports.create = async (userEntity) => {
-    try {
-        const createdUser = userRepository().create(userEntity);
-        return await userRepository().save(createdUser);
-    } catch (error) {
-        console.error('create user error:', error);
-        throw error;
-    }
+exports.create = (userEntity) => {
+    return userRepository.create(userEntity);
+};
+
+exports.save = async (user) => {
+    return await userRepository.save(user);
 };

@@ -27,11 +27,10 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
-    "inherits": "^2.0.4",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
-    "mysql2": "^2.3.3",
+    "mysql2": "^3.14.1",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.2.45"
+    "typeorm": "^0.3.24"
   }
 }

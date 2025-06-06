@@ -4,181 +4,51 @@
   <meta charset="UTF-8">
   <title>메일함</title>
   <link rel="stylesheet" href="../css/styles.css">
-  <script src="/js/sidebar.js" defer></script>
   <style>
-    /* ⭐️ 프로필 보기 버튼과 모달을 위한 스타일 추가 */
-    .link-button {
-      background: none;
-      border: none;
-      color: blue;
-      text-decoration: underline;
-      cursor: pointer;
-      font-size: inherit;
-      font-family: inherit;
-      padding: 0;
-    }
-    .modal {
-      position: fixed;
-      z-index: 100;
-      left: 0; top: 0; width: 100%; height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-      display: none;
-    }
-    .modal-content {
-      background-color: #fff;
-      margin: 15% auto;
-      padding: 20px;
-      width: 320px;
-      border-radius: 8px;
-      position: relative;
-    }
-    .close {
-      position: absolute;
-      right: 10px; top: 10px;
-      font-size: 24px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+    .link-button { background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; font-size: inherit; font-family: inherit; padding: 0; }
+    .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); display: none; }
+    .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 320px; border-radius: 8px; position: relative; }
+    .close { position: absolute; right: 10px; top: 10px; font-size: 24px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
-  <aside class="sidebar">
-    <a href="/index" style="text-decoration: none; color: inherit;">
-      <h2>도그파인더스</h2>
-    </a>
-    <ul>
-      <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
-      <li><a id="nav-list" href="/post-list">모집글</a></li>
-      <li><a id="nav-gather" href="/gather">모임</a></li>
-      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
-      <li><a id="nav-login" href="/login">로그인</a></li>
-    </ul>
-  </aside>
+<aside class="sidebar">
+  <a href="/index" style="text-decoration: none; color: inherit;"><h2>도그파인더스</h2></a>
+  <ul>
+    <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
+    <li><a id="nav-list" href="/post-list">모집글</a></li>
+    <li><a id="nav-gather" href="/gather">모임</a></li>
+    <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
+    <li><a id="nav-login" href="/login">로그인</a></li>
+  </ul>
+</aside>
 
-  <main class="main">
-    <header class="main-header">
-      <nav class="user-nav">
-        <a href="/mypage" id="header-mypage" style="display: none;">마이페이지</a>
-        <a href="#" id="header-logout" style="display: none;">로그아웃</a>
-      </nav>
-    </header>
-    <h1>메일함 (참석 요청 목록)</h1>
-    <table class="table">
-      <thead>
-        <tr><th>발신인</th><th>내용</th><th>요청일</th><th>조치</th></tr>
-      </thead>
-      <tbody id="request-list">
-        </tbody>
-    </table>
-  </main>
+<main class="main">
+  <header class="main-header">
+    <nav class="user-nav">
+      <a href="/mypage" id="header-mypage" style="display: none;">마이페이지</a>
+      <a href="#" id="header-logout" style="display: none;">로그아웃</a>
+    </nav>
+  </header>
+  <h1>메일함 (참석 요청 목록)</h1>
+  <table class="table">
+    <thead>
+    <tr><th>발신인</th><th>내용</th><th>요청일</th><th>조치</th></tr>
+    </thead>
+    <tbody id="request-list"></tbody>
+  </table>
+</main>
 
-  <div id="profileModal" class="modal" onclick="closeProfile()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <span class="close" onclick="closeProfile()">&times;</span>
-      <h2>프로필 정보</h2>
-      <div id="profileData"></div>
-    </div>
+<div id="profileModal" class="modal" onclick="closeProfile()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="close" onclick="closeProfile()">&times;</span>
+    <h2>프로필 정보</h2>
+    <div id="profileData"></div>
   </div>
+</div>
 
-  <script>
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const res = await fetch('/api/attend/mailbox');
-        if (!res.ok) throw new Error('요청 목록을 불러오는데 실패했습니다.');
-
-        const requests = await res.json();
-        const requestListTbody = document.getElementById('request-list');
-        requestListTbody.innerHTML = ''; 
-
-        if (requests.length === 0) {
-          requestListTbody.innerHTML = '<tr><td colspan="4">받은 참석 요청이 없습니다.</td></tr>';
-          return;
-        }
-
-        requests.forEach(req => {
-          const tr = document.createElement('tr');
-          tr.id = `request-${req.id}`;
-          const formattedDate = new Date(req.createdAt).toLocaleString();
-          tr.innerHTML = `
-            <td><button class="link-button" onclick="showProfile('${req.applicantLoginId}')">${req.applicantLoginId}</button></td>
-            <td>'<strong>${req.recruitTitle}</strong>' 게시글에 참석 요청을 보냈습니다.</td>
-            <td>${formattedDate}</td>
-            <td>
-              <button class="btn btn-success btn-sm" onclick="handleAccept(${req.id})">수락</button>
-              <button class="btn btn-danger btn-sm" onclick="handleReject(${req.id})">거절</button>
-            </td>
-          `;
-          requestListTbody.appendChild(tr);
-        });
-      } catch (error) {
-        console.error(error);
-        alert(error.message);
-      }
-    });
-
-    async function handleAccept(attendId) {
-      if (!confirm('정말 이 요청을 수락하시겠습니까?')) return;
-      
-      try {
-        const res = await fetch(`/api/attend/${attendId}/accept`, { method: 'PATCH' });
-        const result = await res.json();
-        
-        if (res.ok) {
-            alert(result.message);
-            document.getElementById(`request-${attendId}`).remove();
-        } else {
-            throw new Error(result.message);
-        }
-      } catch(error) {
-        alert('처리 중 오류가 발생했습니다: ' + error.message);
-        console.error(error);
-      }
-    }
-    
-    function handleReject(attendId) {
-        alert(`attendId: ${attendId} 거절 기능은 직접 구현이 필요합니다. (API 상태 변경 등)`);
-    }
-
-    // ⭐️ 프로필 보기/닫기 함수 추가
-    function showProfile(loginId) {
-      // 실제로는 API로 유저 정보를 가져와야 하지만, 다른 페이지와 동일하게 임시 데이터를 사용합니다.
-      const profiles = {
-        doglover12: {
-          name: "김강아지",
-          age: 27,
-          email: "doglover12@example.com",
-          intro: "강아지를 사랑하는 사람입니다.",
-        },
-        qwer: {
-          name: "박큐WER",
-          age: 30,
-          email: "qwer@example.com",
-          intro: "리트리버를 키우고 있어요.",
-        }
-      };
-      const profile = profiles[loginId];
-      const profileDiv = document.getElementById("profileData");
-      if (profile) {
-        profileDiv.innerHTML = `
-          <p><strong>아이디:</strong> ${loginId}</p>
-          <p><strong>이름:</strong> ${profile.name}</p>
-          <p><strong>나이:</strong> ${profile.age}세</p>
-          <p><strong>이메일:</strong> ${profile.email}</p>
-          <p><strong>소개:</strong> ${profile.intro}</p>
-        `;
-      } else {
-        profileDiv.innerHTML = `
-          <p><strong>아이디:</strong> ${loginId}</p>
-          <p>프로필 정보를 찾을 수 없습니다.</p>
-        `;
-      }
-      document.getElementById("profileModal").style.display = "block";
-    }
-
-    function closeProfile() {
-      document.getElementById("profileModal").style.display = "none";
-    }
-  </script>
+<script src="/js/sidebar.js" defer></script>
+<script src="/js/profile-modal.js" defer></script>
+<script src="/js/mailbox.js" defer></script>
 </body>
 </html>

@@ -12,6 +12,7 @@ module.exports = new EntitySchema({
             enum: ['ACTIVE', 'CALM', 'SOCIAL', 'SHY'],
         },
         isVaccinated: { type: Boolean },
+        imageUrl: { type: 'varchar', nullable: true },
         createdAt: { type: 'timestamp', createDate: true },
         updatedAt: { type: 'timestamp', updateDate: true },
     },
