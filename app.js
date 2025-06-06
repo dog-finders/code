@@ -14,7 +14,8 @@ const PORT = process.env.PORT || 8000;
 const userRoute = require('./backend/domain/user/routes/userRoutes');
 const recruitRoute = require('./backend/domain/recruit/routes/recruitRoutes');
 const petRoutes = require('./backend/domain/pet/routes/petRoutes');
-const meetingRoute = require('./backend/domain/meeting/routes/meetingRoutes'); // ✅ DB 연동된 meetingRoute import
+const meetingRoute = require('./backend/domain/meeting/routes/meetingRoutes');
+const attendRoutes = require('./backend/domain/attend/routes/attendRoutes');
 
 // ── 데이터베이스 연결 옵션 ──
 const connectionOptions = {
@@ -31,7 +32,8 @@ const connectionOptions = {
     require('./backend/domain/pet/entity/Pet'),
     require('./backend/domain/recruit/entity/Recruit'),
     require('./backend/domain/meeting/entity/Meeting'),        // ✅ 추가
-    require('./backend/domain/meeting/entity/MeetingMember')  // ✅ 추가
+    require('./backend/domain/meeting/entity/MeetingMember'),  // ✅ 추가
+    require('./backend/domain/attend/entity/Attend')
   ],
 };
 
@@ -110,6 +112,7 @@ createConnection(connectionOptions)
     app.use('/api/recruit', recruitRoute);
     app.use('/api/pets', petRoutes);
     app.use('/api/meetings', meetingRoute); // ✅ meetingRoute 여기만 남기면 돼!
+    app.use('/api/attend', attendRoutes);
 
     app.use((req, res, next) => {
       next(createError(404));
