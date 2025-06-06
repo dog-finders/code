@@ -69,19 +69,22 @@
       <h2>도그파인더스</h2>
     </a>
     <ul>
-      <li><a id="nav-map" href="/map">지도</a></li>
       <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
-      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
       <li><a id="nav-list" href="/post-list">모집글</a></li>
       <li><a id="nav-gather" href="/gather">모임</a></li>
+      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
       <li><a id="nav-login" href="/login">로그인</a></li>
     </ul>
   </aside>
 
-  <!-- 메인 영역에 이미지 컨테이너와 텍스트 오버레이를 배치 -->
   <main class="main">
+    <header class="main-header">
+      <nav class="user-nav">
+        <a href="/mypage" id="header-mypage" style="display: none;">마이페이지</a>
+        <a href="#" id="header-logout" style="display: none;">로그아웃</a>
+      </nav>
+    </header>
     <div class="image-container">
-        <!-- onerror 속성을 사용하여 이미지가 없을 경우 대체 이미지를 표시합니다. -->
         <img src="/assets/pet.jpg" alt="환영 이미지" class="pet-img" onerror="this.onerror=null;this.src='https://placehold.co/1200x900/333333/FFFFFF&text=Image%20Not%20Found';">
     </div>
     <div class="text-overlay">

@@ -505,3 +505,31 @@ a.btn {
 a.btn:hover {
   background-color: #0056b3;
 }
+
+/* 메인 콘텐츠 영역을 상대적 위치의 기준으로 설정 */
+.main {
+  flex: 1;
+  padding: 60px 30px 30px 30px; /* 위쪽 여백을 60px로 늘림 */
+  overflow-y: auto;
+  position: relative;
+}
+
+/* 상단 사용자 메뉴 헤더 */
+.main-header {
+  position: absolute;
+  top: 20px; /* 상단 위치 조정 */
+  right: 30px;
+  z-index: 10;
+}
+
+.user-nav a {
+  margin-left: 15px;
+  color: #2c3e50; /* 사이드바와 유사한 톤의 색상 */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.user-nav a:hover {
+  text-decoration: underline;
+}

@@ -15,16 +15,21 @@
       <h2>도그파인더스</h2>
     </a>
     <ul>
-      <li><a id="nav-map" href="/map">지도</a></li>
       <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
-      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
       <li><a id="nav-list" href="/post-list">모집글</a></li>
       <li><a id="nav-gather" href="/gather">모임</a></li>
+      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
       <li><a id="nav-login" href="/login">로그인</a></li>
     </ul>
   </aside>
 
 <main class="main">
+  <header class="main-header">
+    <nav class="user-nav">
+      <a href="/mypage" id="header-mypage" style="display: none;">마이페이지</a>
+      <a href="#" id="header-logout" style="display: none;">로그아웃</a>
+    </nav>
+  </header>
   <div class="form-card">
     <h1>프로필/반려동물 정보</h1>
     <form id="user-form">
