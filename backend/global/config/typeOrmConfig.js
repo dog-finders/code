@@ -1,42 +1,27 @@
-// global/config/typeOrmConfig.js (이미 잘 작성됨 가정)
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { DataSource } = require('typeorm');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 
-const User = require('../../domain/user/entity/User');
-const Pet = require('../../domain/pet/entity/Pet');
-const Recruit = require('../../domain/recruit/entity/Recruit');
-
-const AppDataSource = new DataSource({
-  type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT, 10) || 3306,
-  username: process.env.DB_USERNAME || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'test',
-  synchronize: true,
-  dropSchema: false,
-  logging: true,
-  entities: [User, Pet, Recruit],
-});
-
+// 'uploads/pets' 디렉터리가 없으면 생성합니다.
 const uploadPath = path.join(__dirname, '../../../uploads/pets');
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 
+// 파일 저장을 위한 Multer storage 설정입니다.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadPath),
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 
+// Multer 미들웨어 인스턴스입니다.
 const upload = multer({ storage });
 
+// 이 파일에서는 TypeORM 연결(DataSource)을 직접 다루지 않으므로 관련 코드를 제거하고,
+// 파일 업로드(multer) 설정만 export 합니다.
 module.exports = {
-  AppDataSource,
   upload,
 };

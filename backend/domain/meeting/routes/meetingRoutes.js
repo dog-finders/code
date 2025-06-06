@@ -2,10 +2,15 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controller/meetingController');
 
-// GET /api/meetings - 모든 모임 목록 조회
+// GET /api/meetings - 페이지네이션과 정렬이 적용된 모든 모임 목록 조회
 router.get('/', async (req, res) => {
   try {
-    const meetings = await controller.findAllMeetings();
+    const page = parseInt(req.query.page, 10) || 1;
+    const pageSize = parseInt(req.query.pageSize, 10) || 10;
+
+    const [meetings, totalCount] = await controller.findAllMeetings({ page, pageSize });
+    const totalPages = Math.ceil(totalCount / pageSize);
+
     const result = await Promise.all(meetings.map(async (m) => {
       const members = await controller.findMembersByMeetingId(m.id);
       return {
@@ -16,12 +21,20 @@ router.get('/', async (req, res) => {
         members: members.map(mem => mem.memberId),
       };
     }));
-    res.json(result);
+
+    // 클라이언트에 페이지네이션 정보를 함께 전달
+    res.json({
+        meetings: result,
+        totalPages,
+        currentPage: page
+    });
+
   } catch (err) {
-    console.error('목록 조회 에러:', err);
+    console.error('모임 목록 조회 에러:', err);
     res.status(500).json({ message: '서버 에러' });
   }
 });
+
 
 // GET /api/meetings/:id - 특정 모임 상세 조회
 router.get('/:id', async (req, res) => {
