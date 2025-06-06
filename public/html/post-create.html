@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="../js/auth.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=47f0e9a41ccbe53d69beb528e5b94cd4&libraries=services"></script>
 </head>
 <body>
   <script>
@@ -49,8 +50,9 @@
         </div>
         <input type="hidden" id="lat" name="lat">
         <input type="hidden" id="lng" name="lng">
+        <input type="hidden" id="location" name="location">
         <div class="btn-group">
-          <button type="submit" class="btn btn-primary">작성 완료</button>
+          <button type="submit" id="submitBtn" class="btn btn-primary" disabled>위치 정보 확인 중...</button>
           <a href="post-list" class="btn btn-secondary">취소</a>
         </div>
       </form>
@@ -58,14 +60,38 @@
   </main>
 
   <script>
-    // URL에서 lat/lng를 받아 hidden input에 세팅
     window.addEventListener('DOMContentLoaded', function() {
+      const submitBtn = document.getElementById('submitBtn');
       const params = new URLSearchParams(window.location.search);
       const lat = params.get('lat');
       const lng = params.get('lng');
+
       if (lat && lng) {
         document.getElementById('lat').value = lat;
         document.getElementById('lng').value = lng;
+        
+        const geocoder = new kakao.maps.services.Geocoder();
+        
+        geocoder.coord2Address(lng, lat, function(result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                const address = result[0]?.road_address?.address_name || result[0]?.address?.address_name;
+                document.getElementById('location').value = address;
+                console.log('주소 변환 완료:', address);
+
+                // ▼▼▼▼▼ [수정] 주소 변환 성공 시, 버튼을 활성화합니다. ▼▼▼▼▼
+                submitBtn.disabled = false;
+                submitBtn.textContent = '작성 완료';
+                // ▲▲▲▲▲ [수정] 여기까지 수정합니다. ▲▲▲▲▲
+
+            } else {
+                console.error('주소를 가져오는 데 실패했습니다.');
+                alert('선택한 위치의 주소를 가져올 수 없습니다. 지도에서 다시 선택해주세요.');
+                submitBtn.textContent = '주소 변환 실패';
+            }
+        });
+      } else {
+          alert("지도에서 위치를 먼저 선택해야 합니다.");
+          window.location.href = '/map?returnUrl=post-create';
       }
     });
 
@@ -77,14 +103,14 @@
       const close_at = document.getElementById('close_at').value;
       const lat = document.getElementById('lat').value;
       const lng = document.getElementById('lng').value;
+      const location = document.getElementById('location').value;
 
       if (!title || !content || !close_at) {
         alert('모든 필수 항목을 입력해 주세요.');
         return;
       }
-
-      // 1️⃣ 모집글 먼저 저장
-      const recruitBody = { title, content, close_at, lat, lng };
+      
+      const recruitBody = { title, content, close_at, lat, lng, location };
 
       try {
         const recruitRes = await fetch('/api/recruit', {
@@ -95,27 +121,16 @@
 
         if (!recruitRes.ok) {
           const err = await recruitRes.json();
-          alert('모집글 작성 실패: ' + (err.message || '알 수 없는 오류'));
-          return;
+          throw new Error('모집글 작성 실패: ' + (err.message || '알 수 없는 오류'));
         }
 
-        // recruitId 받아오기 (recruit: {id, ...} 구조 기준)
         const recruitData = await recruitRes.json();
         const recruitId = recruitData.recruit?.id;
         if (!recruitId) {
-          alert('모집글 저장 결과에 recruitId가 없습니다.');
-          return;
+          throw new Error('모집글 저장 결과에 recruitId가 없습니다.');
         }
 
-        // 2️⃣ 모집글 저장 후 모임도 자동 생성 (recruitId 포함)
-        const user = JSON.parse(localStorage.getItem('user'));
-        const hostId = user?.id; // 반드시 숫자 ID
-        if (!hostId) {
-          alert('로그인 정보가 없습니다.');
-          return;
-        }
-
-        const meetingBody = { title, hostId, recruitId };
+        const meetingBody = { title, recruitId };
         const meetingRes = await fetch('/api/meetings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -124,16 +139,15 @@
 
         if (!meetingRes.ok) {
           const err = await meetingRes.json();
-          alert('모임 생성 실패: ' + (err.message || '알 수 없는 오류'));
-          return;
+          throw new Error('모집글은 작성되었으나 모임 생성에 실패했습니다: ' + (err.message || '알 수 없는 오류'));
         }
 
-        // 3️⃣ 성공 시 목록 페이지로 이동
+        alert('모집글이 성공적으로 작성되었습니다.');
         window.location.href = '/post-list';
 
       } catch (error) {
-        console.error(error);
-        alert('서버 연결 오류');
+        console.error('모집글 작성 프로세스 에러:', error);
+        alert(error.message);
       }
     });
   </script>

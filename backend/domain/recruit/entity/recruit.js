@@ -13,6 +13,7 @@ module.exports = new EntitySchema({
     // 추가된 컬럼
     latitude: { type: 'double' },
     longitude: { type: 'double' },
+    location: { type: 'varchar', nullable: true },
 
     created_at: { type: 'datetime', createDate: true },
     updated_at: { type: 'datetime', updateDate: true },

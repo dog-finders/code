@@ -64,18 +64,39 @@ router.get('/', async (req, res) => {
       ? [
           { title: Like(`%${search}%`) },
           { content: Like(`%${search}%`) },
+          { location: Like(`%${search}%`) },
         ]
       : {};
 
     const totalCount = await recruitRepo.count({ where: whereCondition });
-    const totalPages = Math.ceil(totalCount / pageSize);
-    const currentPage = page > totalPages ? totalPages : page < 1 ? 1 : page;
+
+    // ▼▼▼▼▼ [수정] 페이지 계산 로직을 아래와 같이 변경합니다. ▼▼▼▼▼
+    const totalPages = Math.ceil(totalCount / pageSize) || 1;
+    let currentPage = page;
+    if (currentPage < 1) {
+      currentPage = 1;
+    }
+    if (currentPage > totalPages) {
+      // 검색 결과가 없을 때 totalPages가 0이 아닌 1이 되므로,
+      // totalCount가 0일 때 currentPage를 totalPages로 설정하면 안됩니다.
+      // 이 경우는 그냥 두거나, 1페이지로 보내는 것이 안전합니다.
+      // 하지만 아래 skip 계산에서 (1-1)*pageSize = 0 이 되므로,
+      // 현재 로직을 유지해도 괜찮습니다.
+      // 더 명확하게 하려면,
+      if (totalCount === 0) {
+        currentPage = 1;
+      } else {
+        currentPage = totalPages;
+      }
+    }
+    // ▲▲▲▲▲ [수정] 여기까지 변경합니다. ▲▲▲▲▲
+
 
     const recruits = await recruitRepo.find({
       where: whereCondition,
       relations: ['user'],
       order: { created_at: 'DESC' },
-      skip: (currentPage - 1) * pageSize,
+      skip: (currentPage - 1) * pageSize, // 이 부분이 음수가 되지 않습니다.
       take: pageSize,
     });
 
@@ -95,6 +116,7 @@ router.get('/', async (req, res) => {
         created_at: r.created_at,
       })),
     });
+
   } catch (err) {
     console.error('모집글 목록 조회 에러:', err);
     return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
@@ -150,17 +172,12 @@ router.delete('/:id', async (req, res) => {
       return res.status(403).json({ message: '삭제 권한이 없습니다. (작성자만 가능)' });
     }
 
-    // 트랜잭션 사용
     await recruitRepo.manager.transaction(async (transactionalEntityManager) => {
-      // 모집글에 연결된 모임 찾기
       const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: id } });
       if (meeting) {
-        // 모임 멤버 삭제
         await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
-        // 모임 삭제
         await transactionalEntityManager.delete(Meeting, meeting.id);
       }
-      // 모집글 삭제
       await transactionalEntityManager.delete(Recruit, id);
     });
 
@@ -188,7 +205,6 @@ router.patch('/:id/close', async (req, res) => {
       return res.status(403).json({ message: '마감 권한이 없습니다. (작성자만 가능)' });
     }
 
-    // 모집 마감 상태 변경
     recruit.is_closed = true;
     await recruitRepo.save(recruit);
 
