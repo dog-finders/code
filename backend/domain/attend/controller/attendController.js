@@ -85,18 +85,42 @@ exports.acceptAttendRequest = async (req, res) => {
             const applicant = await transactionalEntityManager.findOne(User, { where: { id: request.applicantId }});
             if (!applicant) throw new Error('신청자 정보를 찾을 수 없습니다.');
 
-            // --- [수정된 부분] ---
-            // create와 save를 분리하는 대신, save에 엔티티와 데이터를 함께 전달하여 한 번에 처리
             await transactionalEntityManager.save(MeetingMember, {
                 meetingId: meeting.id,
                 memberId: applicant.loginId,
             });
-            // --- [수정 끝] ---
         });
 
         res.json({ message: '요청을 수락했습니다.' });
     } catch(err) {
         console.error('요청 수락 처리 에러:', err);
         res.status(500).json({ message: err.message || '요청 수락 중 서버 에러가 발생했습니다.' });
+    }
+};
+
+// ⭐️ [추가] 참석 요청 거절
+exports.rejectAttendRequest = async (req, res) => {
+    const attendId = parseInt(req.params.attendId, 10);
+    const hostId = req.session.userId;
+    
+    const attendRepo = getRepository(Attend);
+    const request = await attendRepo.findOne({ where: { id: attendId } });
+
+    if (!request || request.hostId !== hostId) {
+        return res.status(403).json({ message: '권한이 없거나 요청을 찾을 수 없습니다.' });
+    }
+    if (request.status !== 'PENDING') {
+        return res.status(400).json({ message: '이미 처리된 요청입니다.' });
+    }
+
+    try {
+        // 요청의 상태를 'REJECTED'로 변경
+        request.status = 'REJECTED';
+        await attendRepo.save(request);
+        
+        res.json({ message: '요청을 거절했습니다.' });
+    } catch (err) {
+        console.error('요청 거절 처리 에러:', err);
+        res.status(500).json({ message: '요청 거절 중 서버 에러가 발생했습니다.' });
     }
 };

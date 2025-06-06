@@ -14,4 +14,7 @@ router.get('/mailbox', attendController.getMailbox);
 // 참석 요청 수락 API
 router.patch('/:attendId/accept', attendController.acceptAttendRequest);
 
+// 참석 요청 거절 API
+router.patch('/:attendId/reject', attendController.rejectAttendRequest);
+
 module.exports = router;

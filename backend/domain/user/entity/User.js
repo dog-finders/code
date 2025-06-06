@@ -14,7 +14,13 @@ module.exports = new EntitySchema({
     birthdate: { type: 'varchar', length: 10 },
     email: { type: 'varchar', length: 50, unique: true },
     address: { type: 'varchar', nullable: true },
-    rating: { type: 'int', nullable: true },
+    
+    //기존 rating 필드를 삭제하고, 항목별 평균 점수 필드를 추가합니다.
+    // 소수점 계산을 위해 float 타입으로 지정합니다.
+    avgPunctuality: { type: 'float', nullable: true, default: null },
+    avgSociability: { type: 'float', nullable: true, default: null },
+    avgAggressiveness: { type: 'float', nullable: true, default: null },
+
     personality: {
       type: 'enum',
       enum: ['ACTIVE', 'CALM', 'SOCIAL', 'SHY'],

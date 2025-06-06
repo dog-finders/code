@@ -214,21 +214,17 @@
             marker.setMap(map);
         }
 
-        // --- ⭐️ [수정된 부분 시작] ---
-        // 호스트일 경우, '산책 종료 및 평가하기' 버튼 표시
-        if (loginId && meeting.hostId && loginId === meeting.hostId) {
+        if (loginId && meeting.members && meeting.members.includes(loginId)) {
           const btn = document.createElement("button");
-          btn.textContent = "산책 종료 및 평가하기"; // 버튼 텍스트 변경
+          btn.textContent = "산책 종료 및 평가하기";
           btn.className = "btn btn-danger";
           
-          // 클릭 시 평가 페이지로 이동하도록 onclick 이벤트 핸들러 변경
           btn.onclick = () => {
             window.location.href = `/evaluation?meetingId=${meetingId}`;
           };
 
           document.getElementById("hostActions").appendChild(btn);
         }
-        // --- ⭐️ [수정된 부분 끝] ---
 
       } catch (error) {
         console.error(error);

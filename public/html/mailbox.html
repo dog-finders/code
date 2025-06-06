@@ -136,13 +136,27 @@
       }
     }
     
-    function handleReject(attendId) {
-        alert(`attendId: ${attendId} 거절 기능은 직접 구현이 필요합니다. (API 상태 변경 등)`);
+    // ⭐️ [수정] 거절 버튼의 기능을 구현합니다.
+    async function handleReject(attendId) {
+        if (!confirm('정말 이 요청을 거절하시겠습니까?')) return;
+
+        try {
+            const res = await fetch(`/api/attend/${attendId}/reject`, { method: 'PATCH' });
+            const result = await res.json();
+
+            if (res.ok) {
+                alert(result.message);
+                document.getElementById(`request-${attendId}`).remove();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch(error) {
+            alert('처리 중 오류가 발생했습니다: ' + error.message);
+            console.error(error);
+        }
     }
 
-    // ⭐️ 프로필 보기/닫기 함수 추가
     function showProfile(loginId) {
-      // 실제로는 API로 유저 정보를 가져와야 하지만, 다른 페이지와 동일하게 임시 데이터를 사용합니다.
       const profiles = {
         doglover12: {
           name: "김강아지",

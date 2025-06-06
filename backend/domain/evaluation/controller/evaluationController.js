@@ -19,32 +19,48 @@ exports.submitEvaluations = async (req, res) => {
   try {
     for (const eva of evaluations) {
         const evaluatedUser = await queryRunner.manager.findOne(User, { where: { loginId: eva.evaluatedId } });
-        if (!evaluatedUser) continue; 
+        if (!evaluatedUser) continue;
 
-        const evaluation = getRepository(Evaluation).create({
+        const evaluationData = {
             meetingId,
             evaluatorId,
             evaluatedId: evaluatedUser.id,
-            mannerRating: eva.mannerRating,
-            comment: eva.comment,
-        });
-        await queryRunner.manager.save(evaluation);
+            punctuality: eva.punctuality,
+            sociability: eva.sociability,
+            aggressiveness: eva.aggressiveness,
+        };
+        
+        await queryRunner.manager.save(Evaluation, evaluationData);
 
-        const { avgRating } = await queryRunner.manager
+        const { avgPunc } = await queryRunner.manager
             .createQueryBuilder(Evaluation, "eva")
-            .select("AVG(eva.mannerRating)", "avgRating")
+            .select("AVG(eva.punctuality)", "avgPunc")
             .where("eva.evaluatedId = :id", { id: evaluatedUser.id })
             .getRawOne();
         
-        evaluatedUser.rating = Math.round(avgRating * 10) / 10;
-        await queryRunner.manager.save(evaluatedUser);
+        const { avgSoc } = await queryRunner.manager
+            .createQueryBuilder(Evaluation, "eva")
+            .select("AVG(eva.sociability)", "avgSoc")
+            .where("eva.evaluatedId = :id", { id: evaluatedUser.id })
+            .getRawOne();
+
+        const { avgAggr } = await queryRunner.manager
+            .createQueryBuilder(Evaluation, "eva")
+            .select("AVG(eva.aggressiveness)", "avgAggr")
+            .where("eva.evaluatedId = :id", { id: evaluatedUser.id })
+            .getRawOne();
+        
+        const newAverages = {
+            avgPunctuality: parseFloat(avgPunc).toFixed(1),
+            avgSociability: parseFloat(avgSoc).toFixed(1),
+            avgAggressiveness: parseFloat(avgAggr).toFixed(1),
+        };
+
+        await queryRunner.manager.update(User, evaluatedUser.id, newAverages);
     }
     
-    await queryRunner.manager.delete(MeetingMember, { meetingId });
-    await queryRunner.manager.delete(Meeting, { id: meetingId });
-    
     await queryRunner.commitTransaction();
-    res.status(200).json({ message: '평가가 성공적으로 제출되었고 모임이 종료되었습니다.' });
+    res.status(200).json({ message: '평가가 성공적으로 제출되었습니다.' });
 
   } catch (error) {
     await queryRunner.rollbackTransaction();

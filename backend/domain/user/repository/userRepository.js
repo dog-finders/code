@@ -20,7 +20,8 @@ exports.findById = async (id) => {
             console.warn(`findById: invalid id ${id}`);
             return null;
         }
-        return await userRepository().findOne({ id: numericId });
+        // ⭐️ [수정] 검색 조건을 { where: { ... } } 로 감싸줍니다.
+        return await userRepository().findOne({ where: { id: numericId } });
     } catch (error) {
         console.error('findById error:', error);
         throw error;
@@ -37,7 +38,7 @@ exports.findByLoginId = async (loginId) => {
 };
 
 exports.update = async (id, userData) => {
-    const user = await userRepository().findOne({ id });
+    const user = await userRepository().findOne({ where: { id } });
     if (!user) throw new Error('사용자를 찾을 수 없습니다');
 
     Object.assign(user, userData);

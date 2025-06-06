@@ -25,8 +25,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     const otherMembers = meeting.members.filter(m => m !== currentUser.loginId);
 
     if (otherMembers.length === 0) {
-        membersContainer.innerHTML = '<p>평가할 다른 멤버가 없습니다. 모임을 종료합니다.</p>';
-        document.querySelector('button[type="submit"]').style.display = 'none';
+        if (confirm("혼자 참여한 모임입니다. 바로 종료하시겠습니까?")) {
+            const deleteRes = await fetch(`/api/meetings/${meetingId}`, {
+                method: 'DELETE'
+            });
+            if (deleteRes.ok) {
+                alert("모임이 종료되었습니다.");
+                window.location.href = '/gather';
+            } else {
+                const err = await deleteRes.json();
+                throw new Error(err.message || "모임 종료에 실패했습니다.");
+            }
+        } else {
+            window.history.back();
+        }
         return;
     }
 
@@ -38,19 +50,44 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.innerHTML = `
         <h3>멤버: ${memberId}</h3>
         <input type="hidden" name="evaluatedId" value="${memberId}">
+
         <div class="form-group">
-          <label>매너 점수</label>
-          <div class="rating">
-            <input type="radio" id="star5-${memberId}" name="mannerRating-${memberId}" value="5" required><label for="star5-${memberId}">★</label>
-            <input type="radio" id="star4-${memberId}" name="mannerRating-${memberId}" value="4"><label for="star4-${memberId}">★</label>
-            <input type="radio" id="star3-${memberId}" name="mannerRating-${memberId}" value="3"><label for="star3-${memberId}">★</label>
-            <input type="radio" id="star2-${memberId}" name="mannerRating-${memberId}" value="2"><label for="star2-${memberId}">★</label>
-            <input type="radio" id="star1-${memberId}" name="mannerRating-${memberId}" value="1"><label for="star1-${memberId}">★</label>
-          </div>
+          <label for="punctuality-${memberId}">시간 약속 준수</label>
+          <select id="punctuality-${memberId}" name="punctuality" class="form-control" required>
+            <option value="" disabled selected>점수 선택</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+            <option value="0">0</option>
+          </select>
         </div>
+
         <div class="form-group">
-          <label for="comment-${memberId}">한 줄 후기 (선택)</label>
-          <textarea id="comment-${memberId}" name="comment" rows="2" class="form-control"></textarea>
+          <label for="sociability-${memberId}">반려동물의 사회성</label>
+          <select id="sociability-${memberId}" name="sociability" class="form-control" required>
+            <option value="" disabled selected>점수 선택</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="aggressiveness-${memberId}">반려동물의 공격성</label>
+          <select id="aggressiveness-${memberId}" name="aggressiveness" class="form-control" required>
+            <option value="" disabled selected>점수 선택</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+            <option value="0">0</option>
+          </select>
         </div>`;
       membersContainer.appendChild(card);
     });
@@ -67,14 +104,26 @@ window.addEventListener('DOMContentLoaded', async () => {
         const evaluationCards = document.querySelectorAll('.evaluation-card');
         const evaluations = Array.from(evaluationCards).map(card => {
             const memberId = card.dataset.memberId;
-            const mannerRating = card.querySelector(`input[name="mannerRating-${memberId}"]:checked`);
             
-            if (!mannerRating) throw new Error(`${memberId}님의 매너 점수를 선택해주세요.`);
+            const punctualitySelect = card.querySelector(`select[name="punctuality"]`);
+            const sociabilitySelect = card.querySelector(`select[name="sociability"]`);
+            const aggressivenessSelect = card.querySelector(`select[name="aggressiveness"]`);
+            
+            if (!punctualitySelect || punctualitySelect.value === "") {
+                throw new Error(`${memberId}님의 '시간 약속 준수' 점수를 선택해주세요.`);
+            }
+            if (!sociabilitySelect || sociabilitySelect.value === "") {
+                throw new Error(`${memberId}님의 '반려동물 사회성' 점수를 선택해주세요.`);
+            }
+            if (!aggressivenessSelect || aggressivenessSelect.value === "") {
+                throw new Error(`${memberId}님의 '반려동물 공격성' 점수를 선택해주세요.`);
+            }
 
             return {
                 evaluatedId: memberId,
-                mannerRating: parseInt(mannerRating.value, 10),
-                comment: card.querySelector(`textarea[name="comment"]`).value,
+                punctuality: parseInt(punctualitySelect.value, 10),
+                sociability: parseInt(sociabilitySelect.value, 10),
+                aggressiveness: parseInt(aggressivenessSelect.value, 10),
             };
         });
 

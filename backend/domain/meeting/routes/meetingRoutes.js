@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controller/meetingController');
+// ⭐️ userService를 직접 불러오도록 추가합니다.
+const userService = require('../../user/service/userService');
 
 // GET /api/meetings - 현재 로그인한 유저의 모임 목록만 조회
 router.get('/', async (req, res) => {
@@ -85,7 +87,8 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: '모임 제목이 필요합니다.' });
     }
 
-    const user = await controller.findUserById(userId);
+    // ⭐️ [수정] controller.findUserById 대신 userService.findById를 사용합니다.
+    const user = await userService.findById(userId); 
     if (!user || !user.loginId) {
       return res.status(404).json({ message: '사용자 정보를 찾을 수 없습니다.' });
     }
@@ -107,7 +110,8 @@ router.post('/', async (req, res) => {
 
   } catch (err) {
     console.error('모임 생성 에러:', err);
-    res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+    // ⭐️ [수정] 에러 메시지를 좀 더 구체적으로 반환합니다.
+    res.status(500).json({ message: err.message || '서버 에러가 발생했습니다.' });
   }
 });
 
@@ -123,7 +127,8 @@ router.delete('/:id', async (req, res) => {
     const userId = req.session?.userId;
     if (!userId) return res.status(401).json({ message: '로그인 필요' });
 
-    const user = await controller.findUserById(userId);
+    // ⭐️ [수정] controller.findUserById 대신 userService.findById를 사용합니다.
+    const user = await userService.findById(userId);
     const loginId = user?.loginId;
 
     if (meeting.hostId !== loginId) {

@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const createError = require('http-errors');
 const session = require('express-session');
-// getRepository와 LessThan을 typeorm에서 가져옵니다.
 const { createConnection, getRepository, LessThan } = require('typeorm');
 
 const app = express();
@@ -17,6 +16,7 @@ const recruitRoute = require('./backend/domain/recruit/routes/recruitRoutes');
 const petRoutes = require('./backend/domain/pet/routes/petRoutes');
 const meetingRoute = require('./backend/domain/meeting/routes/meetingRoutes');
 const attendRoutes = require('./backend/domain/attend/routes/attendRoutes');
+const evaluationRoutes = require('./backend/domain/evaluation/routes/evaluationRoutes');
 
 // --- 스케줄러에서 사용할 엔티티 import ---
 const Recruit = require('./backend/domain/recruit/entity/Recruit');
@@ -33,11 +33,11 @@ const connectionOptions = {
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'dogdb',
   synchronize: true,
-  logging: true, // 스케줄러 동작을 확인하기 위해 로깅을 켜둡니다.
+  logging: true,
   entities: [
     require('./backend/domain/user/entity/User'),
     require('./backend/domain/pet/entity/Pet'),
-    Recruit, // 직접 사용하므로 require 대신 변수를 사용
+    Recruit,
     Meeting,
     MeetingMember,
     require('./backend/domain/attend/entity/Attend'),
@@ -71,7 +71,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- HTML 페이지 라우팅 ---
-// ... (기존 HTML 라우팅 코드는 그대로 유지)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
 });
@@ -121,14 +120,12 @@ createConnection(connectionOptions)
   .then(() => {
     console.log('DB 연결 성공');
 
-    // --- 자동 마감 스케줄러 설정 ---
     const checkAndCloseExpiredRecruits = async () => {
         console.log('[Scheduler] 만료된 모집글 확인 작업을 실행합니다.');
         const recruitRepo = getRepository(Recruit);
         
         try {
             const now = new Date();
-            // is_closed가 false이고 close_at이 현재 시간보다 이전인 모든 모집글을 찾습니다.
             const expiredRecruits = await recruitRepo.find({
                 where: {
                     is_closed: false,
@@ -141,7 +138,6 @@ createConnection(connectionOptions)
                 
                 for (const recruit of expiredRecruits) {
                     await recruitRepo.manager.transaction(async transactionalEntityManager => {
-                        // 연관된 모임 및 멤버를 삭제하고, 마지막으로 모집글을 삭제합니다.
                         const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: recruit.id } });
                         if (meeting) {
                             await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
@@ -157,12 +153,9 @@ createConnection(connectionOptions)
         }
     };
     
-    // 1분(60000ms)마다 스케줄러를 실행합니다.
     setInterval(checkAndCloseExpiredRecruits, 60000);
-    // 서버 시작 시 즉시 한 번 실행하여 혹시 놓친 글이 없는지 확인합니다.
     checkAndCloseExpiredRecruits();
     
-
     app.use('/api/users', userRoute);
     app.use('/api/recruit', recruitRoute);
     app.use('/api/pets', petRoutes);

@@ -69,22 +69,34 @@ router.get('/', async (req, res) => {
       : {};
 
     const totalCount = await recruitRepo.count({ where: whereCondition });
+
+    // ▼▼▼▼▼ [수정] 페이지 계산 로직을 아래와 같이 변경합니다. ▼▼▼▼▼
     const totalPages = Math.ceil(totalCount / pageSize) || 1;
     let currentPage = page;
     if (currentPage < 1) {
       currentPage = 1;
     }
-    if (currentPage > totalPages && totalCount > 0) {
-      currentPage = totalPages;
-    } else if (currentPage > 1 && totalCount === 0) {
-      currentPage = 1;
+    if (currentPage > totalPages) {
+      // 검색 결과가 없을 때 totalPages가 0이 아닌 1이 되므로,
+      // totalCount가 0일 때 currentPage를 totalPages로 설정하면 안됩니다.
+      // 이 경우는 그냥 두거나, 1페이지로 보내는 것이 안전합니다.
+      // 하지만 아래 skip 계산에서 (1-1)*pageSize = 0 이 되므로,
+      // 현재 로직을 유지해도 괜찮습니다.
+      // 더 명확하게 하려면,
+      if (totalCount === 0) {
+        currentPage = 1;
+      } else {
+        currentPage = totalPages;
+      }
     }
+    // ▲▲▲▲▲ [수정] 여기까지 변경합니다. ▲▲▲▲▲
+
 
     const recruits = await recruitRepo.find({
       where: whereCondition,
       relations: ['user'],
       order: { created_at: 'DESC' },
-      skip: (currentPage - 1) * pageSize,
+      skip: (currentPage - 1) * pageSize, // 이 부분이 음수가 되지 않습니다.
       take: pageSize,
     });
 
@@ -110,7 +122,6 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 });
-
 
 // 모집글 상세 조회
 router.get('/:id', async (req, res) => {
@@ -141,60 +152,66 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 공통 삭제 로직 함수
-const deleteRecruitAndMeeting = async (recruitId, userId) => {
-    const recruitRepo = getRepository(Recruit);
-    const recruit = await recruitRepo.findOne({ where: { id: recruitId }, relations: ['user'] });
-    if (!recruit) {
-        throw { status: 404, message: '해당 모집글을 찾을 수 없습니다.' };
-    }
-    if (recruit.user?.id !== userId) {
-        throw { status: 403, message: '처리 권한이 없습니다. (작성자만 가능)' };
-    }
-
-    await recruitRepo.manager.transaction(async (transactionalEntityManager) => {
-        const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: recruitId } });
-        if (meeting) {
-            await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
-            await transactionalEntityManager.delete(Meeting, { id: meeting.id });
-        }
-        await transactionalEntityManager.delete(Recruit, { id: recruitId });
-    });
-};
-
-// 모집글 삭제 API
+// 모집글 삭제 (작성자만 가능, 모임 및 멤버도 함께 삭제)
 router.delete('/:id', async (req, res) => {
   try {
     const userId = req.session?.userId;
     if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
-    
+
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 모집글 ID입니다.' });
 
-    await deleteRecruitAndMeeting(id, userId);
+    const recruitRepo = getRepository(Recruit);
+    const meetingRepo = getRepository(Meeting);
+    const memberRepo = getRepository(MeetingMember);
+
+    const recruit = await recruitRepo.findOne({ where: { id }, relations: ['user'] });
+    if (!recruit) return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
+
+    if (recruit.user?.id !== userId) {
+      return res.status(403).json({ message: '삭제 권한이 없습니다. (작성자만 가능)' });
+    }
+
+    await recruitRepo.manager.transaction(async (transactionalEntityManager) => {
+      const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: id } });
+      if (meeting) {
+        await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
+        await transactionalEntityManager.delete(Meeting, meeting.id);
+      }
+      await transactionalEntityManager.delete(Recruit, id);
+    });
 
     return res.json({ message: '모집글과 연관 모임이 모두 삭제되었습니다.' });
   } catch (err) {
     console.error('모집글 삭제 에러:', err);
-    return res.status(err.status || 500).json({ message: err.message || '서버 에러가 발생했습니다.' });
+    return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 });
 
-// 모집 마감 API (삭제와 동일하게 동작)
+// 모집 마감 처리 (작성자만 가능, 삭제하지 않고 상태만 변경)
 router.patch('/:id/close', async (req, res) => {
   try {
     const userId = req.session?.userId;
     if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
 
-    const id = Number(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 모집글 ID입니다.' });
-    
-    await deleteRecruitAndMeeting(id, userId);
+    const recruitRepo = getRepository(Recruit);
 
-    return res.json({ message: '모집글이 마감(삭제) 처리되었습니다.' });
+    const id = Number(req.params.id);
+    const recruit = await recruitRepo.findOne({ where: { id }, relations: ['user'] });
+
+    if (!recruit) return res.status(404).json({ message: '해당 모집글을 찾을 수 없습니다.' });
+
+    if (recruit.user?.id !== userId) {
+      return res.status(403).json({ message: '마감 권한이 없습니다. (작성자만 가능)' });
+    }
+
+    recruit.is_closed = true;
+    await recruitRepo.save(recruit);
+
+    return res.status(200).json({ message: '모집글이 마감 처리되었습니다.' });
   } catch (err) {
     console.error('모집 마감 처리 에러:', err);
-    return res.status(err.status || 500).json({ message: err.message || '서버 에러가 발생했습니다.' });
+    return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 });
 
