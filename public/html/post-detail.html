@@ -5,9 +5,12 @@
   <title>모집글 상세 - 도그 파인더스</title>
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="/js/sidebar.js" defer></script>
-<script
+
+  <!-- ★ Kakao Maps SDK: services 라이브러리 추가 ★ -->
+  <script
     src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=47f0e9a41ccbe53d69beb528e5b94cd4&libraries=services"
   ></script>
+
   <style>
     .link-button {
       background: none;
@@ -44,135 +47,6 @@
       cursor: pointer;
     }
   </style>
-
-  <script>
-    function showProfile(loginId) {
-      // 임시 프로필 데이터 예시 (실제로는 서버에서 fetch 등으로 받아올 수 있음)
-      const profiles = {
-        doglover12: {
-          name: "김강아지",
-          age: 27,
-          email: "doglover12@example.com",
-          intro: "강아지를 사랑하는 사람입니다.",
-        },
-        // 필요시 더 많은 사용자 프로필 추가 가능
-      };
-
-      const profile = profiles[loginId];
-      const profileDiv = document.getElementById("profileData");
-
-      if (profile) {
-        profileDiv.innerHTML = `
-          <p><strong>아이디:</strong> ${loginId}</p>
-          <p><strong>이름:</strong> ${profile.name}</p>
-          <p><strong>나이:</strong> ${profile.age}세</p>
-          <p><strong>이메일:</strong> ${profile.email}</p>
-          <p><strong>소개:</strong> ${profile.intro}</p>
-        `;
-      } else {
-        profileDiv.innerHTML = "<p>프로필 정보를 찾을 수 없습니다.</p>";
-      }
-
-      document.getElementById("profileModal").style.display = "block";
-    }
-
-    function closeProfile() {
-      document.getElementById("profileModal").style.display = "none";
-    }
-
-    async function loadPostDetail() {
-      // localStorage에 저장된 'user'를 파싱해서 loginId 추출
-      const userStr = localStorage.getItem('user');
-      const loginId = userStr ? JSON.parse(userStr).loginId : null;
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const postId = urlParams.get('id');
-
-      if (!postId) {
-        alert("게시글 ID가 없습니다.");
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/recruit/${postId}`);
-        if (!res.ok) throw new Error('게시글을 가져오는데 실패했습니다.');
-        const post = await res.json();
-
-        if (!post) throw new Error('게시글을 찾을 수 없습니다.');
-
-        // 화면에 게시글 정보 표시
-        document.getElementById('postTitle').textContent = post.title || '제목 없음';
-
-        // 작성자 아이디 버튼으로 표시
-        const writerSpan = document.getElementById('postWriter');
-        writerSpan.innerHTML = `<button class="link-button" onclick="showProfile('${post.authorId}')">${post.authorId || '알 수 없음'}</button>`;
-
-        document.getElementById('postLocation').textContent = post.location || '알 수 없음';
-        document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString() || '알 수 없음';
-        document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
-
-        // console.log 디버그 생략
-
-        // 로그인 사용자와 작성자가 같은 경우
-        if (loginId && post.authorId && loginId === post.authorId.toString()) {
-          const deleteBtn = document.getElementById('deletePostBtn');
-          const closeBtn = document.getElementById('closePostBtn');
-
-          deleteBtn.style.display = 'inline-block';
-          closeBtn.style.display = 'inline-block';
-
-          if (post.is_closed) {
-            closeBtn.disabled = true;
-            closeBtn.textContent = '모집 마감됨';
-          }
-
-          closeBtn.onclick = async () => {
-            if (confirm('모집을 마감하시겠습니까?')) {
-              try {
-                const closeRes = await fetch(`/api/recruit/close/${postId}`, { method: 'PATCH' });
-                if (!closeRes.ok) throw new Error('모집 마감에 실패했습니다.');
-                alert('모집이 마감되었습니다.');
-                closeBtn.disabled = true;
-                closeBtn.textContent = '모집 마감됨';
-              } catch (err) {
-                alert(err.message);
-              }
-            }
-          };
-
-          deleteBtn.onclick = async () => {
-            if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
-              try {
-                const deleteRes = await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
-                if (!deleteRes.ok) throw new Error('삭제에 실패했습니다.');
-                alert('게시글이 삭제되었습니다.');
-                window.location.href = 'post-list';
-              } catch (err) {
-                alert(err.message);
-              }
-            }
-          };
-        }
-
-        document.getElementById('attendPostBtn').onclick = async () => {
-          if (confirm('정말 이 게시글에 참석하시겠습니까?')) {
-            try {
-              const attendRes = await fetch(`/api/recruit/attend/${postId}`, { method: 'POST' });
-              if (attendRes.ok) alert('참석이 완료되었습니다.');
-              else throw new Error('참석에 실패했습니다.');
-            } catch (err) {
-              alert(err.message);
-            }
-          }
-        };
-
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    window.onload = loadPostDetail;
-  </script>
 </head>
 <body>
 <aside class="sidebar">
@@ -191,15 +65,18 @@
 <main class="main">
   <h3 id="postTitle">로딩 중...</h3>
   <p><strong>작성자:</strong> <span id="postWriter">알 수 없음</span></p>
-  <p><strong>위치:</strong> <span id="postLocation">불러오는 중...</span></p>
+  <!-- 위치 줄 전체를 감싸는 요소에 id 추가 -->
+  <p id="locationContainer">
+    <strong>위치:</strong> <span id="postLocation">불러오는 중...</span>
+  </p>
   <p><strong>작성일:</strong> <span id="postDate">알 수 없음</span></p>
   <hr />
   <p id="postContent">내용이 없습니다.</p>
 
   <a href="post-list" class="btn btn-secondary">목록으로</a>
   <button class="btn btn-primary" id="attendPostBtn">참석하기</button>
-  <button class="btn btn-warning" id="closePostBtn" style="display:none;">모집 마감</button>
-  <button class="btn btn-danger" id="deletePostBtn" style="display:none;">삭제</button>
+  <button class="btn btn-warning"  id="closePostBtn"  style="display:none;">모집 마감</button>
+  <button class="btn btn-danger"   id="deletePostBtn" style="display:none;">삭제</button>
 </main>
 
 <!-- 프로필 모달 -->
@@ -213,5 +90,176 @@
   </div>
 </div>
 
+<script>
+  function showProfile(loginId) {
+    // 임시 프로필 데이터 예시 (실제로는 서버에서 fetch 등으로 받아올 수 있음)
+    const profiles = {
+      doglover12: {
+        name: "김강아지",
+        age: 27,
+        email: "doglover12@example.com",
+        intro: "강아지를 사랑하는 사람입니다.",
+      },
+      // 필요시 더 많은 사용자 프로필 추가 가능
+    };
+
+    const profile = profiles[loginId];
+    const profileDiv = document.getElementById("profileData");
+
+    if (profile) {
+      profileDiv.innerHTML = `
+        <p><strong>아이디:</strong> ${loginId}</p>
+        <p><strong>이름:</strong> ${profile.name}</p>
+        <p><strong>나이:</strong> ${profile.age}세</p>
+        <p><strong>이메일:</strong> ${profile.email}</p>
+        <p><strong>소개:</strong> ${profile.intro}</p>
+      `;
+    } else {
+      profileDiv.innerHTML = "<p>프로필 정보를 찾을 수 없습니다.</p>";
+    }
+
+    document.getElementById("profileModal").style.display = "block";
+  }
+
+  function closeProfile() {
+    document.getElementById("profileModal").style.display = "none";
+  }
+
+  async function loadPostDetail() {
+    // localStorage에 저장된 'user'를 파싱해서 loginId 추출
+    const userStr = localStorage.getItem('user');
+    const loginId = userStr ? JSON.parse(userStr).loginId : null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+
+    if (!postId) {
+      alert("게시글 ID가 없습니다.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/recruit/${postId}`);
+      if (!res.ok) throw new Error('게시글을 가져오는데 실패했습니다.');
+      const post = await res.json();
+
+      if (!post) throw new Error('게시글을 찾을 수 없습니다.');
+
+      // 1) 제목
+      document.getElementById('postTitle').textContent = post.title || '제목 없음';
+
+      // 2) 작성자 → 아이디 버튼으로 표시 (프로필 모달 활성화)
+      const writerSpan = document.getElementById('postWriter');
+      writerSpan.innerHTML = `
+        <button class="link-button" onclick="showProfile('${post.authorId}')">
+          ${post.authorId || '알 수 없음'}
+        </button>`;
+
+      // 3) 역지오코딩 + “위치 정보 없을 때 줄 숨기기” 로직
+      const locSpan = document.getElementById('postLocation');
+      const locContainer = document.getElementById('locationContainer');
+      if (post.latitude != null && post.longitude != null) {
+        // Kakao Geocoder 객체 생성
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.coord2Address(
+          post.longitude,    // 경도
+          post.latitude,     // 위도
+          (result, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+              // 성공: 주소 정보 결과의 첫 번째 항목을 보여줌
+              locSpan.textContent = result[0].address.address_name;
+            } else {
+              // 실패: DB에 저장된 post.location 값이 있으면, 그것을 보여주고
+              // 없으면 해당 줄 전체를 숨김
+              if (post.location) {
+                locSpan.textContent = post.location;
+              } else {
+                locContainer.style.display = 'none';
+              }
+            }
+          }
+        );
+      } else {
+        // 위도/경도가 없는 경우: DB에 저장된 post.location이 있으면 그것을 보여주고,
+        // 없으면 “위치” 줄 전체를 숨김
+        if (post.location) {
+          locSpan.textContent = post.location;
+        } else {
+          locContainer.style.display = 'none';
+        }
+      }
+
+      // 4) 작성일
+      const createdAt = new Date(post.created_at);
+      document.getElementById('postDate').textContent = createdAt.toLocaleString() || '알 수 없음';
+
+      // 5) 본문 내용
+      document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
+
+      // 6) 로그인 사용자와 작성자가 같으면 수정/마감/삭제 버튼 보여주기
+      if (loginId && post.authorId && loginId === post.authorId.toString()) {
+        const deleteBtn = document.getElementById('deletePostBtn');
+        const closeBtn  = document.getElementById('closePostBtn');
+
+        deleteBtn.style.display = 'inline-block';
+        closeBtn.style.display  = 'inline-block';
+
+        // 이미 마감된 경우 버튼 비활성화
+        if (post.is_closed) {
+          closeBtn.disabled    = true;
+          closeBtn.textContent = '모집 마감됨';
+        }
+
+        // 모집 마감(PATCH)
+        closeBtn.onclick = async () => {
+          if (confirm('모집을 마감하시겠습니까?')) {
+            try {
+              const closeRes = await fetch(`/api/recruit/close/${postId}`, { method: 'PATCH' });
+              if (!closeRes.ok) throw new Error('모집 마감에 실패했습니다.');
+              alert('모집이 마감되었습니다.');
+              closeBtn.disabled    = true;
+              closeBtn.textContent = '모집 마감됨';
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+        };
+
+        // 게시글 삭제(DELETE)
+        deleteBtn.onclick = async () => {
+          if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
+            try {
+              const deleteRes = await fetch(`/api/recruit/${postId}`, { method: 'DELETE' });
+              if (!deleteRes.ok) throw new Error('삭제에 실패했습니다.');
+              alert('게시글이 삭제되었습니다.');
+              window.location.href = 'post-list';
+            } catch (err) {
+              alert(err.message);
+            }
+          }
+        };
+      }
+
+      // 7) “참석하기” 버튼 (모든 사용자에게 보임)
+      document.getElementById('attendPostBtn').onclick = async () => {
+        if (confirm('정말 이 게시글에 참석하시겠습니까?')) {
+          try {
+            const attendRes = await fetch(`/api/recruit/attend/${postId}`, { method: 'POST' });
+            if (attendRes.ok) alert('참석이 완료되었습니다.');
+            else throw new Error('참석에 실패했습니다.');
+          } catch (err) {
+            alert(err.message);
+          }
+        }
+      };
+
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  // 페이지 로드 시 게시글 상세 정보를 불러옴
+  window.onload = loadPostDetail;
+</script>
 </body>
 </html>
