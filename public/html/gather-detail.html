@@ -42,7 +42,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-    /* ⭐️ 추가된 정보 영역 스타일 */
     .details-section {
         margin-top: 20px;
         padding-top: 20px;
@@ -198,7 +197,6 @@
           membersList.appendChild(li);
         });
         
-        // ⭐️ 모집글 정보가 있으면 화면에 표시하고 지도를 그립니다.
         if (meeting.recruit) {
             document.getElementById('detailsSection').style.display = 'block';
             document.getElementById('recruitContent').textContent = meeting.recruit.content || '내용 없음';
@@ -216,30 +214,21 @@
             marker.setMap(map);
         }
 
+        // --- ⭐️ [수정된 부분 시작] ---
+        // 호스트일 경우, '산책 종료 및 평가하기' 버튼 표시
         if (loginId && meeting.hostId && loginId === meeting.hostId) {
           const btn = document.createElement("button");
-          btn.textContent = "산책 종료";
+          btn.textContent = "산책 종료 및 평가하기"; // 버튼 텍스트 변경
           btn.className = "btn btn-danger";
-          btn.onclick = async () => {
-            if (confirm("정말 이 모임을 종료하시겠습니까?")) {
-              try {
-                const deleteRes = await fetch(`/api/meetings/${meetingId}`, {
-                  method: "DELETE"
-                });
-                if (deleteRes.ok) {
-                  alert("모임이 종료되었습니다.");
-                  window.location.href = "/gather";
-                } else {
-                  const errorData = await deleteRes.json();
-                  throw new Error(errorData.message || "모임 종료에 실패했습니다.");
-                }
-              } catch(err) {
-                  alert(err.message);
-              }
-            }
+          
+          // 클릭 시 평가 페이지로 이동하도록 onclick 이벤트 핸들러 변경
+          btn.onclick = () => {
+            window.location.href = `/evaluation?meetingId=${meetingId}`;
           };
+
           document.getElementById("hostActions").appendChild(btn);
         }
+        // --- ⭐️ [수정된 부분 끝] ---
 
       } catch (error) {
         console.error(error);

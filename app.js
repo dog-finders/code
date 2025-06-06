@@ -40,7 +40,8 @@ const connectionOptions = {
     Recruit, // 직접 사용하므로 require 대신 변수를 사용
     Meeting,
     MeetingMember,
-    require('./backend/domain/attend/entity/Attend')
+    require('./backend/domain/attend/entity/Attend'),
+    require('./backend/domain/evaluation/entity/Evaluation'),
   ],
 };
 
@@ -110,6 +111,10 @@ app.get('/gather', (req, res) => {
 app.get('/gather-detail', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'gather-detail.html'));
 });
+app.get('/evaluation', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'evaluation.html'));
+});
+
 
 // --- DB 연결 및 API 라우터 연결 ---
 createConnection(connectionOptions)
@@ -163,6 +168,7 @@ createConnection(connectionOptions)
     app.use('/api/pets', petRoutes);
     app.use('/api/meetings', meetingRoute);
     app.use('/api/attend', attendRoutes);
+    app.use('/api/evaluations', evaluationRoutes); 
 
     app.use((req, res, next) => {
       next(createError(404));
