@@ -7,6 +7,7 @@
   <script src="../js/auth.js" defer></script>
   <script src="../js/scripts.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=47f0e9a41ccbe53d69beb528e5b94cd4"></script>
   <style>
     .link-button {
       background: none;
@@ -40,6 +41,18 @@
       font-size: 24px;
       font-weight: bold;
       cursor: pointer;
+    }
+    /* ⭐️ 추가된 정보 영역 스타일 */
+    .details-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    #map {
+        width: 100%;
+        height: 300px;
+        margin-top: 15px;
+        border-radius: 8px;
     }
   </style>
 </head>
@@ -130,6 +143,14 @@
     <p><strong>호스트:</strong> <span id="hostId"></span></p>
     <p><strong>참석자:</strong></p>
     <ul id="membersList"></ul>
+    
+    <div id="detailsSection" class="details-section" style="display: none;">
+        <h3>모집글 정보</h3>
+        <p><strong>소개:</strong> <span id="recruitContent"></span></p>
+        <p><strong>장소:</strong> <span id="recruitLocation"></span></p>
+        <div id="map"></div>
+    </div>
+
     <div id="hostActions" style="margin-top: 20px;"></div>
   </main>
 
@@ -176,6 +197,24 @@
           li.innerHTML = `<button class="link-button" onclick="showProfile('${memberId}')">${memberId}</button>`;
           membersList.appendChild(li);
         });
+        
+        // ⭐️ 모집글 정보가 있으면 화면에 표시하고 지도를 그립니다.
+        if (meeting.recruit) {
+            document.getElementById('detailsSection').style.display = 'block';
+            document.getElementById('recruitContent').textContent = meeting.recruit.content || '내용 없음';
+            document.getElementById('recruitLocation').textContent = meeting.recruit.location || '위치 정보 없음';
+
+            const mapContainer = document.getElementById('map');
+            const mapOption = { 
+                center: new kakao.maps.LatLng(meeting.recruit.latitude, meeting.recruit.longitude),
+                level: 3 
+            };
+            const map = new kakao.maps.Map(mapContainer, mapOption); 
+            const marker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(meeting.recruit.latitude, meeting.recruit.longitude)
+            });
+            marker.setMap(map);
+        }
 
         if (loginId && meeting.hostId && loginId === meeting.hostId) {
           const btn = document.createElement("button");
@@ -187,7 +226,6 @@
                 const deleteRes = await fetch(`/api/meetings/${meetingId}`, {
                   method: "DELETE"
                 });
-
                 if (deleteRes.ok) {
                   alert("모임이 종료되었습니다.");
                   window.location.href = "/gather";
