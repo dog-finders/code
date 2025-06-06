@@ -1,11 +1,57 @@
 <!DOCTYPE html>
-<html lang="ko" data-page="contact">
+<html lang="ko" data-page="home">
 <head>
   <meta charset="UTF-8">
   <title>도그파인더스</title>
   <link rel="stylesheet" href="../css/styles.css">
   <script src="../js/scripts.js" defer></script>
   <script src="/js/sidebar.js" defer></script>
+  <style>
+    /* 홈 페이지 메인 영역 스타일 */
+    body[data-page="home"] .main {
+      padding: 0; /* 기본 패딩 제거 */
+      position: relative; /* 자식 요소의 절대 위치를 위한 기준점 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* 이미지 컨테이너: 메인 영역을 꽉 채우고 텍스트 뒤에 위치 */
+    body[data-page="home"] .image-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1; /* 텍스트 오버레이보다 뒤에 위치 */
+    }
+
+    /* 이미지 스타일: 컨테이너를 비율에 맞게 꽉 채움 */
+    body[data-page="home"] .pet-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 이미지가 잘리지 않고 컨테이너를 채우도록 설정 */
+    }
+
+    /* 텍스트 오버레이: 이미지 위에 위치하며 가독성을 높임 */
+    body[data-page="home"] .text-overlay {
+      position: relative; /* z-index를 적용하기 위해 position 설정 */
+      z-index: 2; /* 이미지 컨테이너보다 앞에 위치 */
+      color: white;
+      text-align: center;
+      padding: 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      max-width: 80%;
+    }
+
+    /* 텍스트에 그림자 효과 추가 */
+    body[data-page="home"] .text-overlay h1,
+    body[data-page="home"] .text-overlay p {
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    }
+  </style>
 </head>
 <body>
   <script>
@@ -19,9 +65,10 @@
   </script>
 
   <aside class="sidebar">
-    <h2>도그파인더스</h2>
+    <a href="/index" style="text-decoration: none; color: inherit;">
+      <h2>도그파인더스</h2>
+    </a>
     <ul>
-      <li><a id="nav-home" href="/index">홈</a></li>
       <li><a id="nav-map" href="/map">지도</a></li>
       <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
       <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
@@ -30,5 +77,17 @@
       <li><a id="nav-login" href="/login">로그인</a></li>
     </ul>
   </aside>
+
+  <!-- 메인 영역에 이미지 컨테이너와 텍스트 오버레이를 배치 -->
+  <main class="main">
+    <div class="image-container">
+        <!-- onerror 속성을 사용하여 이미지가 없을 경우 대체 이미지를 표시합니다. -->
+        <img src="/assets/pet.jpg" alt="환영 이미지" class="pet-img" onerror="this.onerror=null;this.src='https://placehold.co/1200x900/333333/FFFFFF&text=Image%20Not%20Found';">
+    </div>
+    <div class="text-overlay">
+        <h1>도그파인더스에 오신 것을 환영합니다!</h1>
+    </div>
+  </main>
+
 </body>
 </html>
