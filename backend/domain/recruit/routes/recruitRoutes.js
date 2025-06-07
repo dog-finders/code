@@ -1,5 +1,6 @@
 const express = require('express');
-const { getRepository, Like } = require('typeorm');
+const { Like } = require('typeorm');
+const { AppDataSource } = require('../../../global/config/typeOrmConfig'); // 수정: 올바른 상대경로
 const Recruit = require('../entity/Recruit');
 const User = require('../../user/entity/User');
 const Meeting = require('../../meeting/entity/Meeting');
@@ -13,7 +14,7 @@ router.post('/', async (req, res) => {
     const userId = req.session?.userId;
     if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
 
-    const userRepo = getRepository(User);
+    const userRepo = AppDataSource.getRepository(User);
     const user = await userRepo.findOne({ where: { id: userId } });
     if (!user) return res.status(401).json({ message: '유효하지 않은 사용자입니다.' });
 
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: '유효하지 않은 날짜 형식입니다.' });
     }
 
-    const recruitRepo = getRepository(Recruit);
+    const recruitRepo = AppDataSource.getRepository(Recruit);
     const newRecruit = recruitRepo.create({
       title,
       content,
@@ -55,7 +56,7 @@ router.post('/', async (req, res) => {
 // 모집글 목록 조회
 router.get('/', async (req, res) => {
   try {
-    const recruitRepo = getRepository(Recruit);
+    const recruitRepo = AppDataSource.getRepository(Recruit);
     const search = req.query.search || '';
     const page = parseInt(req.query.page, 10) || 1;
     const pageSize = parseInt(req.query.pageSize, 10) || 10;
@@ -115,7 +116,7 @@ router.get('/', async (req, res) => {
 // 모집글 상세 조회
 router.get('/:id', async (req, res) => {
   try {
-    const recruitRepo = getRepository(Recruit);
+    const recruitRepo = AppDataSource.getRepository(Recruit);
     const recruit = await recruitRepo.findOne({
       where: { id: Number(req.params.id) },
       relations: ['user'],
@@ -143,8 +144,8 @@ router.get('/:id', async (req, res) => {
 
 // 공통 삭제 로직 함수
 const deleteRecruitAndMeeting = async (recruitId, userId) => {
-    const recruitRepo = getRepository(Recruit);
-    const recruit = await recruitRepo.findOne({ where: { id: recruitId }, relations: ['user'] });
+  const recruitRepo = AppDataSource.getRepository(Recruit);
+  const recruit = await recruitRepo.findOne({ where: { id: recruitId }, relations: ['user'] });
     if (!recruit) {
         throw { status: 404, message: '해당 모집글을 찾을 수 없습니다.' };
     }
@@ -152,14 +153,14 @@ const deleteRecruitAndMeeting = async (recruitId, userId) => {
         throw { status: 403, message: '처리 권한이 없습니다. (작성자만 가능)' };
     }
 
-    await recruitRepo.manager.transaction(async (transactionalEntityManager) => {
-        const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: recruitId } });
-        if (meeting) {
-            await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
-            await transactionalEntityManager.delete(Meeting, { id: meeting.id });
-        }
-        await transactionalEntityManager.delete(Recruit, { id: recruitId });
-    });
+  await recruitRepo.manager.transaction(async em => {
+    const meeting = await em.findOne(Meeting, { where: { recruitId }});
+    if (meeting) {
+      await em.delete(MeetingMember, { meetingId: meeting.id });
+      await em.delete(Meeting, { id: meeting.id });
+    }
+    await em.delete(Recruit, { id: recruitId });
+  });
 };
 
 // 모집글 삭제 API
@@ -167,7 +168,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const userId = req.session?.userId;
     if (!userId) return res.status(401).json({ message: '로그인이 필요합니다.' });
-    
+
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 모집글 ID입니다.' });
 
@@ -188,7 +189,7 @@ router.patch('/:id/close', async (req, res) => {
 
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 모집글 ID입니다.' });
-    
+
     await deleteRecruitAndMeeting(id, userId);
 
     return res.json({ message: '모집글이 마감(삭제) 처리되었습니다.' });

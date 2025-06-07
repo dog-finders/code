@@ -6,58 +6,59 @@
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=47f0e9a41ccbe53d69beb528e5b94cd4"></script>
   <style>
-    .link-button { background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; font-size: inherit; font-family: inherit; padding: 0; }
-    .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); display: none; }
-    .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 320px; border-radius: 8px; position: relative; }
-    .close { position: absolute; right: 10px; top: 10px; font-size: 24px; font-weight: bold; cursor: pointer; }
-    .details-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
-    #map { width: 100%; height: 300px; margin-top: 15px; border-radius: 8px; }
+    .link-button { background:none; border:none; color:blue; text-decoration:underline; cursor:pointer; font-size:inherit; font-family:inherit; padding:0; }
+    .modal { position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5); display:none; }
+    .modal-content { background:#fff; margin:15% auto; padding:20px; width:320px; border-radius:8px; position:relative; }
+    .close { position:absolute; right:10px; top:10px; font-size:24px; font-weight:bold; cursor:pointer; }
+    .details-section { margin-top:20px; padding-top:20px; border-top:1px solid #eee; }
+    #map { width: 5000px; height:500px; margin-top:15px; border-radius:8px; }
   </style>
 </head>
 <body>
-<aside class="sidebar">
+  <aside class="sidebar">
   <a href="/index" style="text-decoration: none; color: inherit;"><h2>도그파인더스</h2></a>
-  <ul>
-    <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
-    <li><a id="nav-list" href="/post-list">모집글</a></li>
-    <li><a id="nav-gather" href="/gather">모임</a></li>
-    <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
-    <li><a id="nav-login" href="/login">로그인</a></li>
-  </ul>
-</aside>
+    <ul>
+      <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
+      <li><a id="nav-list" href="/post-list">모집글</a></li>
+      <li><a id="nav-gather" href="/gather">모임</a></li>
+      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
+      <li><a id="nav-login" href="/login">로그인</a></li>
+    </ul>
+  </aside>
 
-<main class="main">
-  <header class="main-header">
-    <nav class="user-nav">
+  <main class="main">
+    <header class="main-header">
+      <nav class="user-nav">
       <a href="/mypage" id="header-mypage" style="display: none;">마이페이지</a>
       <a href="#" id="header-logout" style="display: none;">로그아웃</a>
-    </nav>
-  </header>
+      </nav>
+    </header>
   <h1 id="meetingTitle">모임 제목</h1>
   <p><strong>호스트:</strong> <span id="hostId"></span></p>
-  <p><strong>참석자:</strong></p>
-  <ul id="membersList"></ul>
+    <p><strong>참석자:</strong></p>
+    <ul id="membersList"></ul>
 
   <div id="detailsSection" class="details-section" style="display: none;">
-    <h3>모집글 정보</h3>
-    <p><strong>소개:</strong> <span id="recruitContent"></span></p>
-    <p><strong>장소:</strong> <span id="recruitLocation"></span></p>
-    <div id="map"></div>
-  </div>
+      <h3>모집글 정보</h3>
+      <p><strong>소개:</strong> <span id="recruitContent"></span></p>
+      <p><strong>장소:</strong> <span id="recruitLocation"></span></p>
+      <!-- 지도 표시용 컨테이너 -->
+      <div id="map"></div>
+    </div>
 
   <div id="hostActions" style="margin-top: 20px;"></div>
-</main>
+  </main>
 
-<div id="profileModal" class="modal" onclick="closeProfile()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <span class="close" onclick="closeProfile()">&times;</span>
-    <h2>프로필 정보</h2>
-    <div id="profileData"></div>
+  <div id="profileModal" class="modal" onclick="closeProfile()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="close" onclick="closeProfile()">&times;</span>
+      <h2>프로필 정보</h2>
+      <div id="profileData"></div>
+    </div>
   </div>
-</div>
 
-<script src="/js/sidebar.js" defer></script>
-<script src="/js/profile-modal.js" defer></script>
-<script src="/js/gather-detail.js" defer></script>
+  <script src="/js/sidebar.js" defer></script>
+  <script src="/js/profile-modal.js" defer></script>
+  <script src="/js/gather-detail.js" defer></script>
 </body>
 </html>

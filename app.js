@@ -37,9 +37,9 @@ AppDataSource.initialize()
     app.use(cookieParser());
     app.use(
         session({
-            secret: 'my-secret',
-            resave: false,
-            saveUninitialized: false,
+        secret: 'my-secret',
+        resave: false,
+        saveUninitialized: false,
             cookie: {
                 httpOnly: true,
                 secure: false,
@@ -50,6 +50,7 @@ AppDataSource.initialize()
 
     // 정적 파일 및 페이지 라우팅
     app.use(express.static(path.join(__dirname, 'public')));
+    app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => res.sendStatus(204));//
     app.use('/', pageRoutes);
 
     // --- API 라우팅 ---
@@ -73,13 +74,13 @@ AppDataSource.initialize()
             if (expiredRecruits.length > 0) {
                 console.log(`[Scheduler] ${expiredRecruits.length}개의 만료된 모집글을 찾았습니다.`);
                 for (const recruit of expiredRecruits) {
-                    await AppDataSource.manager.transaction(async transactionalEntityManager => {
-                        const meeting = await transactionalEntityManager.findOne(Meeting, { where: { recruitId: recruit.id } });
+                    await AppDataSource.manager.transaction(async em => {
+                        const meeting = await em.findOne(Meeting, { where: { recruitId: recruit.id } });
                         if (meeting) {
-                            await transactionalEntityManager.delete(MeetingMember, { meetingId: meeting.id });
-                            await transactionalEntityManager.delete(Meeting, { id: meeting.id });
+                            await em.delete(MeetingMember, { meetingId: meeting.id });
+                            await em.delete(Meeting, { id: meeting.id });
                         }
-                        await transactionalEntityManager.delete(Recruit, { id: recruit.id });
+                        await em.delete(Recruit, { id: recruit.id });
                         console.log(`[Scheduler] 모집글 ID: ${recruit.id}가 자동으로 마감(삭제)되었습니다.`);
                     });
                 }

@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
         members: members.map(mem => mem.memberId),
       };
     }));
-    
+
     res.json({
         meetings: result,
         totalPages,
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
 // GET /api/meetings/:id - 특정 모임 상세 조회
 router.get('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 ID' });
 
     const meeting = await controller.findMeetingById(id);
@@ -58,12 +58,12 @@ router.get('/:id', async (req, res) => {
       hostId: meeting.hostId,
       hostName: meeting.hostName,
       members: members.map(m => m.memberId),
-      // ⭐️ 아래 recruit 정보 추가
+      // 아래 recruit 정보 추가
       recruit: meeting.recruit ? {
-          content: meeting.recruit.content,
-          location: meeting.recruit.location,
-          latitude: meeting.recruit.latitude,
-          longitude: meeting.recruit.longitude
+        content: meeting.recruit.content,
+        location: meeting.recruit.location,
+        latitude: meeting.recruit.latitude,
+        longitude: meeting.recruit.longitude
       } : null
     });
   } catch (err) {
@@ -85,7 +85,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: '모임 제목이 필요합니다.' });
     }
 
-    const user = await controller.findUserById(userId);
+    const user = await controller.findUserById(userId);  // 변경: findUserById 사용
     if (!user || !user.loginId) {
       return res.status(404).json({ message: '사용자 정보를 찾을 수 없습니다.' });
     }
@@ -114,7 +114,7 @@ router.post('/', async (req, res) => {
 // DELETE /api/meetings/:id - 모임 삭제
 router.delete('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ message: '유효하지 않은 ID' });
 
     const meeting = await controller.findMeetingById(id);
@@ -123,7 +123,7 @@ router.delete('/:id', async (req, res) => {
     const userId = req.session?.userId;
     if (!userId) return res.status(401).json({ message: '로그인 필요' });
 
-    const user = await controller.findUserById(userId);
+    const user = await controller.findUserById(userId);  // 변경: findUserById 사용
     const loginId = user?.loginId;
 
     if (meeting.hostId !== loginId) {

@@ -44,6 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString();
         document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
 
+        if (post.latitude != null && post.longitude != null) {
+           const mapContainer = document.getElementById('map');
+           const map = new kakao.maps.Map(mapContainer, {
+           center: new kakao.maps.LatLng(post.latitude, post.longitude),
+           level: 4
+           });
+        new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(post.latitude, post.longitude),
+    draggable: false  // 비편집용 마커
+  }).setMap(map);
+}
+
         // 버튼 표시 로직
         const isAuthor = loginId && post.authorId && loginId === post.authorId.toString();
         const attendBtn = document.getElementById('attendPostBtn');

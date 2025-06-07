@@ -1,46 +1,68 @@
-const { getRepository } = require('typeorm');
+require('reflect-metadata');
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const Meeting = require('../entity/Meeting');
 const MeetingMember = require('../entity/MeetingMember');
-const User = require('../../user/entity/User');
+const User = require('../../user/entity/User'); // 추가: User 엔티티 import
 
-// 모임 목록을 페이지네이션과 함께 조회하도록 수정
-exports.findAllMeetings = ({ page = 1, pageSize = 10 }) => {
-    return getRepository(Meeting).findAndCount({
-        order: { createdAt: 'DESC' }, // 최신순으로 정렬
-        skip: (page - 1) * pageSize,
-        take: pageSize,
+// 추가: 사용자 조회 함수 ↓
+exports.findUserById = (id) => {                         
+  return AppDataSource.getRepository(User).findOne({ where: { id } });
+};
+
+exports.findAllMeetings = (opts = { page: 1, pageSize: 10 }) => {
+  return AppDataSource.getRepository(Meeting)
+    .findAndCount({
+      order: { createdAt: 'DESC' },
+      skip: (opts.page - 1) * opts.pageSize,
+      take: opts.pageSize,
     });
 };
 
-exports.findMeetingById = (id) => getRepository(Meeting).findOne({ where: { id } });
-exports.findMembersByMeetingId = (meetingId) => getRepository(MeetingMember).find({ where: { meetingId } });
-exports.saveMeeting = (data) => getRepository(Meeting).save(data);
-exports.saveMember = (data) => getRepository(MeetingMember).save(data);
-exports.deleteMeeting = (id) => getRepository(Meeting).delete(id);
-exports.deleteMembers = (meetingId) => getRepository(MeetingMember).delete({ meetingId });
-exports.findMeetingById = (id) => getRepository(Meeting).findOne({ 
-    where: { id },
-    relations: ['recruit'] // 연관된 recruit 정보를 함께 불러옵니다.
-});
-exports.findMeetingsByUserId = async ({ userId, page = 1, pageSize = 10 }) => {
-    // 1. 세션의 userId로 사용자의 loginId를 찾습니다.
-    const user = await getRepository(User).findOne({ where: { id: userId } });
-    if (!user) {
-        return [[], 0]; // 사용자를 찾을 수 없으면 빈 목록 반환
-    }
-    const userLoginId = user.loginId;
+exports.findMeetingById = (id) => {
+  return AppDataSource.getRepository(Meeting)
+    .findOne({ where: { id }, relations: ['recruit'] });
+};
 
-    // 2. QueryBuilder를 사용해 Meeting과 MeetingMember 테이블을 조인합니다.
-    // 사용자의 loginId와 일치하는 memberId를 가진 모임만 선택합니다.
-    return getRepository(Meeting).createQueryBuilder("meeting")
-        .innerJoin(
-            MeetingMember,
-            "member",
-            "member.meetingId = meeting.id AND member.memberId = :userLoginId",
-            { userLoginId }
-        )
-        .orderBy("meeting.createdAt", "DESC") // 최신순 정렬
-        .skip((page - 1) * pageSize)
-        .take(pageSize)
-        .getManyAndCount(); // 데이터와 전체 개수를 함께 반환
+exports.findMembersByMeetingId = (meetingId) => {
+  return AppDataSource.getRepository(MeetingMember)
+    .find({ where: { meetingId } });
+};
+
+exports.saveMeeting = (data) => {
+  return AppDataSource.getRepository(Meeting)
+    .save(data);
+};
+
+exports.saveMember = (data) => {
+  return AppDataSource.getRepository(MeetingMember)
+    .save(data);
+};
+
+exports.deleteMeeting = (id) => {
+  return AppDataSource.getRepository(Meeting)
+    .delete(id);
+};
+
+exports.deleteMembers = (meetingId) => {
+  return AppDataSource.getRepository(MeetingMember)
+    .delete({ meetingId });
+};
+
+exports.findMeetingsByUserId = async ({ userId, page = 1, pageSize = 10 }) => {
+  const user = await AppDataSource.getRepository(User).findOne({ where: { id: userId } });
+  if (!user) return [[], 0];
+
+  const userLoginId = user.loginId;
+  return AppDataSource.getRepository(Meeting)
+    .createQueryBuilder('meeting')
+    .innerJoin(
+      MeetingMember,
+      'member',
+      'member.meetingId = meeting.id AND member.memberId = :userLoginId',
+      { userLoginId }
+    )
+    .orderBy('meeting.createdAt', 'DESC')
+    .skip((page - 1) * pageSize)
+    .take(pageSize)
+    .getManyAndCount();
 };

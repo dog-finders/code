@@ -44,12 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('recruitContent').textContent = meeting.recruit.content || '내용 없음';
             document.getElementById('recruitLocation').textContent = meeting.recruit.location || '위치 정보 없음';
 
+            const lat = parseFloat(meeting.recruit.latitude);
+            const lng = parseFloat(meeting.recruit.longitude);// 위도와 경도 값이 문자열로 올 수 있으므로 parseFloat로 변환함
             const mapContainer = document.getElementById('map');
-            if (window.kakao && kakao.maps && meeting.recruit.latitude && meeting.recruit.longitude) {
-                const mapOption = { center: new kakao.maps.LatLng(meeting.recruit.latitude, meeting.recruit.longitude), level: 3 };
-                const map = new kakao.maps.Map(mapContainer, mapOption);
-                const marker = new kakao.maps.Marker({ position: new kakao.maps.LatLng(meeting.recruit.latitude, meeting.recruit.longitude) });
-                marker.setMap(map);
+            if (window.kakao && kakao.maps) {
+                const map = new kakao.maps.Map(mapContainer, { // 지도 생성
+                    center: new kakao.maps.LatLng(lat, lng), //중심 좌표
+                    level: 3
+                });
+                // 비편집용 마커 설정 (draggable: false)
+                new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(lat, lng),  // 마커 위치
+                    draggable: false 
+                }).setMap(map);
             }
         }
 
