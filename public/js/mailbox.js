@@ -55,6 +55,22 @@ async function handleAccept(attendId) {
     }
 }
 
-function handleReject(attendId) {
-    alert(`attendId: ${attendId} 거절 기능은 아직 구현되지 않았습니다.`);
+async function handleReject(attendId) {
+    if (!confirm('정말 이 요청을 거절하시겠습니까?')) return;
+
+    try {
+        const res = await fetch(`/api/attend/${attendId}/reject`, { method: 'PATCH' });
+        const result = await res.json();
+
+        if (res.ok) {
+            alert(result.message);
+            const row = document.getElementById(`request-${attendId}`);
+            if (row) row.remove();
+        } else {
+            throw new Error(result.message || '요청 거절에 실패했습니다.');
+        }
+    } catch (error) {
+        alert('처리 중 오류가 발생했습니다: ' + error.message);
+        console.error(error);
+    }
 }

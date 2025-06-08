@@ -25,10 +25,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     const otherMembers = meeting.members.filter(m => m !== currentUser.loginId);
 
     if (otherMembers.length === 0) {
-        membersContainer.innerHTML = '<p>평가할 다른 멤버가 없습니다. 모임을 종료합니다.</p>';
-        document.querySelector('button[type="submit"]').style.display = 'none';
+        alert('평가할 다른 멤버가 없습니다.');
+        window.location.href = '/gather';
         return;
     }
+
+    const createScoreDropdown = (name, memberId) => {
+      let options = '';
+      for (let i = 0; i <= 5; i++) {
+        options += `<option value="${i}">${i}점</option>`;
+      }
+      return `<select name="${name}-${memberId}" class="form-select" required>${options}</select>`;
+    };
 
     otherMembers.forEach(memberId => {
       const card = document.createElement('div');
@@ -37,20 +45,17 @@ window.addEventListener('DOMContentLoaded', async () => {
       
       card.innerHTML = `
         <h3>멤버: ${memberId}</h3>
-        <input type="hidden" name="evaluatedId" value="${memberId}">
         <div class="form-group">
-          <label>매너 점수</label>
-          <div class="rating">
-            <input type="radio" id="star5-${memberId}" name="mannerRating-${memberId}" value="5" required><label for="star5-${memberId}">★</label>
-            <input type="radio" id="star4-${memberId}" name="mannerRating-${memberId}" value="4"><label for="star4-${memberId}">★</label>
-            <input type="radio" id="star3-${memberId}" name="mannerRating-${memberId}" value="3"><label for="star3-${memberId}">★</label>
-            <input type="radio" id="star2-${memberId}" name="mannerRating-${memberId}" value="2"><label for="star2-${memberId}">★</label>
-            <input type="radio" id="star1-${memberId}" name="mannerRating-${memberId}" value="1"><label for="star1-${memberId}">★</label>
-          </div>
+          <label for="punctuality-${memberId}">시간 약속 준수</label>
+          ${createScoreDropdown('punctuality', memberId)}
         </div>
         <div class="form-group">
-          <label for="comment-${memberId}">한 줄 후기 (선택)</label>
-          <textarea id="comment-${memberId}" name="comment" rows="2" class="form-control"></textarea>
+          <label for="sociability-${memberId}">반려동물의 사회성</label>
+          ${createScoreDropdown('sociability', memberId)}
+        </div>
+        <div class="form-group">
+          <label for="aggressiveness-${memberId}">반려동물의 공격성</label>
+          ${createScoreDropdown('aggressiveness', memberId)}
         </div>`;
       membersContainer.appendChild(card);
     });
@@ -67,14 +72,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         const evaluationCards = document.querySelectorAll('.evaluation-card');
         const evaluations = Array.from(evaluationCards).map(card => {
             const memberId = card.dataset.memberId;
-            const mannerRating = card.querySelector(`input[name="mannerRating-${memberId}"]:checked`);
+            const punctuality = card.querySelector(`select[name="punctuality-${memberId}"]`).value;
+            const sociability = card.querySelector(`select[name="sociability-${memberId}"]`).value;
+            const aggressiveness = card.querySelector(`select[name="aggressiveness-${memberId}"]`).value;
             
-            if (!mannerRating) throw new Error(`${memberId}님의 매너 점수를 선택해주세요.`);
-
             return {
                 evaluatedId: memberId,
-                mannerRating: parseInt(mannerRating.value, 10),
-                comment: card.querySelector(`textarea[name="comment"]`).value,
+                punctuality,
+                sociability,
+                aggressiveness,
             };
         });
 

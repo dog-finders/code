@@ -1,8 +1,6 @@
-const { getRepository } = require('typeorm');
+const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const Evaluation = require('../entity/Evaluation');
 const User = require('../../user/entity/User');
-const Meeting = require('../../meeting/entity/Meeting');
-const MeetingMember = require('../../meeting/entity/MeetingMember');
 
 exports.submitEvaluations = async (req, res) => {
   const { meetingId, evaluations } = req.body;
@@ -12,39 +10,51 @@ exports.submitEvaluations = async (req, res) => {
     return res.status(400).json({ message: '잘못된 요청 데이터입니다.' });
   }
 
-  const queryRunner = getRepository(User).manager.connection.createQueryRunner();
+  const queryRunner = AppDataSource.createQueryRunner();
   await queryRunner.connect();
   await queryRunner.startTransaction();
 
   try {
     for (const eva of evaluations) {
-        const evaluatedUser = await queryRunner.manager.findOne(User, { where: { loginId: eva.evaluatedId } });
-        if (!evaluatedUser) continue; 
+      const { evaluatedId, punctuality, sociability, aggressiveness } = eva;
+      
+      const evaluatedUser = await queryRunner.manager.findOne(User, { where: { loginId: evaluatedId } });
+      if (!evaluatedUser) {
+        console.warn(`평가 대상 유저(${evaluatedId})를 찾을 수 없어 건너뜁니다.`);
+        continue;
+      }
 
-        const evaluation = getRepository(Evaluation).create({
-            meetingId,
-            evaluatorId,
-            evaluatedId: evaluatedUser.id,
-            mannerRating: eva.mannerRating,
-            comment: eva.comment,
-        });
-        await queryRunner.manager.save(evaluation);
+      const evaluation = queryRunner.manager.create(Evaluation, {
+        meetingId: parseInt(meetingId, 10),
+        evaluatorId: evaluatorId,
+        evaluatedId: evaluatedUser.id,
+        punctuality: parseInt(punctuality, 10),
+        sociability: parseInt(sociability, 10),
+        aggressiveness: parseInt(aggressiveness, 10),
+      });
 
-        const { avgRating } = await queryRunner.manager
-            .createQueryBuilder(Evaluation, "eva")
-            .select("AVG(eva.mannerRating)", "avgRating")
-            .where("eva.evaluatedId = :id", { id: evaluatedUser.id })
-            .getRawOne();
-        
-        evaluatedUser.rating = Math.round(avgRating * 10) / 10;
-        await queryRunner.manager.save(evaluatedUser);
+      // 수정된 부분: save 메소드에 엔티티 스키마를 함께 전달
+      await queryRunner.manager.save(Evaluation, evaluation);
+
+      // 평균 점수 재계산
+      const avgScores = await queryRunner.manager
+        .createQueryBuilder(Evaluation, "e")
+        .select("AVG(e.punctuality)", "avgPunctuality")
+        .addSelect("AVG(e.sociability)", "avgSociability")
+        .addSelect("AVG(e.aggressiveness)", "avgAggressiveness")
+        .where("e.evaluatedId = :id", { id: evaluatedUser.id })
+        .getRawOne();
+      
+      // 사용자 테이블 업데이트
+      await queryRunner.manager.update(User, evaluatedUser.id, {
+        avgPunctuality: parseFloat(avgScores.avgPunctuality || 0).toFixed(1),
+        avgSociability: parseFloat(avgScores.avgSociability || 0).toFixed(1),
+        avgAggressiveness: parseFloat(avgScores.avgAggressiveness || 0).toFixed(1),
+      });
     }
     
-    await queryRunner.manager.delete(MeetingMember, { meetingId });
-    await queryRunner.manager.delete(Meeting, { id: meetingId });
-    
     await queryRunner.commitTransaction();
-    res.status(200).json({ message: '평가가 성공적으로 제출되었고 모임이 종료되었습니다.' });
+    res.status(200).json({ message: '평가가 성공적으로 제출되었습니다.' });
 
   } catch (error) {
     await queryRunner.rollbackTransaction();

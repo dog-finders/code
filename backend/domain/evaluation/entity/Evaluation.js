@@ -8,9 +8,9 @@ module.exports = new EntitySchema({
     meetingId: { type: 'int' },
     evaluatorId: { type: 'int' },
     evaluatedId: { type: 'int' },
-    mannerRating: { type: 'int' },
-    dogBehavior: { type: 'varchar', nullable: true },
-    comment: { type: 'text', nullable: true },
+    punctuality: { type: 'int' },
+    sociability: { type: 'int' },
+    aggressiveness: { type: 'int' },
     createdAt: { type: 'timestamp', createDate: true },
   },
   relations: {

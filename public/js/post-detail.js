@@ -27,8 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         writerSpan.innerHTML = `<button class="link-button" onclick="showProfile('${post.authorId}')">${post.authorId || '알 수 없음'}</button>`;
 
         const locSpan = document.getElementById('postLocation');
-        const locContainer = document.getElementById('locationContainer');
-        if (post.latitude != null && post.longitude != null) {
+        if (post.latitude != null && post.longitude != null && window.kakao) {
             const geocoder = new kakao.maps.services.Geocoder();
             geocoder.coord2Address(post.longitude, post.latitude, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {
@@ -44,17 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('postDate').textContent = new Date(post.created_at).toLocaleString();
         document.getElementById('postContent').textContent = post.content || '내용이 없습니다.';
 
-        if (post.latitude != null && post.longitude != null) {
+        if (post.latitude != null && post.longitude != null && window.kakao) {
            const mapContainer = document.getElementById('map');
            const map = new kakao.maps.Map(mapContainer, {
-           center: new kakao.maps.LatLng(post.latitude, post.longitude),
-           level: 4
+               center: new kakao.maps.LatLng(post.latitude, post.longitude),
+               level: 4
            });
-        new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(post.latitude, post.longitude),
-    draggable: false  // 비편집용 마커
-  }).setMap(map);
-}
+            new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(post.latitude, post.longitude),
+                map: map
+            });
+        }
 
         // 버튼 표시 로직
         const isAuthor = loginId && post.authorId && loginId === post.authorId.toString();
@@ -81,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => {
         console.error(err);
         alert(err.message);
+        window.location.href = '/post-list';
     });
 });
 

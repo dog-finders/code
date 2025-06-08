@@ -14,12 +14,15 @@ module.exports = new EntitySchema({
     birthdate: { type: 'varchar', length: 10 },
     email: { type: 'varchar', length: 50, unique: true },
     address: { type: 'varchar', nullable: true },
-    rating: { type: 'int', nullable: true },
     personality: {
       type: 'enum',
       enum: ['ACTIVE', 'CALM', 'SOCIAL', 'SHY'],
       nullable: true,
     },
+    // 신규 평균 점수 컬럼
+    avgPunctuality: { type: 'float', precision: 3, scale: 1, default: 0 },
+    avgSociability: { type: 'float', precision: 3, scale: 1, default: 0 },
+    avgAggressiveness: { type: 'float', precision: 3, scale: 1, default: 0 },
   },
   relations: {
     recruits: {

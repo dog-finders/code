@@ -9,26 +9,33 @@
 </head>
 <body>
   <aside class="sidebar">
-    <h2>도그파인더스</h2>
+    <a href="/index" style="text-decoration: none; color: inherit;">
+      <h2>도그파인더스</h2>
+    </a>
     <ul>
-      <li><a href="/index">홈</a></li>
-      <li><a href="/map">지도</a></li>
-      <li><a href="/mypage">마이페이지</a></li>
-      <li><a href="/mailbox">메일함</a></li>
-      <li><a href="/post-list">게시글 목록</a></li>
-      <li><a href="/gather">모임(모집글)</a></li>
-      <li><a href="/login">로그인</a></li>
+      <li><a id="nav-mypage" href="/mypage">마이페이지</a></li>
+      <li><a id="nav-list" href="/post-list">모집글</a></li>
+      <li><a id="nav-gather" href="/gather">모임</a></li>
+      <li><a id="nav-mailbox" href="/mailbox">메일함</a></li>
+      <li><a id="nav-login" href="/login">로그인</a></li>
     </ul>
   </aside>
 
   <main class="main">
+    <header class="main-header">
+      <nav class="user-nav">
+        <a href="/mypage" id="header-mypage" style="display: none;">마이페이지</a>
+        <a href="#" id="header-logout" style="display: none;">로그아웃</a>
+      </nav>
+    </header>
+
     <div class="form-card">
       <h1>모임은 즐거우셨나요?</h1>
       <p>함께한 멤버들에 대한 평가를 남겨주세요. 평가는 커뮤니티를 더 신뢰있게 만듭니다.</p>
       
       <form id="evaluationForm">
         <div id="membersContainer"></div>
-        <button type="submit" class="btn btn-primary">평가 완료 및 산책 종료</button>
+        <button type="submit" class="btn btn-primary">평가 완료</button>
       </form>
     </div>
   </main>
