@@ -1,5 +1,6 @@
 const recruitService = require('../service/recruitService');
-const { getRepository } = require('typeorm');
+// [삭제] const { getRepository } = require('typeorm');
+const { AppDataSource } = require('../../../global/config/typeOrmConfig'); // [수정] AppDataSource를 직접 import
 const User = require('../../user/entity/User');
 
 module.exports = {
@@ -15,7 +16,8 @@ module.exports = {
         return res.status(400).json({ message: '모든 항목(제목, 내용, 마감일, 위도, 경도)을 입력해 주세요.' });
       }
 
-      const userRepo = getRepository(User);
+      // [수정] getRepository(User) 대신 AppDataSource.getRepository(User) 사용
+      const userRepo = AppDataSource.getRepository(User);
       const user = await userRepo.findOne({ where: { id: userId } });
       if (!user) {
         return res.status(401).json({ message: '유효하지 않은 사용자입니다.' });
