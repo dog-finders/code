@@ -1,78 +1,115 @@
 #!/usr/bin/env node
 
 /**
- * Module dependencies.
+ * 1. 모듈 의존성
  */
+const app = require('../app');
+const { AppDataSource } = require('../backend/global/config/typeOrmConfig');
+const { LessThan } = require('typeorm');
+const Recruit = require('../backend/domain/recruit/entity/Recruit');
+const Meeting = require('../backend/domain/meeting/entity/Meeting');
+const MeetingMember = require('../backend/domain/meeting/entity/MeetingMember');
+const debug = require('debug')('20210903pm:server');
+const http = require('http');
 
-var app = require('../app');        // 반드시 '../app' (code/app.js)
-var debug = require('debug')('code:server');
-var http  = require('http');
-
-const port = process.env.PORT || 3000;
-
+/**
+ * 2. 포트 설정 및 정규화
+ */
+const port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
 
-var server = http.createServer(app);
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+/**
+ * 3. 만료된 모집글 자동 마감 스케줄러 함수
+ */
+const checkAndCloseExpiredRecruits = async () => {
+    console.log('[Scheduler] 만료된 모집글 확인 작업을 실행합니다.');
+    const recruitRepo = AppDataSource.getRepository(Recruit);
+    try {
+        const now = new Date();
+        const expiredRecruits = await recruitRepo.find({
+            where: { is_closed: false, close_at: LessThan(now) }
+        });
+
+        if (expiredRecruits.length > 0) {
+            console.log(`[Scheduler] ${expiredRecruits.length}개의 만료된 모집글을 찾았습니다.`);
+            for (const recruit of expiredRecruits) {
+                await AppDataSource.manager.transaction(async em => {
+                    const meeting = await em.findOne(Meeting, { where: { recruitId: recruit.id } });
+                    if (meeting) {
+                        await em.delete(MeetingMember, { meetingId: meeting.id });
+                        await em.delete(Meeting, { id: meeting.id });
+                    }
+                    await em.delete(Recruit, { id: recruit.id });
+                    console.log(`[Scheduler] 모집글 ID: ${recruit.id}가 자동으로 마감(삭제)되었습니다.`);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('[Scheduler] 자동 마감 작업 중 오류가 발생했습니다:', error);
+    }
+};
 
 /**
- * Normalize a port into a number, string, or false.
+ * 4. 데이터베이스 초기화 및 서버 실행
+ */
+AppDataSource.initialize()
+    .then(() => {
+        console.log("Data Source has been initialized!");
+
+        const server = http.createServer(app);
+        server.listen(port);
+        server.on('error', onError);
+        server.on('listening', () => {
+            const addr = server.address();
+            const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+            debug('Listening on ' + bind);
+            console.log(`서버 실행 중: http://localhost:${addr.port}`); // 안정성을 위해 addr.port 사용
+
+            // 서버가 성공적으로 시작되면 스케줄러 실행
+            setInterval(checkAndCloseExpiredRecruits, 60000); // 1분에 한 번씩 실행
+            checkAndCloseExpiredRecruits(); // 서버 시작 시 즉시 1회 실행
+        });
+    })
+    .catch((err) => {
+        console.error("Error during Data Source initialization", err);
+    });
+
+/**
+ * 5. Helper Functions
  */
 
+// 포트 번호를 정규화하는 함수
 function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
+    const port = parseInt(val, 10);
+    if (isNaN(port)) {
+        return val;
+    }
+    if (port >= 0) {
+        return port;
+    }
+    return false;
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
-
+// HTTP 서버 에러 이벤트 리스너
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }

@@ -39,4 +39,8 @@ router.get('/', userController.getAllUsers);
 
 // 특정 사용자 조회
 router.get('/:id', userController.getUserById);
+
+// 다른 사람의 프로필 정보 조회 (loginId 기반)
+router.get('/profile/:loginId', userController.getUserProfile);
+
 module.exports = router;

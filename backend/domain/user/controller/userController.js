@@ -10,6 +10,7 @@ exports.getUserById = (req, res) => {
     res.send(`사용자 조회: ${req.params.id}`);
 };
 
+// 현재 로그인한 사용자 정보 조회
 exports.getCurrentUser = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -30,6 +31,22 @@ exports.getCurrentUser = async (req, res) => {
     }
 };
 
+/**
+ * 다른 사용자의 프로필 정보(펫 정보 포함)를 조회합니다.
+ * 이 함수는 이전에 수정한 부분입니다.
+ */
+exports.getUserProfile = async (req, res) => {
+    try {
+        const { loginId } = req.params;
+        const profileData = await userService.getUserProfileByLoginId(loginId);
+        res.json(profileData);
+    } catch (error) {
+        console.error('getUserProfile error:', error);
+        res.status(404).json({ message: error.message });
+    }
+};
+
+// 현재 로그인한 사용자 정보 업데이트
 exports.updateUser = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -55,7 +72,7 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-// 로그인a
+// 로그인
 exports.login = async (req, res) => {
     try {
         const { loginId, password } = req.body;
@@ -81,6 +98,8 @@ exports.login = async (req, res) => {
         });
     }
 };
+
+// 로그아웃
 exports.logout = async (req, res) => {
     try {
         if (req.session) {
@@ -93,8 +112,8 @@ exports.logout = async (req, res) => {
                     throw err;
                 }
 
-                // 쿠키 삭제
-                res.clearCookie('sessionId');
+                // 쿠키 삭제 (세션 미들웨어 설정에 따라 쿠키 이름이 다를 수 있음)
+                res.clearCookie('connect.sid'); // 기본 세션 쿠키 이름
                 res.json({
                     success: true,
                     message: '로그아웃 성공',

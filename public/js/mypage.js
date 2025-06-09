@@ -13,11 +13,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentUserData = null;
 
+  // --- 여기부터 renderUserSection 함수를 교체했습니다 ---
   // 사용자 정보 섹션 렌더링 함수
   const renderUserSection = (isEditing = false) => {
     if (!currentUserData) return;
+
+    // (수정) 평점 정보를 표시하는 HTML 구조 변경
+    const ratingsHtml = `
+        <div class="info-item-full-width">
+            <strong>평점</strong>
+            <div class="rating-details">
+                <p><span>시간 약속:</span> ${currentUserData.avgPunctuality || '평가 없음'}</p>
+                <p><span>펫 사회성:</span> ${currentUserData.avgSociability || '평가 없음'}</p>
+                <p><span>펫 공격성:</span> ${currentUserData.avgAggressiveness || '평가 없음'}</p>
+            </div>
+        </div>
+    `;
+
     let content = '';
     if (isEditing) {
+      // --- 정보 수정 화면 ---
       content = `
                 <div class="profile-section">
                     <div class="section-header"><h2>내 정보 수정</h2></div>
@@ -37,12 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             </select>
                         </div>
                     </div>
+                    ${ratingsHtml}
                     <div class="button-group">
                         <button class="btn btn-primary" id="save-user-btn">저장</button>
                         <button class="btn btn-secondary" id="cancel-user-btn">취소</button>
                     </div>
                 </div>`;
     } else {
+      // --- 정보 보기 화면 ---
       content = `
                 <div class="profile-section">
                     <div class="section-header">
@@ -57,11 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="info-item"><strong>주소</strong><p>${currentUserData.address || '미입력'}</p></div>
                         <div class="info-item"><strong>성격</strong><p>${currentUserData.personality || '미입력'}</p></div>
                     </div>
+                    ${ratingsHtml}
                 </div>`;
     }
     userProfileSection.innerHTML = content;
     attachUserButtonListeners(isEditing);
-  };
+};
 
   const attachUserButtonListeners = (isEditing) => {
     if (isEditing) {
@@ -194,11 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // --- [핵심 수정] 반려동물 개별 저장/수정 함수 ---
-  // public/js/mypage.js 파일에서 이 함수만 교체하세요.
-
   const savePetData = async (card, pet) => {
-    // 1. 폼에서 데이터 수집
     const petData = {
       name: card.querySelector('.pet-name').value,
       birth: card.querySelector('.pet-birth').value,
@@ -207,16 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const imageFile = card.querySelector('.pet-image')?.files[0];
 
-    console.log("--- 1. savePetData 시작 ---");
-    console.log("선택된 이미지 파일:", imageFile);
-
     try {
-      // 2. 텍스트 정보 먼저 저장/수정
       const url = pet.id ? `/api/pets/${pet.id}` : '/api/pets';
       const method = pet.id ? 'PUT' : 'POST';
-
-      console.log(`--- 2. 텍스트 정보 저장 요청 ---`);
-      console.log(`URL: ${method} ${url}`);
 
       const textRes = await fetch(url, {
         method: method,
@@ -227,19 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const savedPet = await textRes.json();
       if(!textRes.ok) throw new Error(savedPet.message || '반려동물 정보 저장에 실패했습니다.');
 
-      console.log("--- 3. 텍스트 정보 저장 성공 ---");
-      console.log("서버로부터 반환된 펫 정보:", savedPet);
-
-      // 3. 이미지가 있으면, 반환된 ID로 이미지 업로드
       if (imageFile) {
         const petId = savedPet.id;
-
         if (!petId) {
-          console.error("저장된 펫 정보에서 ID를 찾을 수 없습니다!");
           throw new Error("이미지 업로드를 위한 Pet ID가 없습니다.");
         }
 
-        console.log(`--- 4. 이미지 업로드 시작 (Pet ID: ${petId}) ---`);
         const formData = new FormData();
         formData.append('petImage', imageFile);
 
@@ -248,17 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
           body: formData,
         });
 
-        console.log("--- 5. 이미지 업로드 요청에 대한 서버 응답 ---", imageRes);
-
         if (!imageRes.ok) {
           const errData = await imageRes.json();
-          console.error("이미지 업로드 실패 응답:", errData);
           throw new Error('이미지 업로드에 실패했습니다.');
         }
-        console.log("--- 6. 이미지 업로드 성공! ---");
       }
 
-      renderPetList(); // 성공 시 목록 전체 새로고침
+      renderPetList();
       alert('저장되었습니다.');
 
     } catch(err) {

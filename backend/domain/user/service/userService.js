@@ -1,6 +1,8 @@
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const bcrypt = require('bcrypt');
 const userRepository = require('../repository/userRepository');
+const petRepository = require('../../pet/repository/petRepository'); // 펫 레포지토리 추가
+
 // 아이디 중복 체크 함수
 const checkDuplicateLoginId = async (loginId) => {
     try {
@@ -82,6 +84,24 @@ const findByLoginId = async (loginId) => {
     return user;
 };
 
+/**
+ * loginId로 사용자 프로필(사용자 정보 + 펫 정보)을 조회합니다.
+ * 이전에 프로필 모달 기능을 위해 추가한 함수입니다.
+ */
+const getUserProfileByLoginId = async (loginId) => {
+    const user = await userRepository.findByLoginId(loginId);
+    if (!user) {
+        throw new Error('사용자를 찾을 수 없습니다.');
+    }
+
+    const pets = await petRepository.findByUserId(user.id);
+
+    // 비밀번호 등 민감한 정보 제외
+    const { password, ...userWithoutPassword } = user;
+
+    return { user: userWithoutPassword, pets };
+};
+
 const login = async (loginId, password) => {
     try {
         const user = await findByLoginId(loginId);
@@ -127,4 +147,5 @@ module.exports = {
     logout,
     checkDuplicateLoginId,
     updateUser,
+    getUserProfileByLoginId, // 새로 추가한 함수
 };

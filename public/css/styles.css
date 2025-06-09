@@ -662,6 +662,36 @@ a.btn:hover {
   object-fit: cover;
   border-radius: 6px;
 }
+/* 마이페이지 평점 섹션 스타일 */
+.info-item-full-width {
+    grid-column: 1 / -1; /* 그리드 한 줄을 모두 사용 */
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.info-item-full-width > strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.rating-details {
+    padding-left: 1rem; /* 들여쓰기 효과 */
+}
+
+.rating-details p {
+    margin: 0.25rem 0;
+    color: #333;
+}
+
+.rating-details p span {
+    display: inline-block;
+    width: 80px; /* 항목 이름 너비 고정 */
+    font-weight: bold;
+    color: #555;
+}
 
 /* 버튼 그룹 정렬 */
 .button-group {
@@ -669,4 +699,64 @@ a.btn:hover {
   gap: 0.5rem;
   justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
   margin-top: 1.5rem;
+}
+
+/* 프로필 모달 반려동물 리스트 스타일 */
+#profile-pets-list ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+#profile-pets-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#profile-pets-list li:last-child {
+    border-bottom: none;
+}
+
+.profile-pet-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #eee;
+    background-color: #f9f9f9;
+}
+
+/* 이미지가 없을 때 보일 기본 박스 */
+.profile-pet-image-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+    background-color: #e0e0e0;
+    border: 2px solid #ccc;
+}
+
+
+.profile-pet-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-pet-info strong {
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.profile-pet-info span {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.profile-pet-info p {
+    margin: 5px 0 0 0;
+    font-size: 0.9em;
+    color: #333;
 }
