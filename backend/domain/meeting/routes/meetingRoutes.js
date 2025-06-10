@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/meetings/by-recruit/:recruitId - 모집글 ID로 모임 상세 조회 (신규 추가)
+// GET /api/meetings/by-recruit/:recruitId - 모집글 ID로 모임 상세 조회
 router.get('/by-recruit/:recruitId', async (req, res) => {
     try {
         const recruitId = parseInt(req.params.recruitId, 10);

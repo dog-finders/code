@@ -7,12 +7,12 @@ module.exports = new EntitySchema({
     id: { type: Number, primary: true, generated: true },
     title: { type: String },
     hostId: { type: String },
-    hostName: { type: String },   // ★ 추가됨
+    hostName: { type: String },  
     createdAt: { type: "datetime", default: () => "CURRENT_TIMESTAMP" },
-    recruitId: { type: Number, nullable: true }, // ★ 추가됨
+    recruitId: { type: Number, nullable: true }, 
   },
   relations: {
-    // ★ Recruit 엔티티와 ManyToOne 관계 설정
+    // Recruit 엔티티와 ManyToOne 관계 설정
     recruit: {
       type: "many-to-one",
       target: "Recruit",

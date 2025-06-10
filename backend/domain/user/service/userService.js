@@ -22,7 +22,7 @@ const createUser = async (userData) => {
         const { username, password, name, address, phone, email, birthdate } =
             userData;
 
-        // 아이디 중복 체크
+// 아이디 중복 체크
         const isDuplicate = await checkDuplicateLoginId(username);
         if (isDuplicate) {
             throw new Error('이미 사용 중인 아이디입니다.');
@@ -40,6 +40,7 @@ const createUser = async (userData) => {
             email,
             birthdate,
         });
+
         console.log('[createUser] User entity created:', user);
 
         const savedUser = await userRepository.save(user);

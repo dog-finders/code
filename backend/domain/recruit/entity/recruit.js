@@ -9,8 +9,6 @@ module.exports = new EntitySchema({
     content: { type: 'text' },
     close_at: { type: 'datetime' },
     is_closed: { type: 'boolean', default: false },
-
-    // 추가된 컬럼
     latitude: { type: 'double' },
     longitude: { type: 'double' },
     location: { type: 'varchar', nullable: true },

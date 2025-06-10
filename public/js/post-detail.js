@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const attendBtn = document.getElementById('attendPostBtn');
         const deleteBtn = document.getElementById('deletePostBtn');
         const closeBtn = document.getElementById('closePostBtn');
+        const messageSection = document.getElementById('attendMessageSection');
 
         if (isAuthor) {
             deleteBtn.style.display = 'inline-block';
@@ -74,7 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteBtn.onclick = () => handleAction('DELETE', `/api/recruit/${postId}`, '정말 이 게시글을 삭제하시겠습니까?', '게시글이 삭제되었습니다.', true);
         } else if (loginId) {
             attendBtn.style.display = 'inline-block';
-            attendBtn.onclick = () => handleAction('POST', `/api/attend/recruit/${postId}`, '이 모임에 참석을 요청하시겠습니까?');
+            messageSection.style.display = 'block';
+            attendBtn.onclick = () => {
+                const message = document.getElementById('attendMessage').value;
+                handleAction(
+                    'POST',
+                    `/api/attend/recruit/${postId}`,
+                    '이 모임에 참석을 요청하시겠습니까?',
+                    '',
+                    false,
+                    { message }
+                );
+            };
         }
     })
     .catch(err => {
@@ -84,10 +96,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-async function handleAction(method, url, confirmMsg, successMsg = '', shouldRedirect = false) {
+async function handleAction(method, url, confirmMsg, successMsg = '', shouldRedirect = false, body = null) {
     if (confirm(confirmMsg)) {
         try {
-            const res = await fetch(url, { method });
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const res = await fetch(url, options);
             const result = await res.json();
 
             if (!res.ok) throw new Error(result.message || '요청에 실패했습니다.');
@@ -96,7 +117,7 @@ async function handleAction(method, url, confirmMsg, successMsg = '', shouldRedi
 
             if (shouldRedirect) {
                 window.location.href = '/post-list';
-            } else {
+            } else if (method !== 'DELETE') {
                 window.location.reload();
             }
         } catch (err) {

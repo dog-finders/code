@@ -10,6 +10,7 @@ exports.createAttendRequest = async (req, res) => {
   try {
     const applicantId = req.session.userId;
     const recruitId = parseInt(req.params.recruitId, 10);
+    const { message } = req.body; // 요청 body에서 message를 받아옵니다.
 
     const userRepo = AppDataSource.getRepository(User);
     const recruitRepo = AppDataSource.getRepository(Recruit);
@@ -36,6 +37,7 @@ exports.createAttendRequest = async (req, res) => {
       applicantId,
       applicantLoginId: applicant.loginId,
       recruitTitle: recruit.title,
+      message: message || null, // newRequest에 message를 추가합니다.
     });
 
     await attendRepo.save(newRequest);
@@ -98,7 +100,7 @@ exports.acceptAttendRequest = async (req, res) => {
     }
 };
 
-// 참석 요청 거절 (추가된 함수)
+// 참석 요청 거절
 exports.rejectAttendRequest = async (req, res) => {
     const attendId = parseInt(req.params.attendId, 10);
     const hostId = req.session.userId;

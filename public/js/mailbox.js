@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         requestListTbody.innerHTML = '';
 
         if (requests.length === 0) {
-            requestListTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">받은 참석 요청이 없습니다.</td></tr>';
+            requestListTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">받은 참석 요청이 없습니다.</td></tr>';
             return;
         }
 
@@ -19,14 +19,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             tr.id = `request-${req.id}`;
             const formattedDate = new Date(req.createdAt).toLocaleString();
             tr.innerHTML = `
-        <td><button class="link-button" onclick="showProfile('${req.applicantLoginId}')">${req.applicantLoginId}</button></td>
-        <td>'<strong>${req.recruitTitle}</strong>' 게시글에 참석 요청을 보냈습니다.</td>
-        <td>${formattedDate}</td>
-        <td>
-          <button class="btn btn-primary btn-sm" onclick="handleAccept(${req.id})">수락</button>
-          <button class="btn btn-danger btn-sm" onclick="handleReject(${req.id})">거절</button>
-        </td>
-      `;
+              <td><button class="link-button" onclick="showProfile('${req.applicantLoginId}')">${req.applicantLoginId}</button></td>
+              <td>'<strong>${req.recruitTitle}</strong>' 게시글에 참석 요청을 보냈습니다.</td>
+              <td>${req.message || '(내용 없음)'}</td>
+              <td>${formattedDate}</td>
+              <td>
+                <button class="btn btn-primary btn-sm" onclick="handleAccept(${req.id})">수락</button>
+                <button class="btn btn-danger btn-sm" onclick="handleReject(${req.id})">거절</button>
+              </td>
+            `;
             requestListTbody.appendChild(tr);
         });
     } catch (error) {

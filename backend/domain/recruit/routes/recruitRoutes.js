@@ -1,6 +1,6 @@
 const express = require('express');
 const { Like } = require('typeorm');
-const { AppDataSource } = require('../../../global/config/typeOrmConfig'); // 수정: 올바른 상대경로
+const { AppDataSource } = require('../../../global/config/typeOrmConfig'); 
 const Recruit = require('../entity/Recruit');
 const User = require('../../user/entity/User');
 const Meeting = require('../../meeting/entity/Meeting');

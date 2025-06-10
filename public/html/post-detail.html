@@ -5,13 +5,6 @@
   <title>모집글 상세 - 도그 파인더스</title>
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=47f0e9a41ccbe53d69beb528e5b94cd4&libraries=services"></script>
-  <style>
-    .link-button { background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; font-size: inherit; font-family: inherit; padding: 0; }
-    .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); display: none; }
-    .modal-content { background-color: #fff; margin: 15% auto; padding: 20px; width: 320px; border-radius: 8px; position: relative; }
-    .close { position: absolute; right: 10px; top: 10px; font-size: 24px; font-weight: bold; cursor: pointer; }
-    #map { width: 5000px; height:500px; margin-top:15px; border-radius:8px; }
-  </style>
 </head>
 <body>
 <aside class="sidebar">
@@ -39,6 +32,11 @@
   <hr />
   <p id="postContent">내용이 없습니다.</p>
   <div id="map"></div>
+
+  <div id="attendMessageSection" style="display:none; margin-top: 15px;">
+    <label for="attendMessage">호스트에게 보낼 쪽지:</label>
+    <textarea id="attendMessage" rows="3" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+  </div>
 
   <a href="/post-list" class="btn btn-secondary">목록으로</a>
   <button class="btn btn-primary" id="attendPostBtn" style="display:none;">참석 요청</button>

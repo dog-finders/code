@@ -760,3 +760,105 @@ a.btn:hover {
     font-size: 0.9em;
     color: #333;
 }
+
+/* 내용의 줄바꿈 및 자동 줄바꿈을 위한 스타일 추가 */
+#postContent, #recruitContent {
+  white-space: pre-wrap; /* 공백과 줄바꿈을 유지하며, 필요 시 자동 줄바꿈합니다. */
+  word-break: break-all;   /* 매우 긴 단어나 URL이 영역을 벗어나지 않도록 강제 줄바꿈합니다. */
+}
+
+/* 홈 페이지 메인 영역 스타일 */
+body[data-page="home"] .main {
+  padding: 0; /* 기본 패딩 제거 */
+  position: relative; /* 자식 요소의 절대 위치를 위한 기준점 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* 이미지 컨테이너: 메인 영역을 꽉 채우고 텍스트 뒤에 위치 */
+body[data-page="home"] .image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* 텍스트 오버레이보다 뒤에 위치 */
+}
+
+/* 이미지 스타일: 컨테이너를 비율에 맞게 꽉 채움 */
+body[data-page="home"] .pet-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지가 잘리지 않고 컨테이너를 채우도록 설정 */
+}
+
+/* 텍스트 오버레이: 이미지 위에 위치하며 가독성을 높임 */
+body[data-page="home"] .text-overlay {
+  position: relative; /* z-index를 적용하기 위해 position 설정 */
+  z-index: 2; /* 이미지 컨테이너보다 앞에 위치 */
+  color: white;
+  text-align: center;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+/* 텍스트에 그림자 효과 추가 */
+body[data-page="home"] .text-overlay h1,
+body[data-page="home"] .text-overlay p {
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+}
+
+/* --- Styles from post-detail.html and mailbox.html --- */
+
+.link-button {
+  background: none;
+  border: none;
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+}
+
+.modal {
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 20px;
+  width: 320px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* post-detail.html의 지도 스타일. width: 5000px -> 100%로 수정하여 레이아웃 깨짐 방지 */
+#map {
+  width: 100%;
+  height: 500px;
+  margin-top: 15px;
+  border-radius: 8px;
+}

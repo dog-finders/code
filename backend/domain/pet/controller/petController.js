@@ -51,7 +51,7 @@ exports.deletePet = async (req, res) => {
     }
 };
 
-// 여러 마리 일괄 저장/수정 (레거시, 현재는 사용되지 않음)
+// 여러 마리 일괄 저장/수정
 exports.updatePetsBulk = async (req, res) => {
     try {
         const userId = req.session.userId;

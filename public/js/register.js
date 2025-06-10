@@ -83,6 +83,7 @@ window.addEventListener('load', () => {
             birthdate: document.getElementById('birthdate').value,
         };
 
+
         console.log('registerForm submit', userData);
 
         // 서버에 회원가입 요청

@@ -8,7 +8,7 @@ const { upload } = require('../../../global/config/typeOrmConfig');
 // 모든 pet API는 로그인이 필요합니다.
 router.use(isAuth);
 
-// [중요] 구체적인 경로를 와일드카드(:id)보다 먼저 정의합니다.
+// 구체적인 경로를 와일드카드(:id)보다 먼저 정의합니다.
 router.put('/bulk', petController.updatePetsBulk);
 
 // --- 기본 CRUD 라우트 ---

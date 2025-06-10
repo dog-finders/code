@@ -12,6 +12,8 @@ module.exports = new EntitySchema({
       enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
       default: 'PENDING',
     },
+    // 쪽지 내용을 저장할 컬럼
+    message: { type: 'text', nullable: true },
     // 모집글 작성자 (호스트) 의 숫자 ID
     hostId: { type: 'int' },
     // 신청자(applicant)의 숫자 ID
