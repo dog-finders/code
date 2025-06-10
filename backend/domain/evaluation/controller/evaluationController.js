@@ -33,7 +33,7 @@ exports.submitEvaluations = async (req, res) => {
         aggressiveness: parseInt(aggressiveness, 10),
       });
 
-      // 수정된 부분: save 메소드에 엔티티 스키마를 함께 전달
+      // save 메소드에 엔티티 스키마를 함께 전달
       await queryRunner.manager.save(Evaluation, evaluation);
 
       // 평균 점수 재계산
