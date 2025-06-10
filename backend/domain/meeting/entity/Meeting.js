@@ -1,3 +1,5 @@
+// backend/domain/meeting/entity/Meeting.js
+
 const { EntitySchema } = require("typeorm");
 
 module.exports = new EntitySchema({
@@ -12,13 +14,14 @@ module.exports = new EntitySchema({
     recruitId: { type: Number, nullable: true }, 
   },
   relations: {
-    // Recruit 엔티티와 ManyToOne 관계 설정
+    // Recruit 엔티티와 관계 설정
     recruit: {
       type: "many-to-one",
       target: "Recruit",
       joinColumn: { name: "recruitId", referencedColumnName: "id" },
       nullable: true,
-      eager: false
+      eager: false,
+      onDelete: 'CASCADE', 
     }
   }
 });

@@ -20,7 +20,7 @@ router.get('/check-auth', (req, res) => {
     }
 });
 
-// 회원가입 처리a
+// 회원가입 처리
 router.post('/signup', userController.registerUser);
 
 // 로그인 라우트
@@ -34,6 +34,7 @@ router.get('/me', isAuth, userController.getCurrentUser);
 
 // 현재 로그인한 사용자 정보 업데이트
 router.put('/me', isAuth, userController.updateUser);
+
 // 모든 사용자 조회
 router.get('/', userController.getAllUsers);
 
