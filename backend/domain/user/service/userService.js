@@ -1,9 +1,9 @@
 const { AppDataSource } = require('../../../global/config/typeOrmConfig');
 const bcrypt = require('bcrypt');
 const userRepository = require('../repository/userRepository');
-const petRepository = require('../../pet/repository/petRepository'); // 펫 레포지토리 추가
+const petRepository = require('../../pet/repository/petRepository');
 
-// 아이디 중복 체크 함수
+// 아이디 중복을 체크합니다.
 const checkDuplicateLoginId = async (loginId) => {
     try {
         const existingUser = await findByLoginId(loginId);
@@ -14,16 +14,15 @@ const checkDuplicateLoginId = async (loginId) => {
     }
 };
 
-// createUser 함수 수정
+// 새로운 사용자를 생성합니다.
 const createUser = async (userData) => {
     try {
         console.log('[createUser] Received userData:', userData);
-        // username을 loginId 필드에 매핑
-        const { username, password, name, address, phone, email, birthdate } =
-            userData;
+        
+        const { loginId, password, name, address, phone, email, birthdate } = userData;
 
-// 아이디 중복 체크
-        const isDuplicate = await checkDuplicateLoginId(username);
+        // 아이디 중복 체크
+        const isDuplicate = await checkDuplicateLoginId(loginId);
         if (isDuplicate) {
             throw new Error('이미 사용 중인 아이디입니다.');
         }
@@ -32,7 +31,7 @@ const createUser = async (userData) => {
         console.log('[createUser] Hashed password generated');
 
         const user = userRepository.create({
-            loginId: username,
+            loginId: loginId,
             password: hashedPassword,
             name,
             address,
@@ -53,6 +52,7 @@ const createUser = async (userData) => {
     }
 };
 
+// 특정 사용자의 정보를 업데이트합니다.
 const updateUser = async (id, userData) => {
     const user = await userRepository.findById(id);
     console.log('[updateUser] 요청받은 ID:', id);
@@ -61,7 +61,7 @@ const updateUser = async (id, userData) => {
         throw new Error('사용자를 찾을 수 없습니다');
     }
 
-    // 비밀번호 변경이 있는 경우 암호화 처리 필요
+    // 비밀번호가 변경된 경우, 새로 암호화하여 저장합니다.
     if (userData.password) {
         const bcrypt = require('bcrypt');
         const saltRounds = 10;
@@ -71,6 +71,7 @@ const updateUser = async (id, userData) => {
     return await userRepository.update(id, userData);
 };
 
+// ID로 사용자를 찾습니다.
 const findById = async (id) => {
     console.log('[findById] 요청받은 ID:', id);
     const user = await userRepository.findById(id);
@@ -78,17 +79,14 @@ const findById = async (id) => {
     return user;
 };
 
-// loginId로 사용자 찾기
+// 로그인 ID로 사용자를 찾습니다.
 const findByLoginId = async (loginId) => {
     const user = await userRepository.findByLoginId(loginId);
     console.log('[findByLoginId] user:', user);
     return user;
 };
 
-/**
- * loginId로 사용자 프로필(사용자 정보 + 펫 정보)을 조회합니다.
- * 이전에 프로필 모달 기능을 위해 추가한 함수입니다.
- */
+// 사용자의 프로필 정보(사용자 정보 + 반려동물 목록)를 조회합니다.
 const getUserProfileByLoginId = async (loginId) => {
     const user = await userRepository.findByLoginId(loginId);
     if (!user) {
@@ -97,12 +95,13 @@ const getUserProfileByLoginId = async (loginId) => {
 
     const pets = await petRepository.findByUserId(user.id);
 
-    // 비밀번호 등 민감한 정보 제외
+    // 응답에서 비밀번호 등 민감한 정보를 제외합니다.
     const { password, ...userWithoutPassword } = user;
 
     return { user: userWithoutPassword, pets };
 };
 
+// 로그인 처리를 합니다.
 const login = async (loginId, password) => {
     try {
         const user = await findByLoginId(loginId);
@@ -115,7 +114,7 @@ const login = async (loginId, password) => {
             throw new Error('비밀번호가 일치하지 않습니다.');
         }
 
-        // 비밀번호를 제외한 사용자 정보 반환
+        // 응답에서 비밀번호를 제외한 사용자 정보를 반환합니다.
         const { password: _, ...userWithoutPassword } = user;
         return userWithoutPassword;
     } catch (error) {
@@ -124,6 +123,7 @@ const login = async (loginId, password) => {
     }
 };
 
+// 로그아웃 처리를 합니다.
 const logout = async (sessionId) => {
     try {
         // 세션 관련 추가 로직이 필요한 경우 여기에 구현
@@ -134,7 +134,7 @@ const logout = async (sessionId) => {
     }
 };
 
-// email로 사용자 찾기 (옵션)
+// 이메일로 사용자를 찾습니다. (옵션)
 const findByEmail = async (email) => {
     const userRepository = AppDataSource.getRepository('User');
     return await userRepository.findOne({ where: { email } });
@@ -148,5 +148,5 @@ module.exports = {
     logout,
     checkDuplicateLoginId,
     updateUser,
-    getUserProfileByLoginId, // 새로 추가한 함수
+    getUserProfileByLoginId,
 };

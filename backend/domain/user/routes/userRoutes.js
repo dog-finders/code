@@ -21,7 +21,7 @@ router.get('/check-auth', (req, res) => {
 });
 
 // 회원가입 처리
-router.post('/signup', userController.registerUser);
+router.post('/register', userController.registerUser);
 
 // 로그인 라우트
 router.post('/login', userController.login);

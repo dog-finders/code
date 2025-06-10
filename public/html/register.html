@@ -35,14 +35,14 @@
     <div class="input-form">
       <form class="needs-validation" novalidate id="registerForm">
         <div class="form-group">
-          <label for="username">아이디</label>
+          <label for="loginId">아이디</label>
           <div class="input-group">
-            <input type="text" class="form-control" id="username" required />
+            <input type="text" class="form-control" id="loginId" required />
             <div class="input-group-append">
               <button class="btn btn-outline-secondary" type="button" id="checkUsernameBtn">중복 확인</button>
             </div>
           </div>
-          <div id="username-feedback" class="feedback-message mt-1 text-danger"></div>
+          <div id="loginId-feedback" class="feedback-message mt-1 text-danger"></div>
         </div>
 
         <div class="form-group">
@@ -62,8 +62,13 @@
         </div>
 
         <div class="form-group">
-          <label for="address">주소</label>
-          <input type="text" class="form-control" id="address" required />
+            <label for="address">주소</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="address" required />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="searchAddressBtn">주소 검색</button>
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
@@ -93,9 +98,6 @@
   </main>
 
   <script src="/js/scripts.js" defer></script>
-  <script src="/js/sidebar.js" defer></script>
-  <script>
-    // 동일한 기존 JS 코드
-  </script>
+  <script src="/js/register.js" defer></script>
 </body>
 </html>
